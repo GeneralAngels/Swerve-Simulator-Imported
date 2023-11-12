@@ -123,6 +123,8 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
             System.out.println(limelight.getEntry("json").toString());
             savedJson = true;
         }
+
+        // Update by DriveTrain:
         poseEstimator.update(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition());
 
         var current_pose = getCurrentPose();
