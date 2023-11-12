@@ -1,11 +1,15 @@
 package frc.robot.subsystems.NewDrive;
 
+import java.sql.Driver;
 import java.util.Collections;
 import java.util.List;
 
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import org.littletonrobotics.junction.Logger;
@@ -43,6 +47,11 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose2d.struct).publish();
 
+    private Pose3d robotPose;
+    private NetworkTable limelight = NetworkTableInstance.getDefault().getTable("limelight");
+    private double[] visionRet = new double[7];
+    private boolean savedJson = false;
+
     // Kalman Filter Configuration. These can be "tuned-to-taste" based on how much
     // you trust your various sensors. Smaller numbers will cause the filter to
     // "trust" the estimate from that particular component more than the others.
@@ -75,34 +84,44 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
         tab.add(field2d);
     }
 
+    public static DriverStation.Alliance get_alliance() {
+        var optional_ds_alliance = DriverStation.getAlliance();
+
+        if (optional_ds_alliance.isPresent()) {
+            return optional_ds_alliance.get();
+        }
+        else {
+            System.out.println("[WARNING] DRIVER STATION ALLIANCE WAS NOT PICKED YET");
+            var raw_station = DriverStation.getRawAllianceStation();
+
+            if (raw_station == AllianceStationID.Red1 || raw_station == AllianceStationID.Red2 || raw_station == AllianceStationID.Red3) {
+                return DriverStation.Alliance.Red;
+            }
+            else {
+                return DriverStation.Alliance.Blue;
+            }
+        }
+    }
+
     @Override
     public void periodic() {
         // Update pose estimator with visible targets
-        var res = photonCamera.getLatestResult();
-        if (res.hasTargets()) {
-            for (PhotonTrackedTarget target : res.getTargets()) {
-                var fiducialId = target.getFiducialId();
-                if (fiducialId >= 0 && fiducialId < targetPoses.size()) {
-                    var targetPose = targetPoses.get(fiducialId);
-                    var resultTimeStamp = res.getTimestampSeconds();
+        System.out.println(get_alliance());
+        if (get_alliance() == DriverStation.Alliance.Blue){
+            visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[7]);
+        }
+        else if (get_alliance() == DriverStation.Alliance.Red){
+            visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[7]);
+        }
 
-                    Transform3d camToTarget = target.getBestCameraToTarget();
-                    var transform = new Transform2d(
-                            camToTarget.getTranslation().toTranslation2d(),
-                            camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(90)));
+        robotPose = new Pose3d(visionRet[0], visionRet[1], visionRet[2],
+                new Rotation3d(visionRet[3], visionRet[4], visionRet[5]));
 
-                    Pose2d camPose = targetPose.transformBy(transform.inverse());
+        System.out.println(robotPose);
 
-                    var visionMeasurement = camPose.transformBy(CAMERA_TO_ROBOT);
-                    field2d.getObject("MyRobot" + fiducialId).setPose(visionMeasurement);
-                    // SmartDashboard.putString("Vision pose", String.format("(%.2f, %.2f) %.2f",
-                    //   visionMeasurement.getTranslation().getX(),
-                    //   visionMeasurement.getTranslation().getY(),
-                    //   visionMeasurement.getRotation().getDegrees()));
-                    poseEstimator.addVisionMeasurement(visionMeasurement, resultTimeStamp);
-                }
-            }
-            // Update pose estimator with drivetrain sensors
+        if (!savedJson) {
+            System.out.println(limelight.getEntry("json").toString());
+            savedJson = true;
         }
         poseEstimator.update(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition());
 
