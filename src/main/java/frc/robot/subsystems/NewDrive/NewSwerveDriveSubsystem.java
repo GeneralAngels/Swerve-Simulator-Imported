@@ -22,6 +22,8 @@ import frc.robot.subsystems.Drive.SwerveConstants;
 import com.pathplanner.lib.commands.*;
 
 public class NewSwerveDriveSubsystem extends SubsystemBase {
+    private static NewSwerveDriveSubsystem instance = null;
+ 
     SwerveDriveKinematics kinematics;
 
     SwerveModuleFalcon500[] swerveModules;
@@ -39,7 +41,12 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
     boolean limitingRotatingMaxVel = false;
 
     StopWatch simStopWatch = new StopWatch();
-
+    
+    public static NewSwerveDriveSubsystem getInstance() {
+        if (instance == null)
+            instance = NewSwerveDriveSubsystem.getDefaultSwerve();
+        return instance;
+    }
     /**
      *
      * @param swerveModules: the swerve modules list = [frontLeft, frontRight, backLeft, backRight]

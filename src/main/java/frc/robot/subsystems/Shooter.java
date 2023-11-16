@@ -9,33 +9,57 @@ import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
     public CANSparkMax m_flywheel_motor;
-    private static final int deviceId = 1;
+    private static final int flywheel_deviceId = 1;
     public SparkMaxPIDController m_flywheel_pidController;
-    private RelativeEncoder m_encoder;
+    private RelativeEncoder m_flywheel_encoder;
 
-    double Kp = 0.5;
-    double Ki = 0.0;
-    double Kd = 0.0;
-    double Kf = 946.0003255208334;
+    public CANSparkMax m_hood_motor;
+    public SparkMaxPIDController m_hood_PidController;
+    private RelativeEncoder m_hood_encoder;
+    private static final int hood_deviceId = 2;
+
 
     public double desiredVelocity = 0.0;
 
+    private static Shooter instance = null;
+
     public Shooter() {
-        m_flywheel_motor = new CANSparkMax(deviceId, CANSparkMaxLowLevel.MotorType.kBrushless);
+        // Initializng the flywheel motor
+        m_flywheel_motor = new CANSparkMax(flywheel_deviceId, CANSparkMaxLowLevel.MotorType.kBrushless);
         m_flywheel_motor.restoreFactoryDefaults();
 
         m_flywheel_pidController = m_flywheel_motor.getPIDController();
-        m_encoder = m_flywheel_motor.getEncoder();
+        m_flywheel_encoder = m_flywheel_motor.getEncoder();
 
-        m_flywheel_pidController.setP(Kp);
-        m_flywheel_pidController.setI(Ki);
-        m_flywheel_pidController.setD(Kd);
-        m_flywheel_pidController.setFF(Kf);
+        m_flywheel_pidController.setP(ShooterConstants.FLYWHEEL_P);
+        m_flywheel_pidController.setI(ShooterConstants.FLYWHEEL_I);
+        m_flywheel_pidController.setD(ShooterConstants.FLYWHEEL_D);
+        m_flywheel_pidController.setFF(ShooterConstants.FLYWHEEL_F);
         m_flywheel_pidController.setOutputRange(-1, 1);
 
         m_flywheel_motor.burnFlash();
 
+        // Initializing the hood motor
+        m_hood_motor = new CANSparkMax(hood_deviceId, CANSparkMaxLowLevel.MotorType.kBrushless);
+        m_hood_motor.restoreFactoryDefaults();
+
+        m_hood_PidController = m_hood_motor.getPIDController();
+        m_hood_encoder = m_hood_motor.getEncoder();
+
+        m_hood_PidController.setP(ShooterConstants.HOOD_P);
+        m_hood_PidController.setI(ShooterConstants.HOOD_I);
+        m_hood_PidController.setD(ShooterConstants.HOOD_D);
+
+        m_hood_motor.burnFlash();
+
         REVPhysicsSim.getInstance().addSparkMax(m_flywheel_motor, DCMotor.getNEO(1));
+        REVPhysicsSim.getInstance().addSparkMax(m_hood_motor, DCMotor.getNEO(1));
+    }
+
+    public static Shooter getInstance() {
+        if (instance == null)
+            instance = new Shooter();
+        return instance;
     }
 
     @Override
@@ -49,7 +73,11 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean atDesiredVelocity() {
-        return Math.abs(m_encoder.getVelocity() - desiredVelocity) <= 0.05;
+        return Math.abs(m_flywheel_encoder.getVelocity() - desiredVelocity) <= 0.05;
+    }
+
+    public void setHoodAngle() {
+        
     }
 
     public double getKf() {

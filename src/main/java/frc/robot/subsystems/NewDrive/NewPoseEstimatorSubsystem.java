@@ -33,6 +33,13 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
     private PhotonCamera photonCamera;
     private NewSwerveDriveSubsystem drive;
 
+    private static NewPoseEstimatorSubsystem instance = null;
+
+    public static NewPoseEstimatorSubsystem getInstance() {
+        if (instance == null)
+            instance = new NewPoseEstimatorSubsystem(new PhotonCamera(""), NewSwerveDriveSubsystem.getInstance());
+        return instance;
+    }
     // Physical location of the camera on the robot, relative to the center of the
     // robot.
     private static final Transform2d CAMERA_TO_ROBOT =
