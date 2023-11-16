@@ -24,6 +24,7 @@ import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 import frc.robot.subsystems.PoseEstimator;
 import com.pathplanner.lib.util.*;
 import com.pathplanner.lib.commands.*;
+import frc.robot.subsystems.Shooter;
 import org.photonvision.PhotonCamera;
 
 import java.util.ArrayList;
@@ -43,9 +44,13 @@ public class RobotContainer {
 
     public NewSwerveDriveSubsystem newSwerve = NewSwerveDriveSubsystem.getDefaultSwerve();
 
+    public Shooter shooter_subsystem = new Shooter();
+
     public NewPoseEstimatorSubsystem poseEstimatorSubsystem = new NewPoseEstimatorSubsystem(new PhotonCamera(""), newSwerve);
 
     private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+
+    AutosGenerator autosGenerator = new AutosGenerator(poseEstimatorSubsystem, newSwerve);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -64,11 +69,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
     }
 
-    public void func(Supplier<Double> supplier) {
-        System.out.println(supplier.get());
-    }
-
-    public List<PathPlannerPath> splitting_paths_into_segments(PathPlannerPath path_from_file) {
+    public static List<PathPlannerPath> splitting_paths_into_segments(PathPlannerPath path_from_file) {
         System.out.println(path_from_file);
 
         // Splitting path into segments:
@@ -85,7 +86,7 @@ public class RobotContainer {
                 System.out.println();
 
                 segment_index += 1;
-                
+
                 System.out.println("segment index: " + segment_index);
                 segments_list.add(new ArrayList<PathPoint>());
                 segments_list.get(segment_index).add(pathPoint);
@@ -106,7 +107,7 @@ public class RobotContainer {
             System.out.println("segment length: " + segment.size());
             PathPlannerPath path = PathPlannerPath.fromPathPoints(
                     segment,
-                    path_from_file.getGlobalConstraints(),
+                    segment.get(segment.size() / 2).constraints,
                     new GoalEndState(0, segment.get(segment.size() - 1).holonomicRotation));
 
             pathList.add(path);
@@ -126,6 +127,8 @@ public class RobotContainer {
         return pathList;
     }
 
+
+
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
@@ -133,57 +136,6 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
-        var wanted_speeds = new ChassisSpeeds(0.2, 1, Units.degreesToRadians(20));
-
-        PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Example Path");
-
-        List<PathPlannerPath> paths = splitting_paths_into_segments(path_from_file);
-
-        poseEstimatorSubsystem.setCurrentPose(path_from_file.getPreviewStartingHolonomicPose());
-
-        if (Robot.isSimulation()) {
-            newSwerve.pigeonSimCollection.setRawHeading(0);
-        }
-        newSwerve.pigeon2.setYaw(0);
-
-        var path_planner_command = new FollowPathHolonomic(
-                paths.get(0),
-                poseEstimatorSubsystem::getCurrentPose, // Robot pose supplier
-                newSwerve::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                newSwerve::setRelativeVelocities, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
-                        4.5, // Max module speed, in m/s
-                        0.91, // Drive base radius in meters. Distance from robot center to furthest module.
-                        new ReplanningConfig() // Default path replanning config. See the API for the options here
-                ),
-                newSwerve // Reference to this subsystem to set requirements
-        ).andThen(
-                new FollowPathHolonomic(
-                        paths.get(1),
-                        poseEstimatorSubsystem::getCurrentPose, // Robot pose supplier
-                        newSwerve::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                        newSwerve::setRelativeVelocities, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                                new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
-                                4.5, // Max module speed, in m/s
-                                0.91, // Drive base radius in meters. Distance from robot center to furthest module.
-                                new ReplanningConfig() // Default path replanning config. See the API for the options here
-                        ),
-                        newSwerve // Reference to this subsystem to set requirements
-            )
-        );
-
-        /*
-        return new RunCommand(
-                () -> {newSwerve.setAbsoluteVelocities(wanted_speeds);},
-                newSwerve
-        ).withTimeout(30).andThen(new InstantCommand(() -> {newSwerve.setRelativeVelocities(new ChassisSpeeds());}, newSwerve));
-         */
-
-        return path_planner_command;
-
+        return autosGenerator._2020_auto1();
     }
 }

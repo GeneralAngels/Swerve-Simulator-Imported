@@ -91,7 +91,7 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
             return optional_ds_alliance.get();
         }
         else {
-            System.out.println("[WARNING] DRIVER STATION ALLIANCE WAS NOT PICKED YET");
+//            System.out.println("[WARNING] DRIVER STATION ALLIANCE WAS NOT PICKED YET");
             var raw_station = DriverStation.getRawAllianceStation();
 
             if (raw_station == AllianceStationID.Red1 || raw_station == AllianceStationID.Red2 || raw_station == AllianceStationID.Red3) {
@@ -106,7 +106,7 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // Update pose estimator with visible targets
-        System.out.println(get_alliance());
+//        System.out.println(get_alliance());
         if (get_alliance() == DriverStation.Alliance.Blue){
             visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[7]);
         }
@@ -117,10 +117,10 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
         robotPose = new Pose3d(visionRet[0], visionRet[1], visionRet[2],
                 new Rotation3d(visionRet[3], visionRet[4], visionRet[5]));
 
-        System.out.println(robotPose);
+//        System.out.println(robotPose);
 
         if (!savedJson) {
-            System.out.println(limelight.getEntry("json").toString());
+//            System.out.println(limelight.getEntry("json").toString());
             savedJson = true;
         }
 

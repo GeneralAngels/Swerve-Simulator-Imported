@@ -4,6 +4,11 @@ package frc.robot.subsystems.NewDrive;
 import com.ctre.phoenix.sensors.BasePigeonSimCollection;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.time.StopWatch;
+import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -11,9 +16,10 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Drive.SwerveConstants;
-
+import com.pathplanner.lib.commands.*;
 
 public class NewSwerveDriveSubsystem extends SubsystemBase {
     SwerveDriveKinematics kinematics;
@@ -152,7 +158,6 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
 
         var after_skew_velocity = skew_calculation(wantedRobotVelocity);
         wantedModuleStates = this.kinematics.toSwerveModuleStates(after_skew_velocity);
-        System.out.println(wantedModuleStates[0].speedMetersPerSecond);
 
 
         SmartDashboard.putNumber("pigeon angle", pigeon2.getYaw());
@@ -202,6 +207,23 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("x speed", current_swerve_speed.vxMetersPerSecond);
         SmartDashboard.putNumber("y speed", current_swerve_speed.vyMetersPerSecond);
         SmartDashboard.putNumber("omega radians per second", current_swerve_speed.omegaRadiansPerSecond);
+    }
+
+    public Command getDefaultPathFollowingCommand(PathPlannerPath path, NewPoseEstimatorSubsystem poseEstimatorSubsystem) {
+        return new FollowPathHolonomic(
+                path,
+                poseEstimatorSubsystem::getCurrentPose, // Robot pose supplier
+                this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                this::setRelativeVelocities, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
+                        4.5, // Max module speed, in m/s
+                        0.91, // Drive base radius in meters. Distance from robot center to furthest module.
+                        new ReplanningConfig() // Default path replanning config. See the API for the options here
+                ),
+                this // Reference to this subsystem to set requirements
+        );
     }
 }
 

@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.time.StopWatch;
+import com.revrobotics.REVPhysicsSim;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
@@ -111,6 +112,11 @@ public class Robot extends LoggedRobot {
 
     }
 
+    @Override
+    public void simulationPeriodic() {
+        REVPhysicsSim.getInstance().run();
+    }
+
     /**
      * This function is called periodically during autonomous.
      */
@@ -127,6 +133,8 @@ public class Robot extends LoggedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+
+        m_robotContainer.shooter_subsystem.setDesiredVelocity(300);
     }
 
     /**
@@ -134,7 +142,6 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void teleopPeriodic() {
-
     }
 
     @Override
