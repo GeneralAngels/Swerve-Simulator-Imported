@@ -11,12 +11,11 @@ import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 import java.util.List;
 
 public class AutosGenerator {
-    NewPoseEstimatorSubsystem poseEstimatorSubsystem;
-    NewSwerveDriveSubsystem newSwerve;
+    NewPoseEstimatorSubsystem poseEstimatorSubsystem = NewPoseEstimatorSubsystem.getInstance();
+    NewSwerveDriveSubsystem newSwerve = NewSwerveDriveSubsystem.getInstance();
 
-    public AutosGenerator(NewPoseEstimatorSubsystem poseEstimatorSubsystem, NewSwerveDriveSubsystem newSwerve) {
-        this.poseEstimatorSubsystem = poseEstimatorSubsystem;
-        this.newSwerve = newSwerve;
+    public AutosGenerator() {
+
     }
 
     public Command get2023_example_auto() {
