@@ -41,11 +41,6 @@ public class AutosGenerator {
 
         poseEstimatorSubsystem.setCurrentPose(path_from_file.getPreviewStartingHolonomicPose());
 
-        if (Robot.isSimulation()) {
-            newSwerve.pigeonSimCollection.setRawHeading(0);
-        }
-        newSwerve.pigeon2.setYaw(0);
-
         var path_planner_command = newSwerve.getDefaultPathFollowingCommand(paths.get(0), poseEstimatorSubsystem)
                 .andThen(
                         newSwerve.getDefaultPathFollowingCommand(paths.get(1), poseEstimatorSubsystem)
