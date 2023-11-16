@@ -21,6 +21,8 @@ public class Shooter extends SubsystemBase {
 
     public double desiredVelocity = 0.0;
 
+    private static Shooter instance = null;
+
     public Shooter() {
         // Initializng the flywheel motor
         m_flywheel_motor = new CANSparkMax(flywheel_deviceId, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -52,6 +54,12 @@ public class Shooter extends SubsystemBase {
 
         REVPhysicsSim.getInstance().addSparkMax(m_flywheel_motor, DCMotor.getNEO(1));
         REVPhysicsSim.getInstance().addSparkMax(m_hood_motor, DCMotor.getNEO(1));
+    }
+
+    public static Shooter getInstance() {
+        if (instance == null)
+            instance = new Shooter();
+        return instance;
     }
 
     @Override
