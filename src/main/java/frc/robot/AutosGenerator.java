@@ -3,12 +3,10 @@ package frc.robot;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
+import frc.robot.subsystems.Shooter;
 
 import java.util.List;
 
@@ -39,8 +37,6 @@ public class AutosGenerator {
             poseEstimatorSubsystem.setCurrentPose(path_from_file.getPreviewStartingHolonomicPose());
         }).andThen();
 
-        poseEstimatorSubsystem.setCurrentPose(path_from_file.getPreviewStartingHolonomicPose());
-
         var path_planner_command = newSwerve.getDefaultPathFollowingCommand(paths.get(0), poseEstimatorSubsystem)
                 .andThen(
                         newSwerve.getDefaultPathFollowingCommand(paths.get(1), poseEstimatorSubsystem)
@@ -59,6 +55,19 @@ public class AutosGenerator {
                 () -> {
             poseEstimatorSubsystem.setCurrentPose(path_from_file.getPreviewStartingHolonomicPose());
         }).andThen();
+
+        auto_command = auto_command.andThen(
+                new InstantCommand(() -> {
+                    Shooter.getInstance().setDesiredVelocity(300); // in RPM
+                }).andThen(
+                        new WaitCommand(2)
+                ).andThen(
+                        new InstantCommand(() -> {
+                            System.out.println("Finished shooting");
+                            Shooter.getInstance().setDesiredVelocity(0);
+                        })
+                )
+        );
 
         List<PathPlannerPath> paths = RobotContainer.splitting_paths_into_segments(path_from_file);
         auto_command = auto_command.andThen(newSwerve.getDefaultPathFollowingCommand(paths.get(0), poseEstimatorSubsystem));

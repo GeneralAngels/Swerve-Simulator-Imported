@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.subsystems.Drive.SwerveDriveTrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
@@ -41,7 +42,6 @@ import java.util.function.Supplier;
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-    public Shooter shooter_subsystem = new Shooter();
 
     private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
@@ -53,6 +53,11 @@ public class RobotContainer {
     public RobotContainer() {
         // Configure the button bindings
         configureButtonBindings();
+
+        // To initialize all subsystems:
+        NewSwerveDriveSubsystem.getInstance();
+        Shooter.getInstance();
+        NewPoseEstimatorSubsystem.getInstance();
     }
 
     /**
