@@ -1,35 +1,21 @@
 package frc.robot;
 
 import com.pathplanner.lib.path.PathPlannerPath;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 
 import java.util.List;
 
 public class AutosGenerator {
-    NewPoseEstimatorSubsystem poseEstimatorSubsystem;
-    NewSwerveDriveSubsystem newSwerve;
+    NewPoseEstimatorSubsystem poseEstimatorSubsystem = NewPoseEstimatorSubsystem.getInstance();
+    NewSwerveDriveSubsystem newSwerve = NewSwerveDriveSubsystem.getInstance();
 
-    SendableChooser<Command> autoChooser;
+    public AutosGenerator() {
 
-    public AutosGenerator(NewPoseEstimatorSubsystem poseEstimatorSubsystem, NewSwerveDriveSubsystem newSwerve) {
-        this.poseEstimatorSubsystem = poseEstimatorSubsystem;
-        this.newSwerve = newSwerve;
-
-        autoChooser = new SendableChooser<Command>();
-        autoChooser.setDefaultOption("Default 2023 example auto", get2023_example_auto());
-        autoChooser.addOption("2020 auto 1", _2020_auto1());
-
-        SmartDashboard.putData("auto chooser", autoChooser);
-    }
-
-    public Command getAutoChosen() {
-        return autoChooser.getSelected();
     }
 
     public Command get2023_example_auto() {

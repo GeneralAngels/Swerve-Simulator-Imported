@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.DriveSpeedsWithOmega;
+import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -87,7 +88,8 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void disabledInit() {
-        m_robotContainer.newSwerve.setRelativeVelocities(new ChassisSpeeds());
+//        m_robotContainer.newSwerve.setRelativeVelocities(new ChassisSpeeds());
+        NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(0, 0, 0));
     }
 
     @Override
