@@ -136,6 +136,6 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
-        return autosGenerator._2020_auto1();
+        return autosGenerator.getAutoChosen();
     }
 }
