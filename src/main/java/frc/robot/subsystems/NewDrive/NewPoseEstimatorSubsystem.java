@@ -167,7 +167,6 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
             drive.pigeonSimCollection.setRawHeading(0);
         }
 
-        drive.pigeon2.setYaw(newPose.getRotation().getDegrees());
         poseEstimator.resetPosition(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition(), newPose);
     }
 

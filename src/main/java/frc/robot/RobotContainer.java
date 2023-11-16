@@ -127,8 +127,6 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
-        return new RunCommand(() -> {
-            NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(1, 1, 0.2));
-        }).withTimeout(5);
+        return autosGenerator.getChosenCommand();
     }
 }

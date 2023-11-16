@@ -2,7 +2,8 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/Shuffleboard/Drivetrain/Field": "Field2d"
+      "/Shuffleboard/Drivetrain/Field": "Field2d",
+      "/SmartDashboard/Autonomous chooser": "String Chooser"
     }
   }
 }
