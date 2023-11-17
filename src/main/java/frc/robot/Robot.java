@@ -138,8 +138,6 @@ public class Robot extends LoggedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
-
-        m_robotContainer.shooter_subsystem.setDesiredVelocity(300);
     }
 
     /**
