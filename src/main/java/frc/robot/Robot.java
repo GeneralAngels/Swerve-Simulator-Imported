@@ -7,7 +7,12 @@ package frc.robot;
 import com.ctre.phoenix.time.StopWatch;
 import com.revrobotics.REVPhysicsSim;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -42,6 +47,7 @@ public class Robot extends LoggedRobot {
 
     private RobotContainer m_robotContainer;
 
+
     /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
@@ -49,12 +55,12 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotInit() {
         if (isReal()) {
-            Logger.getInstance().addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
-            Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+            Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             new PowerDistribution(1, ModuleType.kRev); // Enables
             // wer distribution logging
         } else {
-            Logger.getInstance().addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
 //            setUseTiming(false); // Run as fast as possible
 //            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
@@ -63,7 +69,7 @@ public class Robot extends LoggedRobot {
         }
 
         // Logger.getInstance().disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
-        Logger.getInstance().start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+        Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();

@@ -7,8 +7,8 @@ public class LimelightMeasurement {
     public Pose2d pose;
     public double timestamp;
 
-    public  LimelightMeasurement(Pose2d pose, double timestamp){
-        pose = pose;
-        timestamp = timestamp;
+    public LimelightMeasurement(Pose2d pose, double timestamp){
+        this.pose = pose;
+        this.timestamp = timestamp;
     }
 }

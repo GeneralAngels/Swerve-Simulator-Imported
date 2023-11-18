@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -15,14 +16,14 @@ import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 import frc.robot.Utils.LimelightMeasurement;
 
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class Limelight extends SubsystemBase {
 
     private static Limelight instace = null;
-    private static double[] visionRet = new double[7];
     private static final NetworkTable limelight = NetworkTableInstance.getDefault().getTable("limelight");
-    private static Supplier<Double> currAngle = NewSwerveDriveSubsystem.getInstance()::getYawDegrees;
+    private static final Supplier<Double> currAngle = NewSwerveDriveSubsystem.getInstance()::getYawDegrees;
 
     public static Limelight getInstace(){
         if (instace == null){
@@ -32,12 +33,12 @@ public class Limelight extends SubsystemBase {
     }
 
     public static LimelightMeasurement MegaTagEstimate() {
-        if (DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)){
-            System.out.println("BLUE");
+        double[] visionRet = new double[7];
+        if (get_alliance() == DriverStation.Alliance.Blue){
             visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[7]);
         }
-        else if (DriverStation.getAlliance().equals(DriverStation.Alliance.Red)){
-            visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[7]);
+        else if (get_alliance() == DriverStation.Alliance.Red){
+            visionRet = limelight.getEntry("botpose_wpired").getDoubleArray(new double[7]);
         }
 
         Pose3d robotPose = new Pose3d(visionRet[0], visionRet[1], visionRet[2],
@@ -48,7 +49,7 @@ public class Limelight extends SubsystemBase {
         double estimatedRotation = robotPose.getRotation().getZ();
 
         // Check if the estimated rotation lines up with the current gyro value
-        if (Math.abs(currAngle.get()) - Math.abs(estimatedRotation) > Constants.PoseEstimatorConstants.maxEstimatedAngleError){
+        if (Math.abs(currAngle.get() - estimatedRotation) > Constants.PoseEstimatorConstants.maxEstimatedAngleError && numTags == 1){
             return null;
         }
 
@@ -58,8 +59,26 @@ public class Limelight extends SubsystemBase {
                 robotPose.getY(),
                 new Rotation2d(robotPose.getRotation().getZ()));
 
-
         return new LimelightMeasurement(fieldPose, timestamp);
+    }
+
+    public static DriverStation.Alliance get_alliance() {
+        var optional_ds_alliance = DriverStation.getAlliance();
+
+        if (optional_ds_alliance.isPresent()) {
+            return optional_ds_alliance.get();
+        }
+        else {
+//            System.out.println("[WARNING] DRIVER STATION ALLIANCE WAS NOT PICKED YET");
+            var raw_station = DriverStation.getRawAllianceStation();
+
+            if (raw_station == AllianceStationID.Red1 || raw_station == AllianceStationID.Red2 || raw_station == AllianceStationID.Red3) {
+                return DriverStation.Alliance.Red;
+            }
+            else {
+                return DriverStation.Alliance.Blue;
+            }
+        }
     }
 }
 

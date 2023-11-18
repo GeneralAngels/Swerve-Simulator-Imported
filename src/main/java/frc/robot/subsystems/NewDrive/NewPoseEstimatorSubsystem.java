@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -15,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Limelight;
 import frc.robot.Utils.LimelightMeasurement;
+import org.littletonrobotics.junction.Logger;
 
 public class NewPoseEstimatorSubsystem extends SubsystemBase {
     private final NewSwerveDriveSubsystem drive = NewSwerveDriveSubsystem.getInstance();
@@ -30,6 +33,9 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
     private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Field2d field2d = new Field2d();
+
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("MyPose", Pose2d.struct).publish();
 
     public static NewPoseEstimatorSubsystem getInstance() {
         if (instance == null) {
@@ -52,12 +58,23 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // Update by DriveTrain:
+        poseEstimator.update(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition());
+
+        var current_pose = getCurrentPose();
+        SmartDashboard.putNumber("pose.x", current_pose.getX());
+        SmartDashboard.putNumber("pose.y", current_pose.getY());
+        SmartDashboard.putNumber("pose.angle", current_pose.getRotation().getDegrees());
+
+        Logger.recordOutput("MyPose", current_pose);
+
+        field2d.setRobotPose(getCurrentPose());
+
         // Update pose estimator with visible targets
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
         if (limelightMeasurement == null) return;
 
-        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp);
-        SmartDashboard.putString("Field Pose", getFormattedPose());
+        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp );
     }
 
     private String getFormattedPose() {
