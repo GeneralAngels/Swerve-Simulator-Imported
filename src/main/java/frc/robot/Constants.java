@@ -34,4 +34,8 @@ public final class Constants {
 
         public static final double coneXkp = 0.02;
     }
+    public static final class PoseEstimatorConstants {
+
+        public static final double maxEstimatedAngleError = 10; // Degrees
+    }
 }

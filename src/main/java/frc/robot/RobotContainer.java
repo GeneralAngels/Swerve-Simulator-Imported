@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.subsystems.Drive.SwerveDriveTrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
@@ -42,15 +43,9 @@ public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-    public NewSwerveDriveSubsystem newSwerve = NewSwerveDriveSubsystem.getDefaultSwerve();
-
-    public Shooter shooter_subsystem = new Shooter();
-
-    public NewPoseEstimatorSubsystem poseEstimatorSubsystem = new NewPoseEstimatorSubsystem(new PhotonCamera(""), newSwerve);
-
     private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-    AutosGenerator autosGenerator = new AutosGenerator(poseEstimatorSubsystem, newSwerve);
+    AutosGenerator autosGenerator = new AutosGenerator();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -58,6 +53,11 @@ public class RobotContainer {
     public RobotContainer() {
         // Configure the button bindings
         configureButtonBindings();
+
+        // To initialize all subsystems:
+        NewSwerveDriveSubsystem.getInstance();
+        Shooter.getInstance();
+        NewPoseEstimatorSubsystem.getInstance();
     }
 
     /**
@@ -105,10 +105,7 @@ public class RobotContainer {
                 continue;
             }
             System.out.println("segment length: " + segment.size());
-            PathPlannerPath path = PathPlannerPath.fromPathPoints(
-                    segment,
-                    segment.get(segment.size() / 2).constraints,
-                    new GoalEndState(0, segment.get(segment.size() - 1).holonomicRotation));
+            PathPlannerPath path = PathPlannerPath.fromPathPoints(segment, segment.get(segment.size() / 2).constraints, new GoalEndState(0, segment.get(segment.size() - 1).holonomicRotation));
 
             pathList.add(path);
 
@@ -128,7 +125,6 @@ public class RobotContainer {
     }
 
 
-
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
@@ -136,6 +132,6 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
-        return autosGenerator._2020_auto1();
+        return autosGenerator.getChosenCommand();
     }
 }

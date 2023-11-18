@@ -102,6 +102,6 @@ public class Shooter extends SubsystemBase {
             Logger.recordOutput("Shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
         }
 
-        return m_flywheel_motor.getEncoder().getVelocity() / 6;
+        return 6 / m_flywheel_motor.getEncoder().getVelocity();
     }
 }

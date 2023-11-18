@@ -1,6 +1,7 @@
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.RobotContainer;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -113,10 +114,10 @@ public class PathPlannerTest {
 
     @Test
     public void testing_paths() {
-        PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Example Path");
+        PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Example 2023 Path");
         PathPlannerTrajectory og_trajectory = new PathPlannerTrajectory(path_from_file, new ChassisSpeeds());
 
-        List<PathPlannerPath> paths = splitting_paths_into_segments_2(path_from_file);
+        List<PathPlannerPath> paths = RobotContainer.splitting_paths_into_segments(path_from_file);
         double totalTime = 0;
 
         for (PathPlannerPath path : paths) {
