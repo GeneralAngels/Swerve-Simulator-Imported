@@ -15,7 +15,7 @@ public class ShooterConstants {
         {1.0, 2050},
         {1.25, 2050}
     };
-    public static InterpolatingDoubleTreeMap FLYWHEEL_RPM_MAP;
+    public static MyTreeMap FLYWHEEL_RPM_MAP = new MyTreeMap();
 
     static {
         for (double[] pair : FlyWheelManualRPM) {
@@ -35,7 +35,7 @@ public class ShooterConstants {
         {2.25, 16.0},
         {2.75, 17.0}
     };
-    public static InterpolatingDoubleTreeMap HOOD_ANGLE_MAP;
+    public static MyTreeMap HOOD_ANGLE_MAP = new MyTreeMap();
 
     static {
         for (double[] pair : HoodManualAngle) {

@@ -86,9 +86,10 @@ public class Shooter extends SubsystemBase {
         Transform2d poseToTarget = new Transform2d(NewPoseEstimatorSubsystem.getInstance().getCurrentPose(), ShooterConstants.TARGET_APRIL);
         double distanceToTarget = Math.hypot(poseToTarget.getX(), poseToTarget.getY());
 
-        distanceToTarget = 2.0;
+        distanceToTarget = 1.832;
         double hoodAngle = ShooterConstants.HOOD_ANGLE_MAP.get(distanceToTarget);
         m_hood_PidController.setReference(hoodAngle, CANSparkMax.ControlType.kPosition);
+        Logger.recordOutput("Hood Predicted Angle", hoodAngle);
         Logger.recordOutput("Hood Angle", m_hood_encoder.getPosition());
     }
 
