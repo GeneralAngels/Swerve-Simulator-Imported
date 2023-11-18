@@ -2,9 +2,14 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.time.StopWatch;
 import com.revrobotics.*;
+import com.revrobotics.CANSparkMax.ControlType;
+
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
+
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
@@ -64,8 +69,9 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        m_flywheel_pidController.setReference(desiredVelocity, CANSparkMax.ControlType.kVelocity); // We can use smart velocity if we want.
-        Logger.recordOutput("shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
+        //m_flywheel_pidController.setReference(desiredVelocity, CANSparkMax.ControlType.kVelocity); // We can use smart velocity if we want.
+        //Logger.recordOutput("shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
+        setHoodAngle();
     }
 
     public void setDesiredVelocity(double velocity) {
@@ -77,7 +83,13 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setHoodAngle() {
-        
+        Transform2d poseToTarget = new Transform2d(NewPoseEstimatorSubsystem.getInstance().getCurrentPose(), ShooterConstants.TARGET_APRIL);
+        double distanceToTarget = Math.hypot(poseToTarget.getX(), poseToTarget.getY());
+
+        distanceToTarget = 2.0;
+        double hoodAngle = ShooterConstants.HOOD_ANGLE_MAP.get(distanceToTarget);
+        m_hood_PidController.setReference(hoodAngle, CANSparkMax.ControlType.kPosition);
+        Logger.recordOutput("Hood Angle", m_hood_encoder.getPosition());
     }
 
     public double getKf() {
