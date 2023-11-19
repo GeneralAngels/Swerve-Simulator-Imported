@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Drive.SwerveDriveTrain;
+import frc.robot.subsystems.CANSparkMaxTest;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
@@ -46,6 +47,7 @@ public class RobotContainer {
     private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
     AutosGenerator autosGenerator = new AutosGenerator();
+    CANSparkMaxTest sparkMaxTest = new CANSparkMaxTest();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.

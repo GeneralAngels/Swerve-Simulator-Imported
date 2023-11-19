@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 
 import org.littletonrobotics.junction.Logger;
@@ -51,9 +52,11 @@ public class Shooter extends SubsystemBase {
         m_hood_PidController = m_hood_motor.getPIDController();
         m_hood_encoder = m_hood_motor.getEncoder();
 
-        m_hood_PidController.setP(ShooterConstants.HOOD_P);
-        m_hood_PidController.setI(ShooterConstants.HOOD_I);
-        m_hood_PidController.setD(ShooterConstants.HOOD_D);
+        m_hood_PidController.setP(ShooterConstants.HOOD_P, 0);
+        m_hood_PidController.setI(ShooterConstants.HOOD_I, 0);
+        m_hood_PidController.setD(ShooterConstants.HOOD_D, 0);
+        m_hood_PidController.setFF(ShooterConstants.HOOD_F, 0);
+        m_hood_PidController.setOutputRange(-1, 1);
 
         m_hood_motor.burnFlash();
 
@@ -71,7 +74,19 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         //m_flywheel_pidController.setReference(desiredVelocity, CANSparkMax.ControlType.kVelocity); // We can use smart velocity if we want.
         //Logger.recordOutput("shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
-        setHoodAngle();
+        // setHoodAngle();
+
+        m_hood_PidController.setReference(3, ControlType.kPosition, 0);
+        System.out.println(m_hood_encoder.getPosition());
+    }
+
+    public double getHoodEncoder(double distanceToTarget) {
+        if (Robot.isReal()) {
+            return m_hood_encoder.getPosition();
+        }
+        else {
+            return ShooterConstants.HOOD_ANGLE_MAP.get(distanceToTarget);
+        }
     }
 
     public void setDesiredVelocity(double velocity) {
@@ -86,23 +101,24 @@ public class Shooter extends SubsystemBase {
         Transform2d poseToTarget = new Transform2d(NewPoseEstimatorSubsystem.getInstance().getCurrentPose(), ShooterConstants.TARGET_APRIL);
         double distanceToTarget = Math.hypot(poseToTarget.getX(), poseToTarget.getY());
 
-        distanceToTarget = 1.832;
+        distanceToTarget = 2.0;
         double hoodAngle = ShooterConstants.HOOD_ANGLE_MAP.get(distanceToTarget);
-        m_hood_PidController.setReference(hoodAngle, CANSparkMax.ControlType.kPosition);
+        
+        System.out.println(m_hood_PidController.setReference(hoodAngle, CANSparkMax.ControlType.kPosition));
         Logger.recordOutput("Hood Predicted Angle", hoodAngle);
-        Logger.recordOutput("Hood Angle", m_hood_encoder.getPosition());
+        Logger.recordOutput("Hood Angle", getHoodEncoder(distanceToTarget));
     }
 
     public double getKf() {
-        m_flywheel_motor.setVoltage(6);
+        m_hood_motor.setVoltage(6);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         while (stopWatch.getDuration() < 5) {
-            Logger.recordOutput("Shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
+            Logger.recordOutput("Hood velocity", m_hood_motor.getEncoder().getVelocity());
         }
-
-        return 6 / m_flywheel_motor.getEncoder().getVelocity();
+        Logger.recordOutput("Kf_hood", 6 / m_hood_motor.getEncoder().getVelocity());
+        return 6 / m_hood_motor.getEncoder().getVelocity();
     }
 }
