@@ -160,6 +160,7 @@ public class SwerveModuleFalcon500 {
         if (Robot.isReal()) {
             steerMotor.setSelectedSensorPosition(
                     Units.degreesToRadians(steerEncoder.getAbsolutePosition()) / STEER_SENSOR_POSITION_COEFFICIENT);
+            System.out.println("ENCODER: " + steerMotor.getSelectedSensorPosition());
         }
     }
 

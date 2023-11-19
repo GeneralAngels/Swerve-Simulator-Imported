@@ -56,12 +56,19 @@ public class SwerveConstants {
             leftFrontLocation
     );
 
+    /*
+        BACK RIGHT CANCODER: 134.6484375
+        BACK LEFT CANCODER: 196.611328125
+        FRONT RIGHT CANCODER: 128.84765625
+        FRONT LEFT CANCODER: 175.517578125
+     */
+
     // CanCoder home angles:
     // TODO: Copy from driver station laptop
-    public static double homeFrontRightAngle = (38.8 + 90) % 360;
-    public static double homeRearRightAngle = (224.8 + 90) % 360;
-    public static double homeRearLeftAngle = (16.08 - 90) % 360;
-    public static double homeFrontLeftAngle = (265.16 - 90) % 360;
+    public static double homeFrontRightAngle = 128.84;
+    public static double homeRearRightAngle = 134.64;
+    public static double homeRearLeftAngle = 196.61;
+    public static double homeFrontLeftAngle = 91.14;
 
 
 //    public static double homeFrontRightAngle = (39.11) % 360;

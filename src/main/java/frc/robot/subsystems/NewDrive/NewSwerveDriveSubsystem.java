@@ -62,6 +62,8 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
 
         this.swerveModules = swerveModules;
 
+        printAllCANCoders();
+
         for (SwerveModuleFalcon500 module : swerveModules) {
             module.resetToAbsolute();
         }
@@ -161,6 +163,7 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
         for (int i = 0; i < swerveModules.length; i++) {
             currentModuleStates[i] = swerveModules[i].getState();
             currentPositions[i] = swerveModules[i].getPosition();
+            swerveModules[i].resetToAbsolute();
         }
 
         var after_skew_velocity = skew_calculation(wantedRobotVelocity);
@@ -191,6 +194,18 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
 
     public double getYawDegrees() {
         return pigeon2.getYaw();
+    }
+
+    public void printAllCANCoders() {
+        // [frontLeft, frontRight, backLeft, backRight]
+        System.out.println("\n\n");
+
+        System.out.println("FRONT LEFT CANCODER: " + this.swerveModules[0].steerEncoder.getAbsolutePosition());
+        System.out.println("FRONT RIGHT CANCODER: " + this.swerveModules[1].steerEncoder.getAbsolutePosition());
+        System.out.println("BACK LEFT CANCODER: " + this.swerveModules[2].steerEncoder.getAbsolutePosition());
+        System.out.println("BACK RIGHT CANCODER: " + this.swerveModules[3].steerEncoder.getAbsolutePosition());
+
+        System.out.println("\n\n");
     }
 
     @Override

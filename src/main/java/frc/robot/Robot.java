@@ -97,7 +97,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
 //        m_robotContainer.newSwerve.setRelativeVelocities(new ChassisSpeeds());
-        NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(0, 0, 0));
+//        NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(1, 0, 0));
     }
 
     @Override
@@ -151,6 +151,9 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void teleopPeriodic() {
+        NewSwerveDriveSubsystem.getInstance().setRelativeVelocities(new ChassisSpeeds(
+                0, 1, 0
+        ));
     }
 
     @Override

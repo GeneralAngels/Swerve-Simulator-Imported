@@ -77,7 +77,6 @@ public class Shooter extends SubsystemBase {
         // setHoodAngle();
 
         m_hood_PidController.setReference(3, ControlType.kPosition, 0);
-        System.out.println(m_hood_encoder.getPosition());
     }
 
     public double getHoodEncoder(double distanceToTarget) {
@@ -104,7 +103,6 @@ public class Shooter extends SubsystemBase {
         distanceToTarget = 2.0;
         double hoodAngle = ShooterConstants.HOOD_ANGLE_MAP.get(distanceToTarget);
         
-        System.out.println(m_hood_PidController.setReference(hoodAngle, CANSparkMax.ControlType.kPosition));
         Logger.recordOutput("Hood Predicted Angle", hoodAngle);
         Logger.recordOutput("Hood Angle", getHoodEncoder(distanceToTarget));
     }
