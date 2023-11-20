@@ -66,6 +66,5 @@ public class CANSparkMaxTest extends SubsystemBase {
         // setHoodAngle();
 
         m_pidController.setReference(3, ControlType.kPosition);
-        System.out.println(m_encoder.getPosition());
     }
 }

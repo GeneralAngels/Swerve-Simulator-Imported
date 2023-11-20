@@ -4,17 +4,20 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import com.revrobotics.REVPhysicsSim;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 
 /**
@@ -78,7 +81,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
 //        m_robotContainer.newSwerve.setRelativeVelocities(new ChassisSpeeds());
-        NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(0, 0, 0));
+//        NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(1, 0, 0));
     }
 
     @Override
@@ -133,7 +136,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         NewSwerveDriveSubsystem.getInstance().setRelativeVelocities(new ChassisSpeeds(
-                0, 1, 0
+                0, 0, Units.degreesToRadians(50)
         ));
     }
 
