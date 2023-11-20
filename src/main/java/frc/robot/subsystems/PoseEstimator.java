@@ -140,7 +140,6 @@ public class PoseEstimator extends SubsystemBase {
 
     public void initAlliance() {
         if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
-            System.out.println("Adjusting for RED.");
             targetPoses = Collections.unmodifiableList(
                     List.of(
                             // red part:
@@ -160,7 +159,6 @@ public class PoseEstimator extends SubsystemBase {
         }
 
         if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-            System.out.println("Adjusting for BLUE.");
             targetPoses = Collections.unmodifiableList(
                     List.of(
                             // red part:

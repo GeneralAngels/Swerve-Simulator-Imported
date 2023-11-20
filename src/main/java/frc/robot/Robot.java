@@ -9,10 +9,12 @@ import com.revrobotics.REVPhysicsSim;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -152,7 +154,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         NewSwerveDriveSubsystem.getInstance().setRelativeVelocities(new ChassisSpeeds(
-                0, 1, 0
+                0, 0, Units.degreesToRadians(50)
         ));
     }
 

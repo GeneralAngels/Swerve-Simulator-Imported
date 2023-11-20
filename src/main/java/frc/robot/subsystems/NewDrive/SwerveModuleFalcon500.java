@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.*;
 import com.ctre.phoenix.time.StopWatch;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -130,6 +131,7 @@ public class SwerveModuleFalcon500 {
         steerEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
         steerEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         steerEncoderConfig.magnetOffsetDegrees = Units.radiansToDegrees(steerAngleOffsetRad);
+//        steerEncoderConfig.magnetOffsetDegrees = 0;
 
         steerEncoder.configAllSettings(steerEncoderConfig);
     }
@@ -151,16 +153,35 @@ public class SwerveModuleFalcon500 {
         }
     }
 
-    public void setState(SwerveModuleState wantedState) {
-        setTargetDriveVelocity(wantedState.speedMetersPerSecond);
-        setTargetSteerPosition(wantedState.angle.getRadians());
+    public void setState(SwerveModuleState targetState) {
+        var steerPositionTicks = steerMotor.getSelectedSensorPosition();
+        var steerPositionRad = steerPositionTicks * STEER_SENSOR_POSITION_COEFFICIENT;
+
+        double currentAngle = steerPositionRad; // Current angle of the swerve module
+        double targetAngle = MathUtil.inputModulus(
+                targetState.angle.getRadians(),
+                0,
+                2 * Math.PI); // Target angle of the swerve module, limited to a domain between 0 and 2π.
+
+        double absoluteAngle = MathUtil.inputModulus(
+                currentAngle, 0, 2 * Math.PI); // Limiting the domain of the current angle to a domain of 0 to 2π.
+
+        double angleError = MathUtil.inputModulus(
+                targetAngle - absoluteAngle,
+                -Math.PI,
+                Math.PI); // Finding the difference in between the current and target angle (in radians).
+        double resultAngle = currentAngle
+                + angleError; // Adding that distance to our current angle (directly from the steer encoder). Becomes
+        // our target angle
+
+        setTargetDriveVelocity(targetState.speedMetersPerSecond);
+        setTargetSteerPosition(resultAngle);
     }
 
     public void resetToAbsolute() {
         if (Robot.isReal()) {
             steerMotor.setSelectedSensorPosition(
                     Units.degreesToRadians(steerEncoder.getAbsolutePosition()) / STEER_SENSOR_POSITION_COEFFICIENT);
-            System.out.println("ENCODER: " + steerMotor.getSelectedSensorPosition());
         }
     }
 

@@ -72,7 +72,6 @@ public class RobotContainer {
     }
 
     public static List<PathPlannerPath> splitting_paths_into_segments(PathPlannerPath path_from_file) {
-        System.out.println(path_from_file);
 
         // Splitting path into segments:
         List<List<PathPoint>> segments_list = new ArrayList<>();
@@ -83,13 +82,9 @@ public class RobotContainer {
             segments_list.get(segment_index).add(pathPoint);
 
             if (pathPoint.holonomicRotation != null) {
-                System.out.println("x: " + pathPoint.position.getX() + ", y: " + pathPoint.position.getY());
-                System.out.println("degrees: " + pathPoint.holonomicRotation.getDegrees());
-                System.out.println();
 
                 segment_index += 1;
 
-                System.out.println("segment index: " + segment_index);
                 segments_list.add(new ArrayList<PathPoint>());
                 segments_list.get(segment_index).add(pathPoint);
             }
@@ -97,7 +92,6 @@ public class RobotContainer {
 
         double totalTime = 0;
 
-        System.out.println(segments_list.toString());
 
         ArrayList<PathPlannerTrajectory> pathPlannerTrajectories = new ArrayList<PathPlannerTrajectory>();
         ArrayList<PathPlannerPath> pathList = new ArrayList<PathPlannerPath>();
@@ -106,7 +100,6 @@ public class RobotContainer {
             if (segment.size() <= 1) {
                 continue;
             }
-            System.out.println("segment length: " + segment.size());
             PathPlannerPath path = PathPlannerPath.fromPathPoints(segment, segment.get(segment.size() / 2).constraints, new GoalEndState(0, segment.get(segment.size() - 1).holonomicRotation));
 
             pathList.add(path);
@@ -115,13 +108,8 @@ public class RobotContainer {
 
             pathPlannerTrajectories.add(trajectory);
 
-            System.out.println(trajectory.getTotalTimeSeconds());
             totalTime += trajectory.getTotalTimeSeconds();
         }
-
-        System.out.println();
-        System.out.println("path list length: " + pathList.size());
-        System.out.println();
 
         return pathList;
     }
