@@ -74,7 +74,7 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
         if (limelightMeasurement == null) return;
 
-        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp );
+//        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp );
     }
 
     private String getFormattedPose() {
