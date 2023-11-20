@@ -25,6 +25,11 @@ public class Limelight extends SubsystemBase {
     private static final NetworkTable limelight = NetworkTableInstance.getDefault().getTable("limelight");
     private static final Supplier<Double> currAngle = NewSwerveDriveSubsystem.getInstance()::getYawDegrees;
 
+    public static double[] visionRet = new double[7];
+
+    static double[] empty = new double[7];
+    static double[] empty_1 = new double[1];
+
     public static Limelight getInstace(){
         if (instace == null){
             instace = new Limelight();
@@ -33,19 +38,18 @@ public class Limelight extends SubsystemBase {
     }
 
     public static LimelightMeasurement MegaTagEstimate() {
-        double[] visionRet = new double[7];
         if (get_alliance() == DriverStation.Alliance.Blue){
-            visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[7]);
+            visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(empty);
         }
         else if (get_alliance() == DriverStation.Alliance.Red){
-            visionRet = limelight.getEntry("botpose_wpired").getDoubleArray(new double[7]);
+            visionRet = limelight.getEntry("botpose_wpired").getDoubleArray(empty);
         }
 
         Pose3d robotPose = new Pose3d(visionRet[0], visionRet[1], visionRet[2],
                 new Rotation3d(visionRet[3], visionRet[4], visionRet[5]));
 
         // Get the number of detected AprilTags
-        int numTags = limelight.getEntry("tcornxy").getDoubleArray(new double[1]).length / 4;
+        int numTags = limelight.getEntry("tcornxy").getDoubleArray(empty_1).length / 4;
         double estimatedRotation = robotPose.getRotation().getZ();
 
         // Check if the estimated rotation lines up with the current gyro value

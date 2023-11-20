@@ -4,35 +4,24 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 import com.pathplanner.lib.path.PathPoint;
-import edu.wpi.first.math.geometry.Rotation2d;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.Drive.SwerveDriveTrain;
 import frc.robot.subsystems.CANSparkMaxTest;
 import frc.robot.subsystems.ExampleSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
-import frc.robot.subsystems.PoseEstimator;
-import com.pathplanner.lib.util.*;
-import com.pathplanner.lib.commands.*;
-import frc.robot.subsystems.Shooter;
-import org.photonvision.PhotonCamera;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
