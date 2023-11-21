@@ -60,6 +60,8 @@ public class Robot extends LoggedRobot {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
+
+        NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
     }
 
     /**
@@ -84,7 +86,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
 //        m_robotContainer.newSwerve.setRelativeVelocities(new ChassisSpeeds());
-//        NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(1, 0, 0));
+        NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(0, 0, 0));
     }
 
     @Override
