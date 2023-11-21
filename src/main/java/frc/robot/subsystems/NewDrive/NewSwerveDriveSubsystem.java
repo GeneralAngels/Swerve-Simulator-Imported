@@ -18,19 +18,23 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Utils.Chessy.CheesyChassisSpeeds;
+import frc.robot.Utils.Chessy.CheesySwerveDriveKinematics;
+import frc.robot.Utils.Chessy.CheesyTranslation2d;
 import frc.robot.subsystems.Drive.SwerveConstants;
 import com.pathplanner.lib.commands.*;
 
 public class NewSwerveDriveSubsystem extends SubsystemBase {
     private static NewSwerveDriveSubsystem instance = null;
- 
+    SwerveSetpointGenerator setpointGenerator;
     SwerveDriveKinematics kinematics;
+    CheesySwerveDriveKinematics sKinematics;
 
     SwerveModuleFalcon500[] swerveModules;
 
     ChassisSpeeds wantedRobotVelocity = new ChassisSpeeds();
 
-
+    SwerveSetpoint setpoint;
     SwerveModuleState[] wantedModuleStates = new SwerveModuleState[] {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
     SwerveModuleState[] currentModuleStates = new SwerveModuleState[] {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
     SwerveModulePosition[] currentPositions = new SwerveModulePosition[] {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
@@ -57,11 +61,18 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
         var backLeftLocation = new Translation2d(-SwerveConstants.swerveWidth / 2, SwerveConstants.swerveLength / 2);
         var backRightLocation = new Translation2d(-SwerveConstants.swerveWidth / 2, -SwerveConstants.swerveLength / 2);
 
+        var sFrontLeftLocation = new CheesyTranslation2d(SwerveConstants.swerveWidth / 2, SwerveConstants.swerveLength / 2);
+        var sFrontRightLocation = new CheesyTranslation2d(SwerveConstants.swerveWidth / 2, -SwerveConstants.swerveLength / 2);
+        var sBackLeftLocation = new CheesyTranslation2d(-SwerveConstants.swerveWidth / 2, SwerveConstants.swerveLength / 2);
+        var sBackRightLocation = new CheesyTranslation2d(-SwerveConstants.swerveWidth / 2, -SwerveConstants.swerveLength / 2);
         kinematics =
                 new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
+        sKinematics = new CheesySwerveDriveKinematics(sFrontLeftLocation, sFrontRightLocation, sBackLeftLocation, sBackRightLocation);
+        setpointGenerator = new SwerveSetpointGenerator(sKinematics);
         this.swerveModules = swerveModules;
-
+        CheesySwerveModuleState[] moduleStates = {new CheesySwerveModuleState(), new CheesySwerveModuleState(), new CheesySwerveModuleState(), new CheesySwerveModuleState()};
+        setpoint = new SwerveSetpoint(new CheesyChassisSpeeds(),moduleStates);
         printAllCANCoders();
 
         for (SwerveModuleFalcon500 module : swerveModules) {
@@ -188,6 +199,8 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
         }
 
         var after_skew_velocity = skew_calculation(wantedRobotVelocity);
+        CheesyChassisSpeeds speeds = new CheesyChassisSpeeds(after_skew_velocity.vxMetersPerSecond,after_skew_velocity.vyMetersPerSecond,after_skew_velocity.omegaRadiansPerSecond);
+        this.setpoint = setpointGenerator.generateSetpoint(this.setpoint, speeds, 0.12);
         wantedModuleStates = this.kinematics.toSwerveModuleStates(after_skew_velocity);
 
 
@@ -205,11 +218,14 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
         }
 
         for (int i = 0; i < swerveModules.length; i++) {
-            var current_module_state = swerveModules[i].getState();
+            /*var current_module_state = swerveModules[i].getState();
             wantedModuleStates[i] = SwerveModuleState.optimize(wantedModuleStates[i], current_module_state.angle);
             wantedModuleStates[i].angle = Rotation2d.fromDegrees(placeInAppropriate0To360Scope(current_module_state.angle.getDegrees(), wantedModuleStates[i].angle.getDegrees()));
 
-            swerveModules[i].setState(wantedModuleStates[i]);
+            swerveModules[i].setState(wantedModuleStates[i]);*/
+            Rotation2d angle = new Rotation2d(setpoint.mModuleStates[i].angle.getRadians());
+            SwerveModuleState dState = new SwerveModuleState(setpoint.mModuleStates[i].speedMetersPerSecond,angle);
+            swerveModules[i].setState(dState);
         }
     }
 

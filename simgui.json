@@ -5,5 +5,10 @@
       "/Shuffleboard/Drivetrain/Field": "Field2d",
       "/SmartDashboard/Autonomous chooser": "String Chooser"
     }
+  },
+  "NetworkTables": {
+    "Retained Values": {
+      "open": false
+    }
   }
 }
