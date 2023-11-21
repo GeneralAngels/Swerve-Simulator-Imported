@@ -35,7 +35,7 @@ public class RobotContainer {
 
     private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-    AutosGenerator autosGenerator = new AutosGenerator();
+    AutosGenerator autosGenerator;
     CANSparkMaxTest sparkMaxTest = new CANSparkMaxTest();
 
     /**
@@ -47,8 +47,14 @@ public class RobotContainer {
 
         // To initialize all subsystems:
         NewSwerveDriveSubsystem.getInstance();
+        if (Robot.isReal()) {
+            NewSwerveDriveSubsystem.getInstance().pigeon2.setYaw(0);
+        }
+
         Shooter.getInstance();
         NewPoseEstimatorSubsystem.getInstance();
+
+        this.autosGenerator = new AutosGenerator();
     }
 
     /**

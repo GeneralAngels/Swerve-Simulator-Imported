@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -128,6 +131,8 @@ public class Robot extends LoggedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+
+        NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
     }
 
     /**
@@ -136,7 +141,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         NewSwerveDriveSubsystem.getInstance().setRelativeVelocities(new ChassisSpeeds(
-                0, 0, Units.degreesToRadians(50)
+                0, 0, Units.degreesToRadians(25)
         ));
     }
 

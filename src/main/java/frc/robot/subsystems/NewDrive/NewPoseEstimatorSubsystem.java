@@ -54,6 +54,9 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
                 new Pose2d(),
                 stateStdDevs, visionMeasurementStdDevs
         );
+
+        SmartDashboard.putData("field", field2d);
+        setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
     }
 
     @Override
@@ -74,7 +77,7 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
         if (limelightMeasurement == null) return;
 
-        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp );
+        // poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp);
     }
 
     private String getFormattedPose() {
@@ -96,7 +99,9 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
      */
     public void setCurrentPose(Pose2d newPose) {
         drive.pigeon2.setYaw(0);
+        System.out.println("Resetting position");
         poseEstimator.resetPosition(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition(), newPose);
+        System.out.println(getCurrentPose().getX() + " " + getCurrentPose().getY());
     }
 
     /**

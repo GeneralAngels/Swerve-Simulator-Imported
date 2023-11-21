@@ -10,6 +10,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
@@ -44,6 +45,8 @@ public class Limelight extends SubsystemBase {
         else if (get_alliance() == DriverStation.Alliance.Red){
             visionRet = limelight.getEntry("botpose_wpired").getDoubleArray(empty);
         }
+
+        SmartDashboard.putBoolean("limelight messaurment empty", visionRet == empty);
 
         Pose3d robotPose = new Pose3d(visionRet[0], visionRet[1], visionRet[2],
                 new Rotation3d(visionRet[3], visionRet[4], visionRet[5]));
