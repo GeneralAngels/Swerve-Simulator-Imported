@@ -38,6 +38,7 @@ public class Limelight extends SubsystemBase {
     }
 
     public static LimelightMeasurement MegaTagEstimate() {
+        ֿ// TODO: When not receiving new information, should return null and not the empty double[].
         if (get_alliance() == DriverStation.Alliance.Blue){
             visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(empty);
         }
