@@ -75,9 +75,13 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
 
         // Update pose estimator with visible targets
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
-        if (limelightMeasurement == null) return;
+        if (limelightMeasurement == null) {
+            SmartDashboard.putBoolean("Tag In Sight", false);
+            return;
+        }
 
-        // poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp);
+        SmartDashboard.putBoolean("Tag In Sight", true);
+        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp );
     }
 
     private String getFormattedPose() {

@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 
+import java.util.Arrays;
 import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -39,6 +40,11 @@ public class Limelight extends SubsystemBase {
     }
 
     public static LimelightMeasurement MegaTagEstimate() {
+
+        // Get the number of detected AprilTags
+        int numTags = limelight.getEntry("tcornxy").getDoubleArray(empty_1).length / 4;
+        if (numTags == 0) return null;
+
         if (get_alliance() == DriverStation.Alliance.Blue){
             visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(empty);
         }
@@ -51,8 +57,7 @@ public class Limelight extends SubsystemBase {
         Pose3d robotPose = new Pose3d(visionRet[0], visionRet[1], visionRet[2],
                 new Rotation3d(visionRet[3], visionRet[4], visionRet[5]));
 
-        // Get the number of detected AprilTags
-        int numTags = limelight.getEntry("tcornxy").getDoubleArray(empty_1).length / 4;
+
         double estimatedRotation = robotPose.getRotation().getZ();
 
         // Check if the estimated rotation lines up with the current gyro value
