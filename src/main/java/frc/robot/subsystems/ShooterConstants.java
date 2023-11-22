@@ -12,8 +12,13 @@ public class ShooterConstants {
     public static double FLYWHEEL_D = 0;
     public static double FLYWHEEL_F = 0.0010570821;
     private static double[][] FlyWheelManualRPM = {
-        {1.0, 2050},
-        {1.25, 2050}
+            {1.0, 2050},
+            {1.25, 2050},
+            {1.5, 2100},
+            {1.75, 2100},
+            {2.0, 2150},
+            {2.25, 2150},
+            {2.5, 2200}
     };
     public static MyTreeMap FLYWHEEL_RPM_MAP = new MyTreeMap();
 
@@ -28,13 +33,13 @@ public class ShooterConstants {
     public static double HOOD_D = 1;
     public static double HOOD_F = 0; //0.0010570820886868473
     private static double[][] HoodManualAngle = {
-        {1.0, 11.0},
-        {1.25, 12.0},
-        {1.5, 13.0},
-        {1.75, 14.0},
-        {2, 15.0},
-        {2.25, 16.0},
-        {2.75, 17.0}
+            {1.0, 11.0},
+            {1.25, 12.0},
+            {1.5, 13.0},
+            {1.75, 14.0},
+            {2, 15.0},
+            {2.25, 16.0},
+            {2.75, 17.0}
     };
     public static MyTreeMap HOOD_ANGLE_MAP = new MyTreeMap();
 
