@@ -29,6 +29,8 @@ public class Shooter extends SubsystemBase {
 
     private static Shooter instance = null;
 
+    public boolean isRegular = true;
+
     public Shooter() {
         // Initializng the flywheel motor
         m_flywheel_motor = new CANSparkMax(flywheel_deviceId, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -72,18 +74,22 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        //m_flywheel_pidController.setReference(desiredVelocity, CANSparkMax.ControlType.kVelocity); // We can use smart velocity if we want.
-        //Logger.recordOutput("shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
-        // setHoodAngle();
+        // m_flywheel_pidController.setReference(desiredVelocity, CANSparkMax.ControlType.kVelocity); // We can use smart velocity if we want.
+        Logger.recordOutput("shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
+        setHoodAngle();
 
-        m_hood_PidController.setReference(3, ControlType.kPosition, 0);
+        var velocity_to_set = desiredVelocity;
+        if (isRegular) {
+            desiredVelocity = ShooterConstants.FLYWHEEL_RPM_MAP.get(getDistanceToTarget()) / 2;
+        }
+
+        m_flywheel_pidController.setReference(desiredVelocity, ControlType.kVelocity);
     }
 
     public double getHoodEncoder(double distanceToTarget) {
         if (Robot.isReal()) {
             return m_hood_encoder.getPosition();
-        }
-        else {
+        } else {
             return ShooterConstants.HOOD_ANGLE_MAP.get(distanceToTarget);
         }
     }
@@ -97,12 +103,11 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setHoodAngle() {
-        Transform2d poseToTarget = new Transform2d(NewPoseEstimatorSubsystem.getInstance().getCurrentPose(), ShooterConstants.TARGET_APRIL);
-        double distanceToTarget = Math.hypot(poseToTarget.getX(), poseToTarget.getY());
 
+        double distanceToTarget = getDistanceToTarget();
         distanceToTarget = 2.0;
         double hoodAngle = ShooterConstants.HOOD_ANGLE_MAP.get(distanceToTarget);
-        
+
         Logger.recordOutput("Hood Predicted Angle", hoodAngle);
         Logger.recordOutput("Hood Angle", getHoodEncoder(distanceToTarget));
     }
@@ -118,5 +123,10 @@ public class Shooter extends SubsystemBase {
         }
         Logger.recordOutput("Kf_hood", 6 / m_hood_motor.getEncoder().getVelocity());
         return 6 / m_hood_motor.getEncoder().getVelocity();
+    }
+
+    public double getDistanceToTarget() {
+        Transform2d poseToTarget = new Transform2d(NewPoseEstimatorSubsystem.getInstance().getCurrentPose(), ShooterConstants.TARGET_APRIL);
+        return Math.hypot(poseToTarget.getX(), poseToTarget.getY());
     }
 }

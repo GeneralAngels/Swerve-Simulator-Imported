@@ -29,7 +29,7 @@ public class SwerveConstants {
 
     // Rotation PID Constants:
     public static final double Rotation_Kf = 0;
-    public static final double Rotation_Kp = 0.09;
+    public static final double Rotation_Kp = 0.05;
     public static final double Rotation_Ki = 0.0;
     public static final double Rotation_Kd = 0.0;
 
