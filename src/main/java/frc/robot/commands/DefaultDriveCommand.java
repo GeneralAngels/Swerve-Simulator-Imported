@@ -10,7 +10,7 @@ import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 
 public class DefaultDriveCommand extends Command {
     private final NewSwerveDriveSubsystem swerve = NewSwerveDriveSubsystem.getInstance();
-    PS4Controller controller;
+    CommandPS4Controller controller;
 
     double maxOmega = 3.95;
     double maxSpeed = 4.15;
@@ -23,7 +23,7 @@ public class DefaultDriveCommand extends Command {
     }
 
     public double getX() {
-        double value = this.controller.getLeftY();
+        double value = -this.controller.getLeftY();
         if (Math.abs(value) < 0.05) {
             value = 0;
         }
@@ -31,7 +31,7 @@ public class DefaultDriveCommand extends Command {
     }
 
     public double getY() {
-        double value = this.controller.getLeftX();
+        double value = -this.controller.getLeftX();
         if (Math.abs(value) < 0.05) {
             value = 0;
         }
@@ -57,7 +57,7 @@ public class DefaultDriveCommand extends Command {
             return vector_speed * 0.2; // speed without gas
         }
 
-        return (this.controller.getR2Axis() + 1) / 2;
+        return (this.controller.getR2Axis() + 1) / 2 * maxSpeed;
     }
 
     /**

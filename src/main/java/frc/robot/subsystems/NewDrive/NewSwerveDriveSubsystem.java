@@ -126,7 +126,7 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds skew_calculation(ChassisSpeeds setpoint) {
-        var loop = 0.12;
+        var loop = 0.06;
         var setpointTwist =
                 new Pose2d()
                         .log(

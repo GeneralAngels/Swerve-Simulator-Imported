@@ -57,7 +57,10 @@ public class RobotContainer {
             NewSwerveDriveSubsystem.getInstance().pigeon2.setYaw(0);
         }
 
-        Shooter.getInstance();
+        if (Robot.isSimulation()) {
+            Shooter.getInstance();
+        }
+
         NewPoseEstimatorSubsystem.getInstance();
 
         this.autosGenerator = new AutosGenerator();
