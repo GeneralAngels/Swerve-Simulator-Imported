@@ -42,23 +42,24 @@ public class Robot extends LoggedRobot {
     @Override
     public void robotInit() {
         if (isReal()) {
-            Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
+            // Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             new PowerDistribution(1, ModuleType.kRev); // Enables
-            // wer distribution logging
         } else {
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-//            setUseTiming(false); // Run as fast as possible
-//            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-//            Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read replay log
-//            Logger.getInstance().addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+
+            /*
+            setUseTiming(false); // Run as fast as possible
+            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+            Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read replay log
+            Logger.getInstance().addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+             */
         }
 
         // Logger.getInstance().disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
+
         Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
-        // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-        // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
 
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
