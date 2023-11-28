@@ -14,18 +14,17 @@ import com.pathplanner.lib.path.PathPoint;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
-import frc.robot.subsystems.CANSparkMaxTest;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
+import frc.robot.subsystems.Shooter_Test_RigSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -39,8 +38,9 @@ public class RobotContainer {
 
     private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
+    public Shooter_Test_RigSubsystem shooter_rig = new Shooter_Test_RigSubsystem();
+
     AutosGenerator autosGenerator;
-    CANSparkMaxTest sparkMaxTest = new CANSparkMaxTest();
 
     CommandPS4Controller driver = new CommandPS4Controller(0);
 
@@ -55,10 +55,6 @@ public class RobotContainer {
         NewSwerveDriveSubsystem.getInstance();
         if (Robot.isReal()) {
             NewSwerveDriveSubsystem.getInstance().pigeon2.setYaw(0);
-        }
-
-        if (Robot.isSimulation()) {
-            Shooter.getInstance();
         }
 
         NewPoseEstimatorSubsystem.getInstance();

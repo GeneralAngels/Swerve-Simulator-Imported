@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
+import frc.robot.subsystems.Shooter_Test_RigSubsystem;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -142,6 +143,8 @@ public class Robot extends LoggedRobot {
                         m_robotContainer.driver
                 )
         );
+
+        this.m_robotContainer.shooter_rig.renew();
     }
 
     /**
@@ -149,6 +152,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void teleopPeriodic() {
+        m_robotContainer.shooter_rig.teleopPeriodicPercent();
     }
 
     @Override

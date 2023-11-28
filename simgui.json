@@ -2,7 +2,8 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Autonomous chooser": "String Chooser"
+      "/SmartDashboard/Autonomous chooser": "String Chooser",
+      "/SmartDashboard/field": "Field2d"
     }
   }
 }

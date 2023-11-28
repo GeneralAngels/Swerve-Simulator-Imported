@@ -15,14 +15,14 @@ import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
     public CANSparkMax m_flywheel_motor;
-    private static final int flywheel_deviceId = 1;
+    private static final int flywheel_deviceId = 100;
     public SparkMaxPIDController m_flywheel_pidController;
     private RelativeEncoder m_flywheel_encoder;
 
     public CANSparkMax m_hood_motor;
     public SparkMaxPIDController m_hood_PidController;
     private RelativeEncoder m_hood_encoder;
-    private static final int hood_deviceId = 2;
+    private static final int hood_deviceId = 200;
 
 
     public double desiredVelocity = 0.0;
