@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
-import frc.robot.subsystems.CANSparkMaxTest;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
@@ -40,7 +39,6 @@ public class RobotContainer {
     private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
     AutosGenerator autosGenerator;
-    CANSparkMaxTest sparkMaxTest = new CANSparkMaxTest();
 
     CommandPS4Controller driver = new CommandPS4Controller(0);
 

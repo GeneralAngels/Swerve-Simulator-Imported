@@ -15,14 +15,14 @@ import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
     public CANSparkMax m_flywheel_motor;
-    private static final int flywheel_deviceId = 1;
+    private static final int flywheel_deviceId = 4;
     public SparkMaxPIDController m_flywheel_pidController;
     private RelativeEncoder m_flywheel_encoder;
 
     public CANSparkMax m_hood_motor;
     public SparkMaxPIDController m_hood_PidController;
     private RelativeEncoder m_hood_encoder;
-    private static final int hood_deviceId = 2;
+    private static final int hood_deviceId = 200;
 
 
     public double desiredVelocity = 0.0;
@@ -75,15 +75,18 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         // m_flywheel_pidController.setReference(desiredVelocity, CANSparkMax.ControlType.kVelocity); // We can use smart velocity if we want.
+        m_flywheel_pidController.setReference(3000, ControlType.kVelocity);
         Logger.recordOutput("shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
+        Logger.recordOutput("motor voltage", m_flywheel_motor.getAppliedOutput());
         setHoodAngle();
 
-        var velocity_to_set = desiredVelocity;
         if (isRegular) {
             desiredVelocity = ShooterConstants.FLYWHEEL_RPM_MAP.get(getDistanceToTarget()) / 2;
         }
+        Logger.recordOutput("Wanted RPM", desiredVelocity);
 
-        m_flywheel_pidController.setReference(desiredVelocity, ControlType.kVelocity);
+
+    //    m_flywheel_pidController.setReference(desiredVelocity, ControlType.kVelocity);
     }
 
     public double getHoodEncoder(double distanceToTarget) {
@@ -113,16 +116,16 @@ public class Shooter extends SubsystemBase {
     }
 
     public double getKf() {
-        m_hood_motor.setVoltage(6);
+        m_flywheel_motor.setVoltage(6);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         while (stopWatch.getDuration() < 5) {
-            Logger.recordOutput("Hood velocity", m_hood_motor.getEncoder().getVelocity());
+            Logger.recordOutput("Shooter KF Vel", m_flywheel_motor.getEncoder().getVelocity());
         }
-        Logger.recordOutput("Kf_hood", 6 / m_hood_motor.getEncoder().getVelocity());
-        return 6 / m_hood_motor.getEncoder().getVelocity();
+        Logger.recordOutput("Kf_glywheel", 6 / m_flywheel_motor.getEncoder().getVelocity());
+        return 6 / m_flywheel_motor.getEncoder().getVelocity();
     }
 
     public double getDistanceToTarget() {
