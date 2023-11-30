@@ -6,8 +6,7 @@ import com.revrobotics.CANSparkMax.ControlType;
 
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 
@@ -75,6 +74,7 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         // m_flywheel_pidController.setReference(desiredVelocity, CANSparkMax.ControlType.kVelocity); // We can use smart velocity if we want.
+
         Logger.recordOutput("shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
         setHoodAngle();
 
@@ -84,6 +84,7 @@ public class Shooter extends SubsystemBase {
         }
 
         m_flywheel_pidController.setReference(desiredVelocity, ControlType.kVelocity);
+
     }
 
     public double getHoodEncoder(double distanceToTarget) {
@@ -112,17 +113,15 @@ public class Shooter extends SubsystemBase {
         Logger.recordOutput("Hood Angle", getHoodEncoder(distanceToTarget));
     }
 
-    public double getKf() {
-        m_hood_motor.setVoltage(6);
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        while (stopWatch.getDuration() < 5) {
-            Logger.recordOutput("Hood velocity", m_hood_motor.getEncoder().getVelocity());
-        }
-        Logger.recordOutput("Kf_hood", 6 / m_hood_motor.getEncoder().getVelocity());
-        return 6 / m_hood_motor.getEncoder().getVelocity();
+    public Command getKf() {
+        return Commands.sequence(
+                new RunCommand(() -> {
+                    m_hood_motor.set(0.5);
+                }).withTimeout(3),
+                new RunCommand(() -> {
+                    Logger.recordOutput("NEW KF", 0.5 / m_hood_motor.getEncoder().getVelocity());
+                })
+        );
     }
 
     public double getDistanceToTarget() {

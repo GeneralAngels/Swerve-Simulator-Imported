@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.Shooter_Test_RigSubsystem;
@@ -144,7 +145,11 @@ public class Robot extends LoggedRobot {
                 )
         );
 
+        var command = new InstantCommand();
+        command.schedule();
+
         this.m_robotContainer.shooter_rig.renew();
+        m_robotContainer.shooter_rig.slewRateLimiter.reset(0);
     }
 
     /**
