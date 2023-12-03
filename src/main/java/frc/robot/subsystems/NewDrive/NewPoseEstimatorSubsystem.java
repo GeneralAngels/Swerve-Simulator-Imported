@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import frc.robot.subsystems.Limelight;
 import frc.robot.Utils.LimelightMeasurement;
 import org.littletonrobotics.junction.Logger;
@@ -55,6 +54,9 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
                 new Pose2d(),
                 stateStdDevs, visionMeasurementStdDevs
         );
+
+        SmartDashboard.putData("field", field2d);
+        setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
     }
 
     @Override
@@ -73,9 +75,13 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
 
         // Update pose estimator with visible targets
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
-        if (limelightMeasurement == null) return;
+        if (limelightMeasurement == null) {
+            SmartDashboard.putBoolean("Tag In Sight", false);
+            return;
+        }
 
-//        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp );
+        SmartDashboard.putBoolean("Tag In Sight", true);
+        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp );
     }
 
     private String getFormattedPose() {
@@ -96,10 +102,10 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
      * @param newPose new pose
      */
     public void setCurrentPose(Pose2d newPose) {
-        if (Robot.isReal()) {
-            drive.pigeon2.setYaw(0);
-        }
+        drive.pigeon2.setYaw(0);
+        System.out.println("Resetting position");
         poseEstimator.resetPosition(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition(), newPose);
+        System.out.println(getCurrentPose().getX() + " " + getCurrentPose().getY());
     }
 
     /**

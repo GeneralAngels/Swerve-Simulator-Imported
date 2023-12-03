@@ -126,7 +126,7 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds skew_calculation(ChassisSpeeds setpoint) {
-        var loop = 0.12;
+        var loop = 0.06;
         var setpointTwist =
                 new Pose2d()
                         .log(
@@ -171,6 +171,11 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("FRONT LEFT CANCODER", this.swerveModules[0].steerEncoder.getAbsolutePosition());
+        SmartDashboard.putNumber("FRONT RIGHT CANCODER", this.swerveModules[1].steerEncoder.getAbsolutePosition());
+        SmartDashboard.putNumber("BACK LEFT CANCODER", this.swerveModules[2].steerEncoder.getAbsolutePosition());
+        SmartDashboard.putNumber("BACK RIGHT CANCODER", this.swerveModules[3].steerEncoder.getAbsolutePosition());
+
         for (int i = 0; i < swerveModules.length; i++) {
             currentModuleStates[i] = swerveModules[i].getState();
             currentPositions[i] = swerveModules[i].getPosition();
