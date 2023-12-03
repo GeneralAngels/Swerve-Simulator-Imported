@@ -17,11 +17,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Drive.SwerveConstants;
-import com.pathplanner.lib.commands.*;
+import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 
-public class NewSwerveDriveSubsystem extends SubsystemBase {
+public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     private static NewSwerveDriveSubsystem instance = null;
  
     SwerveDriveKinematics kinematics;
@@ -61,8 +60,6 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
                 new SwerveDriveKinematics(frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
 
         this.swerveModules = swerveModules;
-
-        printAllCANCoders();
 
         for (SwerveModuleFalcon500 module : swerveModules) {
             module.resetToAbsolute();
@@ -170,12 +167,7 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
-        SmartDashboard.putNumber("FRONT LEFT CANCODER", this.swerveModules[0].steerEncoder.getAbsolutePosition());
-        SmartDashboard.putNumber("FRONT RIGHT CANCODER", this.swerveModules[1].steerEncoder.getAbsolutePosition());
-        SmartDashboard.putNumber("BACK LEFT CANCODER", this.swerveModules[2].steerEncoder.getAbsolutePosition());
-        SmartDashboard.putNumber("BACK RIGHT CANCODER", this.swerveModules[3].steerEncoder.getAbsolutePosition());
-        
+    public void _periodic() {
         for (int i = 0; i < swerveModules.length; i++) {
             currentModuleStates[i] = swerveModules[i].getState();
             currentPositions[i] = swerveModules[i].getPosition();

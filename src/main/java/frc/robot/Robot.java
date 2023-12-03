@@ -8,17 +8,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.subsystems.NT_testSubsystem;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
-import frc.robot.subsystems.Shooter_Test_RigSubsystem;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.revrobotics.REVPhysicsSim;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -64,7 +62,7 @@ public class Robot extends LoggedRobot {
 
         Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
         m_robotContainer = new RobotContainer();
-
+        NT_testSubsystem.getInstance();
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
     }
 

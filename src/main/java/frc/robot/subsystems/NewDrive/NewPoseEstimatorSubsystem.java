@@ -10,16 +10,14 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Limelight;
 import frc.robot.Utils.LimelightMeasurement;
+import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 import org.littletonrobotics.junction.Logger;
 
-public class NewPoseEstimatorSubsystem extends SubsystemBase {
+public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
     private final NewSwerveDriveSubsystem drive = NewSwerveDriveSubsystem.getInstance();
     private static NewPoseEstimatorSubsystem instance = null;
 
@@ -45,8 +43,6 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
     }
 
     public NewPoseEstimatorSubsystem() {
-        ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-
         poseEstimator = new SwerveDrivePoseEstimator(
                 drive.kinematics,
                 Rotation2d.fromDegrees(drive.getYawDegrees()),
@@ -60,7 +56,7 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void _periodic() {
         // Update by DriveTrain:
         poseEstimator.update(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition());
 
@@ -81,7 +77,7 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
         }
 
         SmartDashboard.putBoolean("Tag In Sight", true);
-        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp );
+        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp);
     }
 
     private String getFormattedPose() {
@@ -99,6 +95,7 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
      * Resets the current pose to the specified pose. This should ONLY be called
      * when the robot's position on the field is known, like at the beginning of
      * a match.
+     *
      * @param newPose new pose
      */
     public void setCurrentPose(Pose2d newPose) {

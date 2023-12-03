@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.time.StopWatch;
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.ControlType;
 
@@ -10,9 +9,10 @@ import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 
+import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 import org.littletonrobotics.junction.Logger;
 
-public class Shooter extends SubsystemBase {
+public class Shooter extends TimeMeasurementSubsystem {
     public CANSparkMax m_flywheel_motor;
     private static final int flywheel_deviceId = 100;
     public SparkMaxPIDController m_flywheel_pidController;
@@ -72,7 +72,7 @@ public class Shooter extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void _periodic() {
         // m_flywheel_pidController.setReference(desiredVelocity, CANSparkMax.ControlType.kVelocity); // We can use smart velocity if we want.
 
         Logger.recordOutput("shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
