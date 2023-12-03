@@ -171,16 +171,6 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("FRONT LEFT CANCODER", this.swerveModules[0].steerEncoder.getAbsolutePosition());
-        SmartDashboard.putNumber("FRONT RIGHT CANCODER", this.swerveModules[1].steerEncoder.getAbsolutePosition());
-        SmartDashboard.putNumber("BACK LEFT CANCODER", this.swerveModules[2].steerEncoder.getAbsolutePosition());
-        SmartDashboard.putNumber("BACK RIGHT CANCODER", this.swerveModules[3].steerEncoder.getAbsolutePosition());
-
-        SmartDashboard.putNumber("FRONT LEFT CANCODER NON", this.swerveModules[0].steerEncoder.getPosition());
-        SmartDashboard.putNumber("FRONT RIGHT CANCODER NON", this.swerveModules[1].steerEncoder.getPosition());
-        SmartDashboard.putNumber("BACK LEFT CANCODER NON", this.swerveModules[2].steerEncoder.getPosition());
-        SmartDashboard.putNumber("BACK RIGHT CANCODER NON", this.swerveModules[3].steerEncoder.getPosition());
-        
         for (int i = 0; i < swerveModules.length; i++) {
             currentModuleStates[i] = swerveModules[i].getState();
             currentPositions[i] = swerveModules[i].getPosition();

@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.subsystems.Limelight;
 import frc.robot.Utils.LimelightMeasurement;
 import org.littletonrobotics.junction.Logger;
@@ -95,7 +96,9 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
      * @param newPose new pose
      */
     public void setCurrentPose(Pose2d newPose) {
-        drive.pigeon2.setYaw(0);
+        if (Robot.isReal()) {
+            drive.pigeon2.setYaw(0);
+        }
         poseEstimator.resetPosition(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition(), newPose);
     }
 
