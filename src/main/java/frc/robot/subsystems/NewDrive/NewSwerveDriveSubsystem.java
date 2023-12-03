@@ -178,8 +178,6 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         wantedModuleStates = this.kinematics.toSwerveModuleStates(after_skew_velocity);
 
 
-        SmartDashboard.putNumber("pigeon angle", pigeon2.getYaw());
-
         if (limitingRotatingMaxVel) {
             SwerveDriveKinematics.desaturateWheelSpeeds(
                     currentModuleStates, getChassisSpeeds(),

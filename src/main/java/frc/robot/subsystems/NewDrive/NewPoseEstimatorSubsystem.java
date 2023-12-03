@@ -61,10 +61,6 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
         poseEstimator.update(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition());
 
         var current_pose = getCurrentPose();
-        SmartDashboard.putNumber("pose.x", current_pose.getX());
-        SmartDashboard.putNumber("pose.y", current_pose.getY());
-        SmartDashboard.putNumber("pose.angle", current_pose.getRotation().getDegrees());
-
         Logger.recordOutput("MyPose", current_pose);
 
         field2d.setRobotPose(getCurrentPose());
@@ -72,11 +68,9 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
         // Update pose estimator with visible targets
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
         if (limelightMeasurement == null) {
-            SmartDashboard.putBoolean("Tag In Sight", false);
             return;
         }
 
-        SmartDashboard.putBoolean("Tag In Sight", true);
         poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp);
     }
 

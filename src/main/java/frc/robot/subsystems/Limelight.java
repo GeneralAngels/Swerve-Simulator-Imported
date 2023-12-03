@@ -52,8 +52,6 @@ public class Limelight extends SubsystemBase {
             visionRet = limelight.getEntry("botpose_wpired").getDoubleArray(empty);
         }
 
-        SmartDashboard.putBoolean("limelight messaurment empty", visionRet == empty);
-
         Pose3d robotPose = new Pose3d(visionRet[0], visionRet[1], visionRet[2],
                 new Rotation3d(visionRet[3], visionRet[4], visionRet[5]));
 
