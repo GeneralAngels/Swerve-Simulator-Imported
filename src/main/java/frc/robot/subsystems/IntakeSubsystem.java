@@ -56,12 +56,16 @@ public class IntakeSubsystem extends SubsystemBase {
     public void take() {
         // TODO: activate motor in positive direction.
         currentState = CurrentIntakeState.TAKING;
-        motor1.set(1.0);
+        motor1.set(0.7);
+    }
+
+    public void stopTaking() {
+        motor1.setVoltage(0.0);
     }
 
     public void eject() {
         currentState = CurrentIntakeState.EJECTING;
-        motor1.set(-1.0);
+        motor1.set(-0.7);
     }
 
     public void open() {
@@ -73,19 +77,5 @@ public class IntakeSubsystem extends SubsystemBase {
         solenoid.set(false);
     }
 
-    public Command getTakeCommand() {
-        return Commands.sequence(
-                new InstantCommand(this::open),
-                new WaitCommand(0.1),
-                new RunCommand(this::take),
-                /*new WaitCommand(3.0),
-                new InstantCommand(this;;close())*/
-
-        )
-    }
-
-    public intake {
-
-    }
 }
 

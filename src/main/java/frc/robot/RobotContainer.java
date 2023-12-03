@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
@@ -75,6 +76,18 @@ public class RobotContainer {
                 new ShootCommand()
         ).toggleOnFalse(
                 new InstantCommand(() -> {Shooter.getInstance().setDesiredVelocity(0);})
+        );
+
+        driver.square().toggleOnTrue(
+                new InstantCommand(() -> {
+                    IntakeSubsystem.getInstance().open();
+                    IntakeSubsystem.getInstance().take();
+                })
+        ).toggleOnFalse(
+                new InstantCommand(() -> {
+                    IntakeSubsystem.getInstance().stopTaking();
+                    IntakeSubsystem.getInstance().close();
+                })
         );
     }
 
