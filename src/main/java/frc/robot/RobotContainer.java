@@ -74,6 +74,10 @@ public class RobotContainer {
         ).toggleOnFalse(
                 new InstantCommand(() -> {Shooter.getInstance().setDesiredVelocity(0);})
         );
+
+        driver.cross().toggleOnTrue(
+            new InstantCommand(() -> {NewSwerveDriveSubsystem.getInstance().pigeon2.setYaw(0);})
+        );
     }
 
     public static List<PathPlannerPath> splitting_paths_into_segments(PathPlannerPath path_from_file) {

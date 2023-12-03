@@ -28,7 +28,7 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
     // on the final pose estimate.
     private static final Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
     private static final Matrix<N1, N1> localMeasurementStdDevs = VecBuilder.fill(Units.degreesToRadians(0.01));
-    private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
+    private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.4, 0.4, Units.degreesToRadians(5));
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Field2d field2d = new Field2d();
 
@@ -61,22 +61,18 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
         poseEstimator.update(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition());
 
         var current_pose = getCurrentPose();
-        SmartDashboard.putNumber("pose.x", current_pose.getX());
-        SmartDashboard.putNumber("pose.y", current_pose.getY());
-        SmartDashboard.putNumber("pose.angle", current_pose.getRotation().getDegrees());
-
-        Logger.recordOutput("MyPose", current_pose);
+        Logger.recordOutput("Limelight Pose", current_pose);
 
         field2d.setRobotPose(getCurrentPose());
 
         // Update pose estimator with visible targets
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
         if (limelightMeasurement == null) {
-            SmartDashboard.putBoolean("Tag In Sight", false);
+            Logger.recordOutput("Tag in sight", false);
             return;
         }
 
-        SmartDashboard.putBoolean("Tag In Sight", true);
+        Logger.recordOutput("Tag in sight", true);
         poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp);
     }
 

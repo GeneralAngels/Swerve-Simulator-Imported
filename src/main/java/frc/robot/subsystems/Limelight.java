@@ -21,6 +21,8 @@ import frc.robot.Utils.LimelightMeasurement;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 public class Limelight extends SubsystemBase {
 
     private static Limelight instace = null;
@@ -28,6 +30,7 @@ public class Limelight extends SubsystemBase {
     private static final Supplier<Double> currAngle = NewSwerveDriveSubsystem.getInstance()::getYawDegrees;
 
     public static double[] visionRet = new double[7];
+    public static Pose2d fieldPose;
 
     static double[] empty = new double[7];
     static double[] empty_1 = new double[1];
@@ -52,13 +55,11 @@ public class Limelight extends SubsystemBase {
             visionRet = limelight.getEntry("botpose_wpired").getDoubleArray(empty);
         }
 
-        SmartDashboard.putBoolean("limelight messaurment empty", visionRet == empty);
+        fieldPose = new Pose2d(visionRet[0],
+                visionRet[1],
+                new Rotation2d(visionRet[5]));
 
-        Pose3d robotPose = new Pose3d(visionRet[0], visionRet[1], visionRet[2],
-                new Rotation3d(visionRet[3], visionRet[4], visionRet[5]));
-
-
-        double estimatedRotation = robotPose.getRotation().getZ();
+        double estimatedRotation = fieldPose.getRotation().getDegrees();
 
         // Check if the estimated rotation lines up with the current gyro value
         if (Math.abs(currAngle.get() - estimatedRotation) > Constants.PoseEstimatorConstants.maxEstimatedAngleError && numTags == 1){
@@ -67,9 +68,9 @@ public class Limelight extends SubsystemBase {
 
 
         double timestamp = Timer.getFPGATimestamp() - (visionRet[6] / 1000.0);
-        var fieldPose = new Pose2d(robotPose.getX(),
-                robotPose.getY(),
-                new Rotation2d(robotPose.getRotation().getZ()));
+        
+
+        Logger.recordOutput("Raw Pose", fieldPose);
 
         return new LimelightMeasurement(fieldPose, timestamp);
     }

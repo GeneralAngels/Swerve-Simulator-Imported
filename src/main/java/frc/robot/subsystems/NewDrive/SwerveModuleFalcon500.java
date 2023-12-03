@@ -36,24 +36,28 @@ public class SwerveModuleFalcon500 {
      * motor encoder ticks -> meters: motor encoder ticks * constant
      * meters -> motor encoder ticks: meters / constant
      */
-    private static final double DRIVE_SENSOR_POSITION_COEFFICIENT =
-            (2 * Math.PI * WHEEL_RADIUS_METERS) / (2048 * DRIVE_GEAR_RATIO);
+    private static final double DRIVE_SENSOR_POSITION_COEFFICIENT = (2 * Math.PI * WHEEL_RADIUS_METERS)
+            / (2048 * DRIVE_GEAR_RATIO);
 
     /**
      * Conversion constant: From motor encoder ticks to velocity data (m/s)
      * <p>
-     * motor encoder ticks / 100 ms -> meters per second: motor encoder ticks * constant
-     * meters per second -> motor encoder ticks / 100 ms: meters per second / constant
+     * motor encoder ticks / 100 ms -> meters per second: motor encoder ticks *
+     * constant
+     * meters per second -> motor encoder ticks / 100 ms: meters per second /
+     * constant
      */
     private static final double DRIVE_SENSOR_VELOCITY_COEFFICIENT = DRIVE_SENSOR_POSITION_COEFFICIENT * 10;
 
     /**
-     * From motor rotations to the wheel rotations (150 / 7 motor rotations : 1 full rotation of the wheel [2π])
+     * From motor rotations to the wheel rotations (150 / 7 motor rotations : 1 full
+     * rotation of the wheel [2π])
      */
     private static final double STEER_GEAR_RATIO = 150.0 / 7;
 
     /**
-     * Conversion constant: From motor encoder ticks to angle data (steer position) (radians)
+     * Conversion constant: From motor encoder ticks to angle data (steer position)
+     * (radians)
      * <p>
      * motor encoder ticks -> radians: motor encoder ticks * constant
      * radians -> motor encoder ticks: radians / constant
@@ -61,15 +65,17 @@ public class SwerveModuleFalcon500 {
     private static final double STEER_SENSOR_POSITION_COEFFICIENT = (2 * Math.PI) / (2048 * STEER_GEAR_RATIO);
 
     /**
-     * Conversion constant: From motor encoder ticks to angular velocity data (steer velocity) (radians/s)
+     * Conversion constant: From motor encoder ticks to angular velocity data (steer
+     * velocity) (radians/s)
      * <p>
-     * motor encoder ticks / 100 ms -> radians per second: motor encoder ticks / 100 ms * constant
-     * radians per second -> motor encoder ticks / 100 ms: radians per second / constant
+     * motor encoder ticks / 100 ms -> radians per second: motor encoder ticks / 100
+     * ms * constant
+     * radians per second -> motor encoder ticks / 100 ms: radians per second /
+     * constant
      */
     private static final double STEER_SENSOR_VELOCITY_COEFFICIENT = STEER_SENSOR_POSITION_COEFFICIENT * 10;
 
     private static final double VELOCITY_COEFFICIENT = 2;
-
 
     // Hardware object initialization
     /**
@@ -93,7 +99,9 @@ public class SwerveModuleFalcon500 {
      * @param driveMotorId        Drive motor CAN ID
      * @param steerMotorId        Steer motor CAN ID
      * @param steerCanCoderID     Steer encoder CAN ID
-     * @param steerAngleOffsetRad This is the offset applied to the angle motor's absolute encoder so that a reading of 0 degrees means the module is facing forwards.
+     * @param steerAngleOffsetRad This is the offset applied to the angle motor's
+     *                            absolute encoder so that a reading of 0 degrees
+     *                            means the module is facing forwards.
      */
     public SwerveModuleFalcon500(
             int driveMotorId, int steerMotorId, int steerCanCoderID, double steerAngleOffsetRad) {
@@ -131,7 +139,7 @@ public class SwerveModuleFalcon500 {
         steerEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
         steerEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         steerEncoderConfig.magnetOffsetDegrees = Units.radiansToDegrees(steerAngleOffsetRad);
-//        steerEncoderConfig.magnetOffsetDegrees = 0;
+        // steerEncoderConfig.magnetOffsetDegrees = 0;
 
         steerEncoder.configAllSettings(steerEncoderConfig);
     }
@@ -140,7 +148,8 @@ public class SwerveModuleFalcon500 {
         steerMotor.set(TalonFXControlMode.Position, targetSteerPositionRad / STEER_SENSOR_POSITION_COEFFICIENT);
 
         if (Robot.isSimulation()) {
-            simSteerMotor.setIntegratedSensorRawPosition(-(int) (targetSteerPositionRad / STEER_SENSOR_POSITION_COEFFICIENT));
+            simSteerMotor.setIntegratedSensorRawPosition(
+                    -(int) (targetSteerPositionRad / STEER_SENSOR_POSITION_COEFFICIENT));
         }
     }
 
@@ -149,7 +158,8 @@ public class SwerveModuleFalcon500 {
                 TalonFXControlMode.Velocity, targetDriveVelocityMetersPerSec / DRIVE_SENSOR_VELOCITY_COEFFICIENT);
 
         if (Robot.isSimulation()) {
-            simDriveMotor.setIntegratedSensorVelocity(-(int) (targetDriveVelocityMetersPerSec / DRIVE_SENSOR_VELOCITY_COEFFICIENT));
+            simDriveMotor.setIntegratedSensorVelocity(
+                    -(int) (targetDriveVelocityMetersPerSec / DRIVE_SENSOR_VELOCITY_COEFFICIENT));
         }
     }
 
@@ -158,8 +168,20 @@ public class SwerveModuleFalcon500 {
         var steerPositionRad = steerPositionTicks * STEER_SENSOR_POSITION_COEFFICIENT;
 
         double currentAngle = steerPositionRad; // Current angle of the swerve module
+        double angleError = getAngleError(targetState.angle.getRadians(), currentAngle);
+
+        double resultAngle = currentAngle
+                + angleError; // Adding that distance to our current angle (directly from the steer encoder).
+                              // Becomes
+        // our target angle
+
+        setTargetDriveVelocity(targetState.speedMetersPerSecond);
+        setTargetSteerPosition(resultAngle);
+    }
+
+    static double getAngleError(double _targetAngleRadians, double currentAngle) {
         double targetAngle = MathUtil.inputModulus(
-                targetState.angle.getRadians(),
+                _targetAngleRadians,
                 0,
                 2 * Math.PI); // Target angle of the swerve module, limited to a domain between 0 and 2π.
 
@@ -170,18 +192,19 @@ public class SwerveModuleFalcon500 {
                 targetAngle - absoluteAngle,
                 -Math.PI,
                 Math.PI); // Finding the difference in between the current and target angle (in radians).
-        double resultAngle = currentAngle
-                + angleError; // Adding that distance to our current angle (directly from the steer encoder). Becomes
-        // our target angle
 
-        setTargetDriveVelocity(targetState.speedMetersPerSecond);
-        setTargetSteerPosition(resultAngle);
+        return angleError;
     }
 
     public void resetToAbsolute() {
         if (Robot.isReal()) {
+            double currentPosition = steerMotor.getSelectedSensorPosition();
+            double absoluteEncoderAngle = steerEncoder.getAbsolutePosition();
+
+            double angle_error = getAngleError(Units.degreesToRadians(absoluteEncoderAngle), currentPosition * STEER_SENSOR_POSITION_COEFFICIENT);
+
             steerMotor.setSelectedSensorPosition(
-                    Units.degreesToRadians(steerEncoder.getAbsolutePosition()) / STEER_SENSOR_POSITION_COEFFICIENT);
+                    currentPosition + angle_error / STEER_SENSOR_POSITION_COEFFICIENT);
         }
     }
 
@@ -194,8 +217,7 @@ public class SwerveModuleFalcon500 {
     public SwerveModuleState getState() {
         return new SwerveModuleState(
                 driveMotor.getSelectedSensorVelocity() * DRIVE_SENSOR_VELOCITY_COEFFICIENT,
-                Rotation2d.fromRadians(steerMotor.getSelectedSensorPosition() * STEER_SENSOR_POSITION_COEFFICIENT)
-        );
+                Rotation2d.fromRadians(steerMotor.getSelectedSensorPosition() * STEER_SENSOR_POSITION_COEFFICIENT));
     }
 
     public void updateSim(double looperDt) {

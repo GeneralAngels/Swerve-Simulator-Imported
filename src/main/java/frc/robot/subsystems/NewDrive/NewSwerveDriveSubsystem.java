@@ -1,6 +1,8 @@
 package frc.robot.subsystems.NewDrive;
 
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix.sensors.BasePigeonSimCollection;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.time.StopWatch;
@@ -15,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drive.SwerveConstants;
@@ -72,10 +75,10 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     }
 
     public static NewSwerveDriveSubsystem getDefaultSwerve() {
-        double homeFrontLeftAngle = 262 - 180;
-        double homeFrontRightAngle = 22;
-        double homeBackLeftAngle = 134 + 180;
-        double homeBackRightAngle = 311 - 180;
+        double homeFrontLeftAngle = 84.81; // old 82
+        double homeFrontRightAngle = 15.73; // old 22
+        double homeBackLeftAngle = 312.36; // old 314
+        double homeBackRightAngle = 128.75; // old 131
 
 
 
@@ -123,7 +126,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     }
 
     public ChassisSpeeds skew_calculation(ChassisSpeeds setpoint) {
-        var loop = 0.06;
+        var loop = 0.15;
         var setpointTwist =
                 new Pose2d()
                         .log(
@@ -177,9 +180,9 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         var after_skew_velocity = skew_calculation(wantedRobotVelocity);
         wantedModuleStates = this.kinematics.toSwerveModuleStates(after_skew_velocity);
 
-
-        SmartDashboard.putNumber("pigeon angle", pigeon2.getYaw());
-
+        Logger.recordOutput("current module states", currentModuleStates);
+        Logger.recordOutput("wanted module states", wantedModuleStates);
+    
         if (limitingRotatingMaxVel) {
             SwerveDriveKinematics.desaturateWheelSpeeds(
                     currentModuleStates, getChassisSpeeds(),
@@ -197,11 +200,28 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
             wantedModuleStates[i].angle = Rotation2d.fromDegrees(placeInAppropriate0To360Scope(current_module_state.angle.getDegrees(), wantedModuleStates[i].angle.getDegrees()));
 
             swerveModules[i].setState(wantedModuleStates[i]);
+
+            Logger.recordOutput("ModuleStates/Current/" + i + "/angle", current_module_state.angle.getDegrees());
+            Logger.recordOutput("ModuleStates/Current/" + i + "/velocity", current_module_state.speedMetersPerSecond);
+
+            Logger.recordOutput("ModuleStates/Wanted/" + i + "/angle", wantedModuleStates[i].angle.getDegrees());
+            Logger.recordOutput("ModuleStates/Wanted/" + i + "/velocity", wantedModuleStates[i].speedMetersPerSecond);
         }
     }
 
     public double getYawDegrees() {
         return pigeon2.getYaw();
+    }
+
+    public void getAllCanCoders() {
+        for (SwerveModuleFalcon500 module : this.swerveModules) {
+            module.steerEncoder.configMagnetOffset(0);
+        }
+
+        for (int i = 0; i < swerveModules.length; i++) {
+            var nt_publisher = NetworkTableInstance.getDefault().getTable("CANCoders").getDoubleTopic("CANCoder "  + i).publish();
+            nt_publisher.set(swerveModules[i].steerEncoder.getAbsolutePosition());
+        }
     }
 
     public void printAllCANCoders() {

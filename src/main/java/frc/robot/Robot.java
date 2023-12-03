@@ -7,7 +7,9 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.Utils.LimelightMeasurement;
 import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.NT_testSubsystem;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -17,6 +19,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import com.revrobotics.REVPhysicsSim;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,6 +38,7 @@ public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 
     private RobotContainer m_robotContainer;
+    Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
 
     /**
@@ -64,6 +69,7 @@ public class Robot extends LoggedRobot {
         m_robotContainer = new RobotContainer();
         NT_testSubsystem.getInstance();
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
+        compressor.enableDigital();
     }
 
     /**
@@ -137,6 +143,12 @@ public class Robot extends LoggedRobot {
         }
 
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
+        
+        LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
+        if (limelightMeasurement != null) {
+            NewPoseEstimatorSubsystem.getInstance().setCurrentPose(limelightMeasurement.pose);
+        }
+        
         NewSwerveDriveSubsystem.getInstance().setDefaultCommand(
                 new DefaultDriveCommand(
                         m_robotContainer.driver
