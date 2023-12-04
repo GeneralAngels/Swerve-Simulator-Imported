@@ -109,6 +109,11 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
+        LimelightMeasurement newPose = Limelight.MegaTagEstimate();
+        if (newPose != null) {
+            NewPoseEstimatorSubsystem.getInstance().setCurrentPose(newPose.pose);
+        }
+
         // schedule the autonomous command (example)
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
@@ -150,9 +155,9 @@ public class Robot extends LoggedRobot {
         }
         
         NewSwerveDriveSubsystem.getInstance().setDefaultCommand(
-                new DefaultDriveCommand(
-                        m_robotContainer.driver
-                )
+            new DefaultDriveCommand(
+                    m_robotContainer.driver
+            )
         );
 
         var command = new InstantCommand();

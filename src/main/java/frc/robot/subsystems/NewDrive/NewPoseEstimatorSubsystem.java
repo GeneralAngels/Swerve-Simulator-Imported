@@ -28,7 +28,7 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
     // on the final pose estimate.
     private static final Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
     private static final Matrix<N1, N1> localMeasurementStdDevs = VecBuilder.fill(Units.degreesToRadians(0.01));
-    private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.4, 0.4, Units.degreesToRadians(5));
+    private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.7, 0.7, Units.degreesToRadians(25));
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Field2d field2d = new Field2d();
 
@@ -61,7 +61,7 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
         poseEstimator.update(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition());
 
         var current_pose = getCurrentPose();
-        Logger.recordOutput("Limelight Pose", current_pose);
+        Logger.recordOutput("PoseEstimatorPose", current_pose);
 
         field2d.setRobotPose(getCurrentPose());
 
@@ -95,7 +95,7 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
      * @param newPose new pose
      */
     public void setCurrentPose(Pose2d newPose) {
-        drive.pigeon2.setYaw(0);
+        drive.pigeon2.setYaw(newPose.getRotation().getDegrees());
         System.out.println("Resetting position");
         poseEstimator.resetPosition(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition(), newPose);
         System.out.println(getCurrentPose().getX() + " " + getCurrentPose().getY());
