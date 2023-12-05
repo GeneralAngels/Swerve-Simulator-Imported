@@ -32,7 +32,7 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
     // NOTICE: In elastic only text display input works!
     // Let's check on robot also.
 
-    public SlewRateLimiter slewRateLimiter = new SlewRateLimiter(0.05); // in percent per sec^2
+    public SlewRateLimiter slewRateLimiter = new SlewRateLimiter(0.15); // in percent per sec^2
 
     double Kf = 0.002;
     double Kp = 0.0015;
