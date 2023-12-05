@@ -14,8 +14,9 @@ public class SpindexerSubsystem extends SubsystemBase {
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
     // before the constructor is called when the "INSTANCE" variable initializes.
     CANSparkMax motor2 = new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless);
-    DigitalInput sensor_state = new DigitalInput(5);
-    boolean last_state =
+    DigitalInput beam_breaker = new DigitalInput(5);
+
+
 
 
 
@@ -46,20 +47,21 @@ public class SpindexerSubsystem extends SubsystemBase {
 
     }
 
+    public boolean inTower(){
+        return !(beam_breaker.get());
+    }
     public void spin() {
-        motor2.setVoltage(3.0);
+        if (!(inTower()))
+            motor2.setVoltage(3.0);
     }
 
     public void stopSpin() {
         motor2.setVoltage(0.0);
     }
 
-    public boolean inTower(){
-        if (sensor_state && !last_state)
-            return false;
-        if (!sensor_state && last_state)
-            return true
-    }
+
+
+
 
 
 }
