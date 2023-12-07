@@ -1,21 +1,20 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.time.StopWatch;
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.ControlType;
 
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 
+import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 import org.littletonrobotics.junction.Logger;
 
-public class Shooter extends SubsystemBase {
+public class Shooter extends TimeMeasurementSubsystem {
     public CANSparkMax m_flywheel_motor;
-    private static final int flywheel_deviceId = 4;
+    private static final int flywheel_deviceId = 100;
     public SparkMaxPIDController m_flywheel_pidController;
     private RelativeEncoder m_flywheel_encoder;
 
@@ -73,9 +72,8 @@ public class Shooter extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void _periodic() {
         // m_flywheel_pidController.setReference(desiredVelocity, CANSparkMax.ControlType.kVelocity); // We can use smart velocity if we want.
-        m_flywheel_pidController.setReference(3000, ControlType.kVelocity);
         Logger.recordOutput("shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
         Logger.recordOutput("motor voltage", m_flywheel_motor.getAppliedOutput());
         setHoodAngle();
@@ -85,8 +83,7 @@ public class Shooter extends SubsystemBase {
         }
         Logger.recordOutput("Wanted RPM", desiredVelocity);
 
-
-    //    m_flywheel_pidController.setReference(desiredVelocity, ControlType.kVelocity);
+        m_flywheel_pidController.setReference(desiredVelocity, ControlType.kVelocity);
     }
 
     public double getHoodEncoder(double distanceToTarget) {
@@ -115,17 +112,15 @@ public class Shooter extends SubsystemBase {
         Logger.recordOutput("Hood Angle", getHoodEncoder(distanceToTarget));
     }
 
-    public double getKf() {
-        m_flywheel_motor.setVoltage(6);
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        while (stopWatch.getDuration() < 5) {
-            Logger.recordOutput("Shooter KF Vel", m_flywheel_motor.getEncoder().getVelocity());
-        }
-        Logger.recordOutput("Kf_glywheel", 6 / m_flywheel_motor.getEncoder().getVelocity());
-        return 6 / m_flywheel_motor.getEncoder().getVelocity();
+    public Command getKf() {
+        return Commands.sequence(
+                new RunCommand(() -> {
+                    m_hood_motor.set(0.5);
+                }).withTimeout(3),
+                new RunCommand(() -> {
+                    Logger.recordOutput("NEW KF", 0.5 / m_hood_motor.getEncoder().getVelocity());
+                })
+        );
     }
 
     public double getDistanceToTarget() {

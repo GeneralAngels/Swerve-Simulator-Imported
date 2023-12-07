@@ -54,10 +54,7 @@ public class AutosGenerator {
 
     public Command _2020_auto1() {
         PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Auto1");
-        var auto_command = new InstantCommand(
-                () -> {
-                    poseEstimatorSubsystem.setCurrentPose(path_from_file.getPreviewStartingHolonomicPose());
-                }).andThen();
+        var auto_command = Commands.sequence();
 
         auto_command = auto_command.andThen(
                 new InstantCommand(() -> {

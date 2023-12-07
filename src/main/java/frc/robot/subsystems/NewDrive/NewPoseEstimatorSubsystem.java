@@ -10,16 +10,14 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Limelight;
 import frc.robot.Utils.LimelightMeasurement;
+import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 import org.littletonrobotics.junction.Logger;
 
-public class NewPoseEstimatorSubsystem extends SubsystemBase {
+public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
     private final NewSwerveDriveSubsystem drive = NewSwerveDriveSubsystem.getInstance();
     private static NewPoseEstimatorSubsystem instance = null;
 
@@ -30,7 +28,7 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
     // on the final pose estimate.
     private static final Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
     private static final Matrix<N1, N1> localMeasurementStdDevs = VecBuilder.fill(Units.degreesToRadians(0.01));
-    private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
+    private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.7, 0.7, Units.degreesToRadians(25));
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Field2d field2d = new Field2d();
 
@@ -45,8 +43,6 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
     }
 
     public NewPoseEstimatorSubsystem() {
-        ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-
         poseEstimator = new SwerveDrivePoseEstimator(
                 drive.kinematics,
                 Rotation2d.fromDegrees(drive.getYawDegrees()),
@@ -60,28 +56,24 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void _periodic() {
         // Update by DriveTrain:
         poseEstimator.update(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition());
 
         var current_pose = getCurrentPose();
-        SmartDashboard.putNumber("pose.x", current_pose.getX());
-        SmartDashboard.putNumber("pose.y", current_pose.getY());
-        SmartDashboard.putNumber("pose.angle", current_pose.getRotation().getDegrees());
-
-        Logger.recordOutput("MyPose", current_pose);
+        Logger.recordOutput("PoseEstimatorPose", current_pose);
 
         field2d.setRobotPose(getCurrentPose());
 
         // Update pose estimator with visible targets
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
         if (limelightMeasurement == null) {
-            SmartDashboard.putBoolean("Tag In Sight", false);
+            Logger.recordOutput("Tag in sight", false);
             return;
         }
 
-        SmartDashboard.putBoolean("Tag In Sight", true);
-        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp );
+        Logger.recordOutput("Tag in sight", true);
+        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp);
     }
 
     private String getFormattedPose() {
@@ -99,10 +91,11 @@ public class NewPoseEstimatorSubsystem extends SubsystemBase {
      * Resets the current pose to the specified pose. This should ONLY be called
      * when the robot's position on the field is known, like at the beginning of
      * a match.
+     *
      * @param newPose new pose
      */
     public void setCurrentPose(Pose2d newPose) {
-        drive.pigeon2.setYaw(0);
+        drive.pigeon2.setYaw(newPose.getRotation().getDegrees());
         System.out.println("Resetting position");
         poseEstimator.resetPosition(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition(), newPose);
         System.out.println(getCurrentPose().getX() + " " + getCurrentPose().getY());
