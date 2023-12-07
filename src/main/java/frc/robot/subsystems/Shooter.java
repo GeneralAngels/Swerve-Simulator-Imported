@@ -21,7 +21,7 @@ public class Shooter extends TimeMeasurementSubsystem {
     public CANSparkMax m_hood_motor;
     public SparkMaxPIDController m_hood_PidController;
     private RelativeEncoder m_hood_encoder;
-    private static final int hood_deviceId = 200;
+    private static final int hood_deviceId = 300;
 
 
     public double desiredVelocity = 0.0;

@@ -11,6 +11,7 @@ import frc.robot.Utils.LimelightMeasurement;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.NT_testSubsystem;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -160,10 +161,7 @@ public class Robot extends LoggedRobot {
             )
         );
 
-        var command = new InstantCommand();
-        command.schedule();
 
-        this.m_robotContainer.shooter_rig.renew();
         m_robotContainer.shooter_rig.slewRateLimiter.reset(0);
     }
 

@@ -10,7 +10,7 @@ public class ShooterConstants {
     public static double FLYWHEEL_P = 0.5;
     public static double FLYWHEEL_I = 0;
     public static double FLYWHEEL_D = 0;
-    public static double FLYWHEEL_F = 0.0010570821;
+    public static double FLYWHEEL_F = 0.000018617010638967077;
     private static double[][] FlyWheelManualRPM = {
             {1.0, 2050},
             {1.25, 2050},
