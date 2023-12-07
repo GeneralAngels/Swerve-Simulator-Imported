@@ -82,9 +82,11 @@ public class RobotContainer {
                             new ShootCommand();
                             SpindexerSubsystem.getInstance().spin();
                         }),
-                        // Commands.waitUntil(Shooter.getInstance().atDesiredVelocity()), // Expecting Booleansuppplier
+                        Commands.waitUntil(() -> {
+                            return Shooter.getInstance().atDesiredVelocity();
+                        }),
                         new InstantCommand(() -> {
-                            //Open PISTON
+                            SpindexerSubsystem.getInstance().openPiston();
                             //Count balls
                         })
                 )
@@ -92,7 +94,7 @@ public class RobotContainer {
         ).toggleOnFalse(
                 new InstantCommand(() -> {
                     Shooter.getInstance().setDesiredVelocity(0);
-                    // Close PISTON
+                    SpindexerSubsystem.getInstance().closePiston();
                 })
         );
 

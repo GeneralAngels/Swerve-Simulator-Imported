@@ -22,8 +22,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     CANSparkMax motor1 = new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-
-    Solenoid solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 23);
+    Solenoid solenoid1 = new Solenoid(PneumaticsModuleType.CTREPCM, 23);
+    Solenoid solenoid2 = new Solenoid(PneumaticsModuleType.CTREPCM, 24);
 
     CurrentIntakeState currentState = CurrentIntakeState.CLOSED;
 
@@ -70,11 +70,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void open() {
         currentState = CurrentIntakeState.OPEN;
-        solenoid.set(true);
+        solenoid1.set(true);
+        solenoid2.set(true);
     }
     public void close() {
         currentState = CurrentIntakeState.CLOSED;
-        solenoid.set(false);
+        solenoid1.set(false);
+        solenoid2.set(false);
     }
 
 }
