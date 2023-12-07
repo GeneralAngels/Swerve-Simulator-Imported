@@ -74,17 +74,16 @@ public class Shooter extends TimeMeasurementSubsystem {
     @Override
     public void _periodic() {
         // m_flywheel_pidController.setReference(desiredVelocity, CANSparkMax.ControlType.kVelocity); // We can use smart velocity if we want.
-
         Logger.recordOutput("shooter velocity", m_flywheel_motor.getEncoder().getVelocity());
+        Logger.recordOutput("motor voltage", m_flywheel_motor.getAppliedOutput());
         setHoodAngle();
 
-        var velocity_to_set = desiredVelocity;
         if (isRegular) {
             desiredVelocity = ShooterConstants.FLYWHEEL_RPM_MAP.get(getDistanceToTarget()) / 2;
         }
+        Logger.recordOutput("Wanted RPM", desiredVelocity);
 
         m_flywheel_pidController.setReference(desiredVelocity, ControlType.kVelocity);
-
     }
 
     public double getHoodEncoder(double distanceToTarget) {

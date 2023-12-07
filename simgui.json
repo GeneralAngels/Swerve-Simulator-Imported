@@ -5,5 +5,10 @@
       "/SmartDashboard/Autonomous chooser": "String Chooser",
       "/SmartDashboard/field": "Field2d"
     }
+  },
+  "NetworkTables": {
+    "Transitory Values": {
+      "open": false
+    }
   }
 }
