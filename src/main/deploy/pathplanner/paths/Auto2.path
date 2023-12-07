@@ -15,16 +15,16 @@
     },
     {
       "anchor": {
-        "x": 5.890049872756989,
+        "x": 5.7,
         "y": 7.1
       },
       "prevControl": {
-        "x": 4.890512506505836,
-        "y": 7.069585308357507
+        "x": 4.28644070054894,
+        "y": 7.056987130583795
       },
       "nextControl": {
-        "x": 5.9900036093821045,
-        "y": 7.103041469164249
+        "x": 5.742984738314222,
+        "y": 7.101307972673461
       },
       "isLocked": false
     },
@@ -45,12 +45,42 @@
     },
     {
       "anchor": {
-        "x": 1.047697222388104,
-        "y": 5.800145367162947
+        "x": 6.8,
+        "y": 5.8
       },
       "prevControl": {
-        "x": 4.233923567255504,
-        "y": 5.796562116063434
+        "x": 7.450373529337799,
+        "y": 6.2576702613858615
+      },
+      "nextControl": {
+        "x": 6.184011250443683,
+        "y": 5.366526435497405
+      },
+      "isLocked": false
+    },
+    {
+      "anchor": {
+        "x": 5.0,
+        "y": 5.8
+      },
+      "prevControl": {
+        "x": 4.985732988811011,
+        "y": 5.743611336729234
+      },
+      "nextControl": {
+        "x": 5.122641459932629,
+        "y": 6.284725770209913
+      },
+      "isLocked": false
+    },
+    {
+      "anchor": {
+        "x": 2.5,
+        "y": 6.102851500235366
+      },
+      "prevControl": {
+        "x": 4.0399715109027445,
+        "y": 6.410847689948207
       },
       "nextControl": null,
       "isLocked": false
@@ -59,11 +89,19 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.9,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 180.0
     },
     {
-      "waypointRelativePos": 2.2,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 2.0,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 2.8000000000000003,
+      "rotationDegrees": -140.0
+    },
+    {
+      "waypointRelativePos": 4.7,
+      "rotationDegrees": -140.0
     }
   ],
   "constraintZones": [],
@@ -71,7 +109,7 @@
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
-    "maxAngularVelocity": 500.0,
+    "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 300.0
   },
   "goalEndState": {
