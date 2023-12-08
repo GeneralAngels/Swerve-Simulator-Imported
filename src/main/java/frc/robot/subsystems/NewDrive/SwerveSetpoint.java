@@ -1,12 +1,13 @@
 package frc.robot.subsystems.NewDrive;
 
-import frc.robot.Utils.Chessy.CheesyChassisSpeeds;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveSetpoint {
-    public CheesyChassisSpeeds mChassisSpeeds;
-    public CheesySwerveModuleState[] mModuleStates;
+    public ChassisSpeeds mChassisSpeeds;
+    public SwerveModuleState[] mModuleStates;
 
-    public SwerveSetpoint(CheesyChassisSpeeds chassisSpeeds, CheesySwerveModuleState[] initialStates) {
+    public SwerveSetpoint(ChassisSpeeds chassisSpeeds, SwerveModuleState[] initialStates) {
         this.mChassisSpeeds = chassisSpeeds;
         this.mModuleStates = initialStates;
     }
