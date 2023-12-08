@@ -27,6 +27,7 @@ import com.pathplanner.lib.commands.*;
 public class NewSwerveDriveSubsystem extends SubsystemBase {
     private static NewSwerveDriveSubsystem instance = null;
     SwerveSetpointGenerator setpointGenerator;
+    SwerveSetpointGeneratorNoCheese setpointGeneratorNoCheese;
     SwerveDriveKinematics kinematics;
     CheesySwerveDriveKinematics sKinematics;
 
@@ -35,6 +36,7 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
     ChassisSpeeds wantedRobotVelocity = new ChassisSpeeds();
 
     SwerveSetpoint setpoint;
+    SwerveSetpointNoCheese setpointNoCheese;
     SwerveModuleState[] wantedModuleStates = new SwerveModuleState[] {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
     SwerveModuleState[] currentModuleStates = new SwerveModuleState[] {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
     SwerveModulePosition[] currentPositions = new SwerveModulePosition[] {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
@@ -70,9 +72,12 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
 
         sKinematics = new CheesySwerveDriveKinematics(sFrontLeftLocation, sFrontRightLocation, sBackLeftLocation, sBackRightLocation);
         setpointGenerator = new SwerveSetpointGenerator(sKinematics);
+        setpointGeneratorNoCheese = new SwerveSetpointGeneratorNoCheese(kinematics,frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
         this.swerveModules = swerveModules;
         CheesySwerveModuleState[] moduleStates = {new CheesySwerveModuleState(), new CheesySwerveModuleState(), new CheesySwerveModuleState(), new CheesySwerveModuleState()};
+        SwerveModuleState[] moduleStatesNoCheese = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
         setpoint = new SwerveSetpoint(new CheesyChassisSpeeds(),moduleStates);
+        setpointNoCheese = new SwerveSetpointNoCheese(new ChassisSpeeds(),moduleStatesNoCheese);
         printAllCANCoders();
 
         for (SwerveModuleFalcon500 module : swerveModules) {
@@ -196,6 +201,7 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
         var after_skew_velocity = skew_calculation(wantedRobotVelocity);
         CheesyChassisSpeeds speeds = new CheesyChassisSpeeds(after_skew_velocity.vxMetersPerSecond,after_skew_velocity.vyMetersPerSecond,after_skew_velocity.omegaRadiansPerSecond);
         this.setpoint = setpointGenerator.generateSetpoint(this.setpoint, speeds, 0.12);
+        this.setpointNoCheese = setpointGeneratorNoCheese.generateSetpoint(this.setpointNoCheese, after_skew_velocity,0.12);
         wantedModuleStates = this.kinematics.toSwerveModuleStates(after_skew_velocity);
 
 
@@ -218,8 +224,11 @@ public class NewSwerveDriveSubsystem extends SubsystemBase {
             wantedModuleStates[i].angle = Rotation2d.fromDegrees(placeInAppropriate0To360Scope(current_module_state.angle.getDegrees(), wantedModuleStates[i].angle.getDegrees()));
 
             swerveModules[i].setState(wantedModuleStates[i]);*/
-            Rotation2d angle = new Rotation2d(setpoint.mModuleStates[i].angle.getRadians());
+            /*Rotation2d angle = new Rotation2d(setpoint.mModuleStates[i].angle.getRadians());
             SwerveModuleState dState = new SwerveModuleState(setpoint.mModuleStates[i].speedMetersPerSecond,angle);
+            swerveModules[i].setState(dState);*/
+            Rotation2d angle = new Rotation2d(setpointNoCheese.mModuleStates[i].angle.getRadians());
+            SwerveModuleState dState = new SwerveModuleState(setpointNoCheese.mModuleStates[i].speedMetersPerSecond,angle);
             swerveModules[i].setState(dState);
         }
     }
