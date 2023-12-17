@@ -22,15 +22,23 @@ public final class Constants {
     public static class SwerveLimitationsConstants {
         public static final double maxVoltageMotor = 0.8;
     }
-
     public final static class VisionConstants {
         public final static Transform3d CAMERA_TO_ROBOT =
                 new Transform3d(new Translation3d(-0.33, 0.0, 0),
                         new Rotation3d(degreesToRadians(0), degreesToRadians(47), degreesToRadians(0)));
 
+        public final static double[][] LIMELIGHT_CAMERA_MATRIX = new double[][] {
+            {1038.54303678,0.0,609.34453296},
+            {0.0,1037.53710926,469.0701746-4},
+            {0.0,0.0,1.0}
+        };
+
+        public final static double[] LIMELIGHT_DISTORTION_COEFFICIENTS = new double[] {
+                0.18609242,-0.62350452,-0.00025751,-0.00047913,0.61867938
+        };
         public final static double Y_ANGLE_FOR_INTAKE = 350;
-        public final static int CAMERA_WIDTH = 640;
-        public final static int CAMERA_HEIGHT = 480;
+        public final static int CAMERA_WIDTH = 1280;
+        public final static int CAMERA_HEIGHT = 960;
 
         public static final double coneXkp = 0.02;
     }
