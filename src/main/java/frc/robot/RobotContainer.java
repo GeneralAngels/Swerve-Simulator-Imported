@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.commands.ExampleCommand;
@@ -24,6 +25,7 @@ import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 
@@ -73,7 +75,22 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         driver.circle().toggleOnTrue(
-                new ShootCommand()
+                //new ShootCommand();
+                Commands.sequence(
+                    new InstantCommand(() -> {
+                        new ShootCommand();
+                        SpindexerSubsystem.getInstance().spin();
+                    }),
+                    Commands.waitUntil(() -> {
+                        return Shooter.getInstance().atDesiredVelocity();
+                    }),
+                    new InstantCommand(() -> {
+                        SpindexerSubsystem.getInstance().openPiston();
+                    })
+
+                    // Count balls
+
+                )
         ).toggleOnFalse(
                 new InstantCommand(() -> {Shooter.getInstance().setDesiredVelocity(0);})
         );

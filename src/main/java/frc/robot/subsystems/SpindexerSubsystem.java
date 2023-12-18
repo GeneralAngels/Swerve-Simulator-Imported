@@ -4,6 +4,8 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -14,8 +16,8 @@ public class SpindexerSubsystem extends SubsystemBase {
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
     // before the constructor is called when the "INSTANCE" variable initializes.
     CANSparkMax motor2 = new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless);
-    DigitalInput sensor_state = new DigitalInput(5);
-    boolean last_state =
+    DigitalInput beam_breaker = new DigitalInput(5);
+    Solenoid solenoid3 = new Solenoid(PneumaticsModuleType.CTREPCM, 25);
 
 
 
@@ -54,13 +56,16 @@ public class SpindexerSubsystem extends SubsystemBase {
         motor2.setVoltage(0.0);
     }
 
-    public boolean inTower(){
-        if (sensor_state && !last_state)
-            return false;
-        if (!sensor_state && last_state)
-            return true
+    public void openPiston() {
+        solenoid3.set(true);
+    }
+    
+    public void closePiston() {
+        solenoid3.set(false);
     }
 
-
+    public boolean inTower(){
+        return !(beam_breaker.get());
+    }
 }
 
