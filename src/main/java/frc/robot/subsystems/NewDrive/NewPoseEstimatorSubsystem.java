@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import frc.robot.subsystems.Limelight;
 import frc.robot.Utils.LimelightMeasurement;
 import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
@@ -95,7 +96,8 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
      * @param newPose new pose
      */
     public void setCurrentPose(Pose2d newPose) {
-        drive.pigeon2.setYaw(newPose.getRotation().getDegrees());
+        if (Robot.isReal())
+            drive.pigeon2.setYaw(newPose.getRotation().getDegrees());
         System.out.println("Resetting position");
         poseEstimator.resetPosition(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition(), newPose);
         System.out.println(getCurrentPose().getX() + " " + getCurrentPose().getY());
