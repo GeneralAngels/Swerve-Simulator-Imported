@@ -3,10 +3,13 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
+
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 
 
 
@@ -47,6 +50,14 @@ public class SpindexerSubsystem extends SubsystemBase {
      */
     private SpindexerSubsystem() {
 
+    }
+
+    @Override
+    public void periodic() {
+        if (NewPoseEstimatorSubsystem.getInstance().getCurrentPose().getTranslation().getDistance(new Translation2d(0,0)) < 4) {
+            this.spin();
+        }
+        this.CountBalls();
     }
 
     public void spin() {
