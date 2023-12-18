@@ -15,6 +15,7 @@ import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 
 
 public class SpindexerSubsystem extends SubsystemBase {
+
     public enum CurrentSpindexerState{
         SPINNING,
         STATIC
@@ -26,7 +27,7 @@ public class SpindexerSubsystem extends SubsystemBase {
     DigitalInput beam_breaker = new DigitalInput(5);
     Solenoid solenoid3 = new Solenoid(PneumaticsModuleType.CTREPCM, 25);
     int ballsShot = 0;
-    CurrentSpindexerState state = CurrentSpindexerState.SPINNING;
+    CurrentSpindexerState spindexerState = CurrentSpindexerState.SPINNING;
 
 
 
@@ -67,12 +68,12 @@ public class SpindexerSubsystem extends SubsystemBase {
     }
 
     public void spin() {
-        state = CurrentSpindexerState.SPINNING;
+        spindexerState = CurrentSpindexerState.SPINNING;
         motor2.setVoltage(3.0);
     }
 
     public void stopSpin() {
-        state = CurrentSpindexerState.STATIC;
+        spindexerState = CurrentSpindexerState.STATIC;
         motor2.setVoltage(0.0);
     }
 
