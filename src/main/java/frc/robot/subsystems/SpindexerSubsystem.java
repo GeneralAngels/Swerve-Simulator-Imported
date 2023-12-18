@@ -9,12 +9,16 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 
 
 
 public class SpindexerSubsystem extends SubsystemBase {
-
+    public enum CurrentSpindexerState{
+        SPINNING,
+        STATIC
+    }
     // With eager singleton initialization, any static variables/fields used in the 
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
     // before the constructor is called when the "INSTANCE" variable initializes.
@@ -22,6 +26,7 @@ public class SpindexerSubsystem extends SubsystemBase {
     DigitalInput beam_breaker = new DigitalInput(5);
     Solenoid solenoid3 = new Solenoid(PneumaticsModuleType.CTREPCM, 25);
     int ballsShot = 0;
+    CurrentSpindexerState state = CurrentSpindexerState.SPINNING;
 
 
 
@@ -56,15 +61,18 @@ public class SpindexerSubsystem extends SubsystemBase {
     public void periodic() {
         if (NewPoseEstimatorSubsystem.getInstance().getCurrentPose().getTranslation().getDistance(new Translation2d(0,0)) < 4) {
             this.spin();
+            new ShootCommand();
         }
         this.CountBalls();
     }
 
     public void spin() {
+        state = CurrentSpindexerState.SPINNING;
         motor2.setVoltage(3.0);
     }
 
     public void stopSpin() {
+        state = CurrentSpindexerState.STATIC;
         motor2.setVoltage(0.0);
     }
 

@@ -85,14 +85,9 @@ public class RobotContainer {
                     }),
                     new InstantCommand(() -> {
                         SpindexerSubsystem.getInstance().openPiston();
-                    }),
+                    })
                     // Count balls
-                    Commands.run(() -> {
-                        SpindexerSubsystem.getInstance().CountBalls();
-                    })//,
-                    // Commands.waitUntil(() -> {
-                    //     return SpindexerSubsystem.getInstance().shotAllBalls();
-                    // })
+                    
                 )
         ).toggleOnFalse(
                 new InstantCommand(() -> {
