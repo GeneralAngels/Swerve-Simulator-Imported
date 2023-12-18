@@ -81,7 +81,7 @@ public class RobotContainer {
                         SpindexerSubsystem.getInstance().spin();
                     }),
                     Commands.waitUntil(() -> {
-                         return Shooter.getInstance().atDesiredVelocity();
+                        return Shooter.getInstance().atDesiredVelocity();
                     }),
                     new InstantCommand(() -> {
                         SpindexerSubsystem.getInstance().openPiston();
