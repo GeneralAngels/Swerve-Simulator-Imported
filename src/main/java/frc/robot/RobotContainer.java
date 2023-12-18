@@ -75,24 +75,31 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         driver.circle().toggleOnTrue(
-                //new ShootCommand();
                 Commands.sequence(
                     new InstantCommand(() -> {
                         new ShootCommand();
                         SpindexerSubsystem.getInstance().spin();
                     }),
                     Commands.waitUntil(() -> {
-                        return Shooter.getInstance().atDesiredVelocity();
+                         return Shooter.getInstance().atDesiredVelocity();
                     }),
                     new InstantCommand(() -> {
                         SpindexerSubsystem.getInstance().openPiston();
-                    })
-
+                    }),
                     // Count balls
-
+                    Commands.run(() -> {
+                        SpindexerSubsystem.getInstance().CountBalls();
+                    })//,
+                    // Commands.waitUntil(() -> {
+                    //     return SpindexerSubsystem.getInstance().shotAllBalls();
+                    // })
                 )
         ).toggleOnFalse(
-                new InstantCommand(() -> {Shooter.getInstance().setDesiredVelocity(0);})
+                new InstantCommand(() -> {
+                    Shooter.getInstance().setDesiredVelocity(0);
+                    SpindexerSubsystem.getInstance().closePiston();
+                    SpindexerSubsystem.getInstance().restartBalls();
+                })
         );
 
         driver.square().toggleOnTrue(
@@ -101,10 +108,17 @@ public class RobotContainer {
                     IntakeSubsystem.getInstance().take();
                 })
         ).toggleOnFalse(
+            Commands.sequence(
                 new InstantCommand(() -> {
                     IntakeSubsystem.getInstance().stopTaking();
                     IntakeSubsystem.getInstance().close();
+                    SpindexerSubsystem.getInstance().spin();
+                }),
+                Commands.waitSeconds(3.0),
+                new InstantCommand(() -> {
+                    SpindexerSubsystem.getInstance().stopSpin();
                 })
+            )
         );
     }
 

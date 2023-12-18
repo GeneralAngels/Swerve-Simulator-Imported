@@ -18,6 +18,7 @@ public class SpindexerSubsystem extends SubsystemBase {
     CANSparkMax motor2 = new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless);
     DigitalInput beam_breaker = new DigitalInput(5);
     Solenoid solenoid3 = new Solenoid(PneumaticsModuleType.CTREPCM, 25);
+    int ballsShot = 0;
 
 
 
@@ -66,6 +67,19 @@ public class SpindexerSubsystem extends SubsystemBase {
 
     public boolean inTower(){
         return !(beam_breaker.get());
+    }
+
+    public void CountBalls(){
+        if (inTower())
+            ballsShot++;
+    }
+
+    public boolean shotAllBalls(){
+        return ballsShot == 5;
+    }
+
+    public void restartBalls() {
+        ballsShot = 0;
     }
 }
 
