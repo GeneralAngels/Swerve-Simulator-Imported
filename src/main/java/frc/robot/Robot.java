@@ -4,35 +4,39 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import com.revrobotics.REVPhysicsSim;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.PneumaticsControlModule;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Utils.LimelightMeasurement;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.NT_testSubsystem;
-import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-
-import com.revrobotics.REVPhysicsSim;
-
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 
-
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 public class Robot extends LoggedRobot {
@@ -40,53 +44,72 @@ public class Robot extends LoggedRobot {
 
     private RobotContainer m_robotContainer;
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
-
+    PneumaticsControlModule pcm = new PneumaticsControlModule();
 
     /**
-     * This function is run when the robot is first started up and should be used for any
+     * This function is run when the robot is first started up and should be used
+     * for any
      * initialization code.
      */
     @Override
     public void robotInit() {
-        if (isReal()) {
-            // Logger.addDataReceiver(new WPILOGWriter("/U")); // Log to a USB stick
-            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-            new PowerDistribution(1, ModuleType.kRev); // Enables
-        } else {
-            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-            new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+        // Record metadata
+        Logger.recordMetadata("ProjectName", "General Angels 2230");
 
-            /*
-            setUseTiming(false); // Run as fast as possible
-            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-            Logger.getInstance().setReplaySource(new WPILOGReader(logPath)); // Read replay log
-            Logger.getInstance().addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-             */
+        // Set up data receivers & replay source
+        if (Robot.isReal()) {
+            System.out.println("INITIALIZING LOGS");
+            // Running on a real robot, log to a USB stick ("/U/logs")
+            try { Logger.addDataReceiver(new WPILOGWriter("/U/logs"));}
+            catch (Exception e) {System.out.println("ERRORING!");; System.out.println(e); }
+            
+            Logger.addDataReceiver(new NT4Publisher());
         }
 
-        // Logger.getInstance().disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
+        else if (Robot.isSimulation()) {
+            Logger.addDataReceiver(new NT4Publisher());
+        }
 
-        Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+        SmartDashboard.putData("command", new InstantCommand(
+            () -> {System.out.println("sadasd");}
+        ));
+
+        // See http://bit.ly/3YIzFZ6 for more information on timestamps in AdvantageKit.
+        // Logger.disableDeterministicTimestamps()
+
+        // Start AdvantageKit logger
+        Logger.start();
+
         m_robotContainer = new RobotContainer();
+        // Shooter.getInstance();
         NT_testSubsystem.getInstance();
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
         compressor.enableDigital();
+
     }
 
     /**
-     * This function is called every robot packet, no matter the mode. Use this for items like
-     * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
+     * This function is called every robot packet, no matter the mode. Use this for
+     * items like
+     * diagnostics that you want ran during disabled, autonomous, teleoperated and
+     * test.
      *
-     * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+     * <p>
+     * This runs after the mode specific periodic functions, but before LiveWindow
+     * and
      * SmartDashboard integrated upating.
      */
     @Override
     public void robotPeriodic() {
-        // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-        // commands, running already-scheduled commands, removing finished or interrupted commands,
-        // and running subsystem periodic() methods.  This must be called from the robot's periodic
+        // Runs the Scheduler. This is responsible for polling buttons, adding
+        // newly-scheduled
+        // commands, running already-scheduled commands, removing finished or
+        // interrupted commands,
+        // and running subsystem periodic() methods. This must be called from the
+        // robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
+        Logger.recordOutput("pressure switch", pcm.getPressureSwitch());
     }
 
     /**
@@ -94,7 +117,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void disabledInit() {
-//        m_robotContainer.newSwerve.setRelativeVelocities(new ChassisSpeeds());
+        // m_robotContainer.newSwerve.setRelativeVelocities(new ChassisSpeeds());
         NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(0, 0, 0));
     }
 
@@ -104,7 +127,8 @@ public class Robot extends LoggedRobot {
     }
 
     /**
-     * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
+     * This autonomous runs the autonomous command selected by your
+     * {@link RobotContainer} class.
      */
     @Override
     public void autonomousInit() {
@@ -149,18 +173,15 @@ public class Robot extends LoggedRobot {
         }
 
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-        
+
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
         if (limelightMeasurement != null) {
             NewPoseEstimatorSubsystem.getInstance().setCurrentPose(limelightMeasurement.pose);
         }
-        
-        NewSwerveDriveSubsystem.getInstance().setDefaultCommand(
-            new DefaultDriveCommand(
-                    m_robotContainer.driver
-            )
-        );
 
+        NewSwerveDriveSubsystem.getInstance().setDefaultCommand(
+                new DefaultDriveCommand(
+                        m_robotContainer.driver));
 
         m_robotContainer.shooter_rig.slewRateLimiter.reset(0);
     }

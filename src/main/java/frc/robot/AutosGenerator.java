@@ -20,8 +20,8 @@ public class AutosGenerator {
         autonomousSendableChooser = new SendableChooser<Command>();
         autonomousSendableChooser.setDefaultOption("2023 autonomous example path", get2023_example_auto());
         autonomousSendableChooser.addOption("2020 auto 1", _2020_auto1());
-        autonomousSendableChooser.addOption("2020 shani's auto", _2020_auto2());
-        autonomousSendableChooser.addOption("2020 Auto 3", _2020_auto3());
+        // autonomousSendableChooser.addOption("2020 shani's auto", _2020_auto2());
+        // autonomousSendableChooser.addOption("2020 Auto 3", _2020_auto3());
 
 
         SmartDashboard.putData("Autonomous chooser", autonomousSendableChooser);

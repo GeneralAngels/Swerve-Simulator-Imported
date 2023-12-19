@@ -5,24 +5,35 @@ import com.revrobotics.CANSparkMax.ControlType;
 
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Robot;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
-
+import frc.robot.subsystems.utils.NT_Helper;
 import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends TimeMeasurementSubsystem {
     public CANSparkMax m_flywheel_motor;
-    private static final int flywheel_deviceId = 100;
+    private static final int flywheel_deviceId = 2;
     public SparkMaxPIDController m_flywheel_pidController;
     private RelativeEncoder m_flywheel_encoder;
 
     public CANSparkMax m_hood_motor;
     public SparkMaxPIDController m_hood_PidController;
     private RelativeEncoder m_hood_encoder;
-    private static final int hood_deviceId = 300;
+    private static final int hood_deviceId = 3;
 
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("Shooter");
+
+    DoubleSubscriber distance = NT_Helper.getDoubleSubscriber(table, "distance to target", 1);
+
+    DoublePublisher flywheel_rpm = table.getDoubleTopic("Fly Wheel RPM").publish();
+    DoublePublisher hood_rotation = table.getDoubleTopic("Hood Rotation").publish();
+    DoublePublisher hood_in_angle = table.getDoubleTopic("Hood Angle").publish();
 
     public double desiredVelocity = 0.0;
 
@@ -84,6 +95,10 @@ public class Shooter extends TimeMeasurementSubsystem {
         Logger.recordOutput("Wanted RPM", desiredVelocity);
 
         m_flywheel_pidController.setReference(desiredVelocity, ControlType.kVelocity);
+
+        flywheel_rpm.set(m_flywheel_encoder.getVelocity());
+        hood_rotation.set(m_hood_encoder.getPosition());
+        hood_in_angle.set(m_hood_encoder.getPosition() * 360);
     }
 
     public double getHoodEncoder(double distanceToTarget) {
@@ -105,8 +120,9 @@ public class Shooter extends TimeMeasurementSubsystem {
     public void setHoodAngle() {
 
         double distanceToTarget = getDistanceToTarget();
-        distanceToTarget = 2.0;
         double hoodAngle = ShooterConstants.HOOD_ANGLE_MAP.get(distanceToTarget);
+
+        m_hood_PidController.setReference(hoodAngle / 360, ControlType.kPosition);
 
         Logger.recordOutput("Hood Predicted Angle", hoodAngle);
         Logger.recordOutput("Hood Angle", getHoodEncoder(distanceToTarget));
@@ -124,7 +140,8 @@ public class Shooter extends TimeMeasurementSubsystem {
     }
 
     public double getDistanceToTarget() {
-        Transform2d poseToTarget = new Transform2d(NewPoseEstimatorSubsystem.getInstance().getCurrentPose(), ShooterConstants.TARGET_APRIL);
-        return Math.hypot(poseToTarget.getX(), poseToTarget.getY());
+        return this.distance.get();
+        //Transform2d poseToTarget = new Transform2d(NewPoseEstimatorSubsystem.getInstance().getCurrentPose(), ShooterConstants.TARGET_APRIL);
+        //return Math.hypot(poseToTarget.getX(), poseToTarget.getY());
     }
 }

@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.networktables.*;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -17,15 +19,18 @@ import com.revrobotics.CANSparkMax.ControlType;
 
 public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
     CANSparkMax flywheel_motor1;
-    CANSparkMax flywheel_motor2;
     CANSparkMax roller_motor;
+    Encoder m_hood_encoder;
+    DutyCycleEncoder m_hoodDutyCycleEncoder;
 
     SparkMaxPIDController roller_PidController;
+    SparkMaxPIDController flywheel_PidController;
+
 
     NetworkTable table = NetworkTableInstance.getDefault().getTable("ShooterRig");
 
-    IntegerSubscriber flywheel_1_port = NT_Helper.getIntSubscriber(table, "flywheel 1 port", 2);
-    IntegerSubscriber rollers_port = NT_Helper.getIntSubscriber(table, "flywheel 3 port", 3);
+    IntegerSubscriber flywheel_1_port = NT_Helper.getIntSubscriber(table, "flywheel 1 port", 4);
+    IntegerSubscriber rollers_port = NT_Helper.getIntSubscriber(table, "flywheel 3 port", 5);
 
     DoubleSubscriber flywheel_1_percent = NT_Helper.getDoubleSubscriber(table, "flywheel 1 percent", 0.0);
     DoubleSubscriber rollers_percent = NT_Helper.getDoubleSubscriber(table, "rollers percent", 0.0);
@@ -33,6 +38,9 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
 
     DoublePublisher flywheel_1_RPM = table.getDoubleTopic("flywheel1 RPM").publish();
     DoublePublisher rollers_RPM = table.getDoubleTopic("rollers RPM").publish();
+    DoublePublisher hood_encoder = table.getDoubleTopic("Hood Encoder:").publish();
+
+    DoubleSubscriber distance = NT_Helper.getDoubleSubscriber(table, "distance from target", 1);
 
     DoubleSubscriber kp_entry = NT_Helper.getDoubleSubscriber(table, "kp", 0.00007);
 
@@ -49,6 +57,8 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
         this.flywheel_motor1 = new CANSparkMax((int) flywheel_1_port.get(),
                 CANSparkMaxLowLevel.MotorType.kBrushless);
         this.roller_motor = new CANSparkMax((int) rollers_port.get(), CANSparkMaxLowLevel.MotorType.kBrushless);
+        //this.m_hood_encoder = new Encoder(7, 5);
+        this.m_hoodDutyCycleEncoder = new DutyCycleEncoder(7);
 
         this.roller_PidController = roller_motor.getPIDController();
         this.roller_PidController.setP(0);
@@ -57,7 +67,7 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
         this.roller_PidController.setFF(Kf);
         this.roller_motor.burnFlash();
 
-
+        this.flywheel_PidController = flywheel_motor1.getPIDController();
 
 
         slewRateLimiter.reset(0);
@@ -79,18 +89,23 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
         roller_PidController.setP(kp_entry.get());
         this.flywheel_motor1.set(flywheel_1_percent.get());
 
-        //var target_percent = rollers_percent.get();
+        var target_percent = rollers_percent.get();
         //var rated_percent = slewRateLimiter.calculate(target_percent);
         
-        //this.roller_motor.set(rated_percent);
-        this.roller_PidController.setReference(2000, ControlType.kVelocity);
+        this.roller_motor.set(target_percent);
+        //this.roller_PidController.setReference(ShooterConstants.FLYWHEEL_RPM_MAP.get(distance.get()) * 2, ControlType.kVelocity);
 
         flywheel_1_RPM.set(flywheel_motor1.getEncoder().getVelocity());
         rollers_RPM.set(roller_motor.getEncoder().getVelocity());
+        hood_encoder.set(this.m_hoodDutyCycleEncoder.getAbsolutePosition());
+
+        Logger.recordOutput("Hood Encoder get()", this.m_hoodDutyCycleEncoder.get());
+        Logger.recordOutput("Hood Encoder getAbsolutePosition()", this.m_hoodDutyCycleEncoder.getAbsolutePosition());
+
 
         Logger.recordOutput("Flywheel rpm", flywheel_motor1.getEncoder().getVelocity());
         Logger.recordOutput("Roller rpm", roller_motor.getEncoder().getVelocity());
-    }
+        }
 
     public Command getKf() {
         return Commands.sequence(
@@ -119,7 +134,6 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
                         Kp * (target_roller_RPM - roller_motor.getEncoder().getVelocity()));
 
         Logger.recordOutput("rpm1", flywheel_motor1.getEncoder().getVelocity());
-        Logger.recordOutput("rpm2", flywheel_motor2.getEncoder().getVelocity());
         Logger.recordOutput("rollers rpm", roller_motor.getEncoder().getVelocity());
     }
 }
