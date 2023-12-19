@@ -55,6 +55,7 @@ public class RobotContainer {
         NewSwerveDriveSubsystem.getInstance();
         if (Robot.isReal()) {
             NewSwerveDriveSubsystem.getInstance().pigeon2.setYaw(0);
+            System.out.println("setting yaw " );
         }
 
         NewPoseEstimatorSubsystem.getInstance();

@@ -96,8 +96,11 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
      * @param newPose new pose
      */
     public void setCurrentPose(Pose2d newPose) {
-        if (Robot.isReal())
+        if (Robot.isReal()) {
             drive.pigeon2.setYaw(newPose.getRotation().getDegrees());
+            System.out.println("setting yaw: " + newPose.getRotation().getDegrees());
+        }
+
         System.out.println("Resetting position");
         poseEstimator.resetPosition(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition(), newPose);
         System.out.println(getCurrentPose().getX() + " " + getCurrentPose().getY());
