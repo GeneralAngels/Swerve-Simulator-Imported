@@ -1,10 +1,10 @@
 package frc.robot.subsystems.NewDrive;
 
 
+import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.sim.Pigeon2SimState;
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix.sensors.BasePigeonSimCollection;
-import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.time.StopWatch;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -23,6 +23,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drive.SwerveConstants;
 import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     private static NewSwerveDriveSubsystem instance = null;
  
@@ -38,11 +41,13 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     SwerveModulePosition[] currentPositions = new SwerveModulePosition[] {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
 
     public Pigeon2 pigeon2;
-    public BasePigeonSimCollection pigeonSimCollection;
+    public Pigeon2SimState pigeon2SimState;
 
     boolean limitingRotatingMaxVel = false;
 
     StopWatch simStopWatch = new StopWatch();
+
+    public static final Lock odometryLock = new ReentrantLock();
     
     public static NewSwerveDriveSubsystem getInstance() {
         if (instance == null)
@@ -71,7 +76,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         simStopWatch.start();
 
         this.pigeon2 = pigeon2;
-        this.pigeonSimCollection = pigeon2.getSimCollection();
+        this.pigeon2SimState = pigeon2.getSimState();
     }
 
     public static NewSwerveDriveSubsystem getDefaultSwerve() {
@@ -210,7 +215,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     }
 
     public double getYawDegrees() {
-        return pigeon2.getYaw();
+        return pigeon2.getAngle();
     }
 
     public void getAllCanCoders() {
@@ -252,7 +257,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
         var current_swerve_speed = getChassisSpeeds();
         // pigeonSimCollection.addHeading(Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
-        pigeonSimCollection.setRawHeading(pigeon2.getYaw() + Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
+        pigeon2SimState.addYaw(Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
 
         SmartDashboard.putNumber("x speed", current_swerve_speed.vxMetersPerSecond);
         SmartDashboard.putNumber("y speed", current_swerve_speed.vyMetersPerSecond);

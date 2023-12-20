@@ -6,7 +6,13 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.Publisher;
+import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Utils.LimelightMeasurement;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.subsystems.Limelight;
@@ -24,8 +30,6 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 
 
@@ -71,6 +75,12 @@ public class Robot extends LoggedRobot {
         NT_testSubsystem.getInstance();
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
         compressor.enableDigital();
+
+        SmartDashboard.putData("command-2-3", new InstantCommand(() -> {
+            System.out.println("\n\n");
+            System.out.println("command-----command");
+            System.out.println("\n\n");
+        }));
     }
 
     /**
@@ -149,20 +159,17 @@ public class Robot extends LoggedRobot {
         }
 
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-        
+
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
         if (limelightMeasurement != null) {
             NewPoseEstimatorSubsystem.getInstance().setCurrentPose(limelightMeasurement.pose);
         }
-        
-        NewSwerveDriveSubsystem.getInstance().setDefaultCommand(
-            new DefaultDriveCommand(
-                    m_robotContainer.driver
-            )
-        );
 
-        var command = new InstantCommand();
-        command.schedule();
+        NewSwerveDriveSubsystem.getInstance().setDefaultCommand(
+                new DefaultDriveCommand(
+                        m_robotContainer.driver
+                )
+        );
 
         this.m_robotContainer.shooter_rig.renew();
         m_robotContainer.shooter_rig.slewRateLimiter.reset(0);
@@ -174,6 +181,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         m_robotContainer.shooter_rig.teleopPeriodicPercent();
+        NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(1, 1, Units.degreesToRadians(40)));
     }
 
     @Override
@@ -187,5 +195,6 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void testPeriodic() {
+        CommandScheduler.getInstance().run();
     }
 }

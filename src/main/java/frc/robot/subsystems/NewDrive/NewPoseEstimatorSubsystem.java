@@ -5,6 +5,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -12,6 +13,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import frc.robot.subsystems.Limelight;
 import frc.robot.Utils.LimelightMeasurement;
 import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
@@ -58,6 +60,8 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
     @Override
     public void _periodic() {
         // Update by DriveTrain:
+        SwerveModulePosition[] modulePositions = drive.getModulesPosition();
+
         poseEstimator.update(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition());
 
         var current_pose = getCurrentPose();
@@ -95,7 +99,9 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
      * @param newPose new pose
      */
     public void setCurrentPose(Pose2d newPose) {
-        drive.pigeon2.setYaw(newPose.getRotation().getDegrees());
+        if (Robot.isReal())
+            drive.pigeon2.setYaw(newPose.getRotation().getDegrees());
+
         System.out.println("Resetting position");
         poseEstimator.resetPosition(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition(), newPose);
         System.out.println(getCurrentPose().getX() + " " + getCurrentPose().getY());

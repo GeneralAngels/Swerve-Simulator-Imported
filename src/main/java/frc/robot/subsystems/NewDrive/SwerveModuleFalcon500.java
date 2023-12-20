@@ -1,10 +1,19 @@
 package frc.robot.subsystems.NewDrive;
 
-import com.ctre.phoenix.motorcontrol.*;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.ctre.phoenix.sensors.*;
-import com.ctre.phoenix.time.StopWatch;
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -12,7 +21,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
-import frc.robot.subsystems.Drive.SwerveConstants;
+
+import java.util.Queue;
 
 public class SwerveModuleFalcon500 {
     public static final int DRIVE_CURRENT_LIMIT = 70;
@@ -82,16 +92,29 @@ public class SwerveModuleFalcon500 {
      * TalonFX swerve module drive motor
      */
     TalonFX driveMotor;
-    TalonFXSimCollection simDriveMotor;
+    TalonFXSimState simDriveMotor;
     /**
      * TalonFX swerve module steer motor
      */
     TalonFX steerMotor;
-    TalonFXSimCollection simSteerMotor;
+    TalonFXSimState simSteerMotor;
     /**
      * Swerve module steer encoder (absolute angular position)
      */
     CANCoder steerEncoder;
+
+    VelocityVoltage velocity_request = new VelocityVoltage(0).withSlot(0).withAcceleration(0).withEnableFOC(false);
+    PositionVoltage position_request = new PositionVoltage(0).withSlot(0);
+
+    public static class ModuleInputs {
+        public double[] odometryDrivePositionsRad = new double[] {};
+        public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
+    }
+
+    ModuleInputs inputs = new ModuleInputs();
+
+    private final StatusSignal<Double> drivePosition;
+    private final Queue<Double> drivePositionQueue;
 
     /**
      * Initializes the motors, encoder, and the settings for each of the devices.
@@ -106,34 +129,58 @@ public class SwerveModuleFalcon500 {
     public SwerveModuleFalcon500(
             int driveMotorId, int steerMotorId, int steerCanCoderID, double steerAngleOffsetRad) {
         driveMotor = new TalonFX(driveMotorId);
-        simDriveMotor = driveMotor.getSimCollection();
+        simDriveMotor = driveMotor.getSimState();
 
         steerMotor = new TalonFX(steerMotorId);
-        simSteerMotor = steerMotor.getSimCollection();
+        simSteerMotor = steerMotor.getSimState();
 
         steerEncoder = new CANCoder(steerCanCoderID);
 
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
+
+        /* Voltage-based velocity requires a feed forward to account for the back-emf of the motor */
+        driveConfig.Slot0.kP = 0.11; // An error of 1 rotation per second results in 2V output
+        driveConfig.Slot0.kI = 0.001; // An error of 1 rotation per second increases output by 0.5V every second
+        driveConfig.Slot0.kD = 0.0; // A change of 1 rotation per second squared results in 0.01 volts output
+        driveConfig.Slot0.kV = 0.12; // Falcon 500 is a 500kV motor, 500rpm per V = 8.333 rps per V, 1/8.33 = 0.12 volts / Rotation per second
+
+        driveConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+
+        driveConfig.CurrentLimits.SupplyCurrentLimit = DRIVE_CURRENT_LIMIT;
+        driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+        driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+        /*
         driveConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
         driveConfig.slot0.kP = SwerveConstants.Drive_Kp;
         driveConfig.slot0.kF = SwerveConstants.Drive_Kf;
         driveConfig.supplyCurrLimit.currentLimit = DRIVE_CURRENT_LIMIT;
         driveConfig.supplyCurrLimit.enable = true;
 
-        driveMotor.configAllSettings(driveConfig);
         driveMotor.setInverted(TalonFXInvertType.Clockwise);
         driveMotor.setNeutralMode(NeutralMode.Brake);
+         */
+
+        driveMotor.getConfigurator().apply(driveConfig);
 
         TalonFXConfiguration steerConfig = new TalonFXConfiguration();
-        steerConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();
-        steerConfig.slot0.kP = SwerveConstants.Rotation_Kp; // Jack in the bot: 0.2
-        steerConfig.supplyCurrLimit.currentLimit = STEER_CURRENT_LIMIT;
-        steerConfig.supplyCurrLimit.enable = true;
 
-        steerMotor.configAllSettings(steerConfig);
-        steerMotor.setSensorPhase(true);
-        steerMotor.setInverted(TalonFXInvertType.Clockwise);
-        steerMotor.setNeutralMode(NeutralMode.Brake);
+        steerConfig.Slot0.kP = 0.11; // An error of 1 rotation per second results in 2V output
+        steerConfig.Slot0.kI = 0.0; // An error of 1 rotation per second increases output by 0.5V every second
+        steerConfig.Slot0.kD = 0.0; // A change of 1 rotation per second squared results in 0.01 volts output
+        steerConfig.Slot0.kV = 0.0; // Falcon 500 is a 500kV motor, 500rpm per V = 8.333 rps per V, 1/8.33 = 0.12 volts / Rotation per second
+
+        steerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+
+        steerConfig.CurrentLimits.SupplyCurrentLimit = STEER_CURRENT_LIMIT;
+        steerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        steerConfig.Feedback.SensorToMechanismRatio = -1; // Instead of: steerMotor.setSensorPhase(true);
+        steerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        steerConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+        steerMotor.getConfigurator().apply(steerConfig);
 
         CANCoderConfiguration steerEncoderConfig = new CANCoderConfiguration();
         steerEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
@@ -142,35 +189,61 @@ public class SwerveModuleFalcon500 {
         // steerEncoderConfig.magnetOffsetDegrees = 0;
 
         steerEncoder.configAllSettings(steerEncoderConfig);
+
+//        if (Utils.isSimulation()) {
+//            driveMotor.getRotorVelocity().setUpdateFrequency(1000);
+//            driveMotor.getRotorPosition().setUpdateFrequency(1000);
+//            steerMotor.getRotorPosition().setUpdateFrequency(1000);
+//        }
+    }
+
+    public void updateOdometryInputs() {
+        inputs.odometryDrivePositionsRad =
+                drivePositionQueue.stream()
+                        .mapToDouble((Double value) -> Units.rotationsToRadians(value) / DRIVE_GEAR_RATIO)
+                        .toArray();
+
+        inputs.odometryTurnPositions =
+                turnPositionQueue.stream()
+                        .map((Double value) -> Rotation2d.fromRotations(value / TURN_GEAR_RATIO))
+                        .toArray(Rotation2d[]::new);
+
+        drivePositionQueue.clear();
+        turnPositionQueue.clear();
     }
 
     public void setTargetSteerPosition(double targetSteerPositionRad) {
-        steerMotor.set(TalonFXControlMode.Position, targetSteerPositionRad / STEER_SENSOR_POSITION_COEFFICIENT);
+//         steerMotor.set(TalonFXControlMode.Position, targetSteerPositionRad / STEER_SENSOR_POSITION_COEFFICIENT);
+
+        steerMotor.setControl(position_request.withPosition(
+                targetSteerPositionRad * STEER_GEAR_RATIO / (2 * Math.PI)
+        ));
 
         if (Robot.isSimulation()) {
-            simSteerMotor.setIntegratedSensorRawPosition(
-                    -(int) (targetSteerPositionRad / STEER_SENSOR_POSITION_COEFFICIENT));
+            simSteerMotor.setRawRotorPosition(
+                    targetSteerPositionRad * STEER_GEAR_RATIO / (2 * Math.PI));
         }
     }
 
     public void setTargetDriveVelocity(double targetDriveVelocityMetersPerSec) {
-        driveMotor.set(
-                TalonFXControlMode.Velocity, targetDriveVelocityMetersPerSec / DRIVE_SENSOR_VELOCITY_COEFFICIENT);
+//        driveMotor.set(TalonFXControlMode.Velocity, targetDriveVelocityMetersPerSec / DRIVE_SENSOR_VELOCITY_COEFFICIENT);
+        driveMotor.setControl(velocity_request.withVelocity(targetDriveVelocityMetersPerSec * DRIVE_GEAR_RATIO / (2 * Math.PI * WHEEL_RADIUS_METERS)));
 
         if (Robot.isSimulation()) {
-            simDriveMotor.setIntegratedSensorVelocity(
-                    -(int) (targetDriveVelocityMetersPerSec / DRIVE_SENSOR_VELOCITY_COEFFICIENT));
+            simDriveMotor.setRotorVelocity(
+                    targetDriveVelocityMetersPerSec * DRIVE_GEAR_RATIO / (2 * Math.PI * WHEEL_RADIUS_METERS));
         }
     }
 
     public void setState(SwerveModuleState targetState) {
-        var steerPositionTicks = steerMotor.getSelectedSensorPosition();
-        var steerPositionRad = steerPositionTicks * STEER_SENSOR_POSITION_COEFFICIENT;
+//        var steerPositionTicks = steerMotor.getSelectedSensorPosition();
+//        var steerPositionRad = steerPositionTicks * STEER_SENSOR_POSITION_COEFFICIENT;
 
-        double currentAngle = steerPositionRad; // Current angle of the swerve module
-        double angleError = getAngleError(targetState.angle.getRadians(), currentAngle);
+        var currentAngleRadians = steerMotor.getPosition().getValueAsDouble() / STEER_GEAR_RATIO * (2 * Math.PI);
 
-        double resultAngle = currentAngle
+        double angleError = getAngleError(targetState.angle.getRadians(), currentAngleRadians);
+
+        double resultAngle = currentAngleRadians
                 + angleError; // Adding that distance to our current angle (directly from the steer encoder).
                               // Becomes
         // our target angle
@@ -198,34 +271,34 @@ public class SwerveModuleFalcon500 {
 
     public void resetToAbsolute() {
         if (Robot.isReal()) {
-            double currentPosition = steerMotor.getSelectedSensorPosition();
+            double currentPosition = steerMotor.getPosition().getValueAsDouble(); // in rotations.
             double absoluteEncoderAngle = steerEncoder.getAbsolutePosition();
 
-            double angle_error = getAngleError(Units.degreesToRadians(absoluteEncoderAngle), currentPosition * STEER_SENSOR_POSITION_COEFFICIENT);
+            double angle_error = getAngleError(Units.degreesToRadians(absoluteEncoderAngle), currentPosition / STEER_GEAR_RATIO * (2 * Math.PI));
 
-            steerMotor.setSelectedSensorPosition(
+            steerMotor.setPosition(
                     currentPosition + angle_error / STEER_SENSOR_POSITION_COEFFICIENT);
         }
     }
 
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-                driveMotor.getSelectedSensorPosition() * DRIVE_SENSOR_POSITION_COEFFICIENT,
-                Rotation2d.fromRadians(steerMotor.getSelectedSensorPosition() * STEER_SENSOR_POSITION_COEFFICIENT));
+                driveMotor.getPosition().getValueAsDouble() / DRIVE_GEAR_RATIO * (2 * Math.PI * WHEEL_RADIUS_METERS),
+                Rotation2d.fromRadians(steerMotor.getPosition().getValueAsDouble() / STEER_GEAR_RATIO * (2 * Math.PI)));
     }
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-                driveMotor.getSelectedSensorVelocity() * DRIVE_SENSOR_VELOCITY_COEFFICIENT,
-                Rotation2d.fromRadians(steerMotor.getSelectedSensorPosition() * STEER_SENSOR_POSITION_COEFFICIENT));
+                driveMotor.getVelocity().getValueAsDouble() / DRIVE_GEAR_RATIO * (2 * Math.PI * WHEEL_RADIUS_METERS),
+                Rotation2d.fromRadians(steerMotor.getPosition().getValueAsDouble() / STEER_GEAR_RATIO * (2 * Math.PI)));
     }
 
     public void updateSim(double looperDt) {
-        var current_velocity = -driveMotor.getSelectedSensorVelocity(); // in ticks / 100ms
-        var current_velocity_in_seconds = current_velocity * 10; // in ticks / second
-        int current_encoder_change = (int) (current_velocity_in_seconds * looperDt);
+        var current_velocity = driveMotor.getRotorVelocity().getValueAsDouble(); // in rotation per second.
 
-        simDriveMotor.addIntegratedSensorPosition(current_encoder_change);
+        simDriveMotor.addRotorPosition(
+                current_velocity * looperDt
+        );
     }
 
     public void showSimOutputs(int index) {
