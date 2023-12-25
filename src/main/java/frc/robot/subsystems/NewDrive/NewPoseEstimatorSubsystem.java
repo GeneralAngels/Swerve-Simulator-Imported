@@ -57,8 +57,6 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
 
         SmartDashboard.putData("field", field2d);
         setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-
-        NewSwerveDriveSubsystem.getInstance().updateOdometryInputs();
     }
 
 
