@@ -62,16 +62,16 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
 
     @Override
     public void _periodic() {
+        NewSwerveDriveSubsystem.odometryLock.lock();
         NewSwerveDriveSubsystem.getInstance().updateOdometryInputs();
+        NewSwerveDriveSubsystem.odometryLock.unlock();
         // Update by DriveTrain:
         int delta_count = NewSwerveDriveSubsystem.getInstance().swerveModules[0].getDrivePositionArray().length;
         delta_count = Math.min(delta_count, NewSwerveDriveSubsystem.getInstance().gyroInformation.odometryYawPositions.length);
 
-        System.out.println("gyro length: " + NewSwerveDriveSubsystem.getInstance().gyroInformation.odometryYawPositions.length);
-        System.out.println("odometry length: " + delta_count);
-
         for (int delta_index = 0; delta_index < delta_count; delta_index++) {
             for (int module_index = 0; module_index < 4; module_index++) {
+
                 currentModulesPositions[module_index].distanceMeters = NewSwerveDriveSubsystem.getInstance().
                         swerveModules[module_index].getDrivePositionArray()[delta_index];
 
