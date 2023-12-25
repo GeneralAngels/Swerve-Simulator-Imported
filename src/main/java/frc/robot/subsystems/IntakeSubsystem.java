@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -58,6 +60,8 @@ public class IntakeSubsystem extends SubsystemBase {
         // TODO: activate motor in positive direction.
         currentState = CurrentIntakeState.TAKING;
         motor1.set(0.7);
+        Logger.recordOutput("Intake State",currentState );
+
     }
 
     public void stopTaking() {
@@ -67,18 +71,20 @@ public class IntakeSubsystem extends SubsystemBase {
     public void eject() {
         currentState = CurrentIntakeState.EJECTING;
         motor1.set(-0.7);
+        Logger.recordOutput("Intake State",currentState );
     }
 
     public void open() {
         currentState = CurrentIntakeState.OPEN;
         solenoid1.set(true);
         solenoid2.set(true);
-
+        Logger.recordOutput("Intake State",currentState );
     }
     public void close() {
         currentState = CurrentIntakeState.CLOSED;
         solenoid1.set(false);
         solenoid2.set(false);
+        Logger.recordOutput("Intake State",currentState );
     }
 
 }

@@ -7,6 +7,8 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
@@ -78,11 +80,13 @@ public class RobotContainer {
                 Commands.sequence(
                     new InstantCommand(() -> {
                         new ShootCommand();
+                        Logger.recordOutput("Shooter Accelerating", true);
                         SpindexerSubsystem.getInstance().spin();
                     }),
                     Commands.waitUntil(() -> {
+                        Logger.recordOutput("Shooter Acceleration", "Waiting");
                         return Shooter.getInstance().atDesiredVelocity();
-                    }),
+                    }),                                     
                     new InstantCommand(() -> {
                         SpindexerSubsystem.getInstance().openPiston();
                     })
@@ -92,6 +96,7 @@ public class RobotContainer {
         ).toggleOnFalse(
                 new InstantCommand(() -> {
                     Shooter.getInstance().setDesiredVelocity(0);
+                    Logger.recordOutput("Shooter Stopped", true);
                     SpindexerSubsystem.getInstance().closePiston();
                     SpindexerSubsystem.getInstance().restartBalls();
                 })

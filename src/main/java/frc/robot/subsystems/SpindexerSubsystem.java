@@ -1,6 +1,8 @@
 
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 
@@ -20,6 +22,11 @@ public class SpindexerSubsystem extends SubsystemBase {
         SPINNING,
         STATIC
     }
+
+    public enum FeederState{
+        OPEN,
+        CLOSED
+    }
     // With eager singleton initialization, any static variables/fields used in the 
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
     // before the constructor is called when the "INSTANCE" variable initializes.
@@ -27,7 +34,8 @@ public class SpindexerSubsystem extends SubsystemBase {
     DigitalInput beam_breaker = new DigitalInput(5);
     Solenoid solenoid3 = new Solenoid(PneumaticsModuleType.CTREPCM, 25);
     int ballsShot = 0;
-    CurrentSpindexerState spindexerState = CurrentSpindexerState.SPINNING;
+    CurrentSpindexerState spindexerState = CurrentSpindexerState.STATIC;
+    FeederState feederState = FeederState.CLOSED;
 
 
 
@@ -61,7 +69,7 @@ public class SpindexerSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (NewPoseEstimatorSubsystem.getInstance().getCurrentPose().getTranslation().getDistance(new Translation2d(0,0)) < 4) {
-            this.spin();
+            //this.spin();
             new ShootCommand();
         }
         this.CountBalls();
@@ -70,19 +78,25 @@ public class SpindexerSubsystem extends SubsystemBase {
     public void spin() {
         spindexerState = CurrentSpindexerState.SPINNING;
         motor2.setVoltage(3.0);
+        Logger.recordOutput("Spindexer State", spindexerState);
     }
 
     public void stopSpin() {
         spindexerState = CurrentSpindexerState.STATIC;
         motor2.setVoltage(0.0);
+        Logger.recordOutput("Spindexer State", spindexerState);
     }
 
     public void openPiston() {
+        feederState = FeederState.OPEN;
         solenoid3.set(true);
+        Logger.recordOutput("Feeder State", feederState);
     }
     
     public void closePiston() {
+        feederState = FeederState.CLOSED;
         solenoid3.set(false);
+        Logger.recordOutput("Feeder State", feederState);
     }
 
     public boolean inTower(){
