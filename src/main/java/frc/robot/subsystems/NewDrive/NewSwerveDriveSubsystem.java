@@ -1,6 +1,8 @@
 package frc.robot.subsystems.NewDrive;
 
 
+import com.ctre.phoenix.ErrorCode;
+import frc.robot.Alert;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.sensors.BasePigeonSimCollection;
@@ -43,6 +45,8 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     boolean limitingRotatingMaxVel = false;
 
     StopWatch simStopWatch = new StopWatch();
+
+    Alert motor_disconnected = new Alert("swerve motor disconnected!", Alert.AlertType.ERROR);
     
     public static NewSwerveDriveSubsystem getInstance() {
         if (instance == null)
@@ -167,6 +171,17 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
             newAngle += 360;
         }
         return newAngle;
+    }
+
+    public void log_and_send_status() {
+        for (int i = 0; i < 4; i++) {
+            Logger.recordOutput("Swerve/Hardware status/" + i + "/drive_motor", swerveModules[i].driveMotor.getLastError().name());
+            if (swerveModules[i].driveMotor.getLastError() != ErrorCode.OK) {
+                motor_disconnected.set(true);
+                motor_disconnected.setText(i + " drive motor disconnected");
+            }
+        }
+        Logger.recordOutput("Swerve/Hardware status/right_moto");
     }
 
     @Override

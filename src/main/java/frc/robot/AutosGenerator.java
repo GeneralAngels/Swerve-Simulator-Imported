@@ -191,7 +191,7 @@ public class AutosGenerator {
     }
 
     public Command _2020_auto4() {
-        PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Auto1");
+        PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Auto4.2");
         var auto_command = Commands.sequence();
 
         auto_command = auto_command.andThen(
@@ -210,6 +210,7 @@ public class AutosGenerator {
         List<PathPlannerPath> paths = RobotContainer.splitting_paths_into_segments(path_from_file);
         auto_command = auto_command.andThen(newSwerve.getDefaultPathFollowingCommand(paths.get(0), poseEstimatorSubsystem));
 
+
         auto_command = auto_command.andThen(
                 Commands.parallel(
                         newSwerve.getDefaultPathFollowingCommand(paths.get(1), poseEstimatorSubsystem),
@@ -220,6 +221,7 @@ public class AutosGenerator {
         );
 
         auto_command = auto_command.andThen(newSwerve.getDefaultPathFollowingCommand(paths.get(2), poseEstimatorSubsystem));
+
 
         return auto_command;
     }
