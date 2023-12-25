@@ -4,8 +4,8 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -20,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 import java.util.Queue;
@@ -32,7 +33,7 @@ public class SwerveModuleFalcon500 {
     /**
      * Radius of the wheel. Can be used to figure out distance data
      */
-    private static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(1.95);
+    public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(1.95);
 
     /**
      * From motor rotations to the wheel revolutions
@@ -107,14 +108,20 @@ public class SwerveModuleFalcon500 {
     PositionVoltage position_request = new PositionVoltage(0).withSlot(0);
 
     public static class ModuleInputs {
-        public double[] odometryDrivePositionsRad = new double[] {};
-        public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
+        public double[] odometryDrivePositionsMeters = new double[]{};
+        public Rotation2d[] odometryTurnPositions = new Rotation2d[]{};
     }
 
     ModuleInputs inputs = new ModuleInputs();
 
     private final StatusSignal<Double> drivePosition;
     private final Queue<Double> drivePositionQueue;
+
+    private final StatusSignal<Double> turnPosition;
+    private final Queue<Double> turnPositionQueue;
+
+    private SwerveModulePosition[] positionDeltas = new SwerveModulePosition[]{};
+    private double lastPositionMeters = 0.0; // Used for delta calculation
 
     /**
      * Initializes the motors, encoder, and the settings for each of the devices.
@@ -190,6 +197,21 @@ public class SwerveModuleFalcon500 {
 
         steerEncoder.configAllSettings(steerEncoderConfig);
 
+        driveMotor.optimizeBusUtilization();
+        steerMotor.optimizeBusUtilization();
+
+        /* Fast odometry init */
+        drivePosition = driveMotor.getPosition();
+        drivePositionQueue =
+                PhoenixOdometryThread.getInstance().registerSignal(driveMotor, driveMotor.getPosition());
+
+        turnPosition = steerMotor.getPosition();
+        turnPositionQueue =
+                PhoenixOdometryThread.getInstance().registerSignal(steerMotor, steerMotor.getPosition());
+
+        BaseStatusSignal.setUpdateFrequencyForAll(
+                Constants.PoseEstimatorConstants.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
+
 //        if (Utils.isSimulation()) {
 //            driveMotor.getRotorVelocity().setUpdateFrequency(1000);
 //            driveMotor.getRotorPosition().setUpdateFrequency(1000);
@@ -198,18 +220,29 @@ public class SwerveModuleFalcon500 {
     }
 
     public void updateOdometryInputs() {
-        inputs.odometryDrivePositionsRad =
+        // In radians with consideration of gear.
+        inputs.odometryDrivePositionsMeters =
                 drivePositionQueue.stream()
-                        .mapToDouble((Double value) -> Units.rotationsToRadians(value) / DRIVE_GEAR_RATIO)
+                        .mapToDouble((Double value) ->
+                                value * (2 * Math.PI * WHEEL_RADIUS_METERS) / DRIVE_GEAR_RATIO)
                         .toArray();
 
+        // In Rotation2d.
         inputs.odometryTurnPositions =
                 turnPositionQueue.stream()
-                        .map((Double value) -> Rotation2d.fromRotations(value / TURN_GEAR_RATIO))
+                        .map((Double value) -> Rotation2d.fromRotations(value / STEER_GEAR_RATIO))
                         .toArray(Rotation2d[]::new);
 
         drivePositionQueue.clear();
         turnPositionQueue.clear();
+    }
+
+    public double[] getDrivePositionArray() {
+        return inputs.odometryDrivePositionsMeters;
+    }
+
+    public Rotation2d[] getTurnPositions() {
+        return inputs.odometryTurnPositions;
     }
 
     public void setTargetSteerPosition(double targetSteerPositionRad) {
@@ -245,7 +278,7 @@ public class SwerveModuleFalcon500 {
 
         double resultAngle = currentAngleRadians
                 + angleError; // Adding that distance to our current angle (directly from the steer encoder).
-                              // Becomes
+        // Becomes
         // our target angle
 
         setTargetDriveVelocity(targetState.speedMetersPerSecond);
@@ -284,7 +317,7 @@ public class SwerveModuleFalcon500 {
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
                 driveMotor.getPosition().getValueAsDouble() / DRIVE_GEAR_RATIO * (2 * Math.PI * WHEEL_RADIUS_METERS),
-                Rotation2d.fromRadians(steerMotor.getPosition().getValueAsDouble() / STEER_GEAR_RATIO * (2 * Math.PI)));
+                Rotation2d.fromRotations(steerMotor.getPosition().getValueAsDouble() / STEER_GEAR_RATIO));
     }
 
     public SwerveModuleState getState() {

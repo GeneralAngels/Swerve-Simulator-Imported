@@ -1,8 +1,12 @@
 package frc.robot.subsystems.NewDrive;
 
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
+import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.time.StopWatch;
@@ -23,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drive.SwerveConstants;
 import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 
+import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -48,7 +53,16 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     StopWatch simStopWatch = new StopWatch();
 
     public static final Lock odometryLock = new ReentrantLock();
-    
+
+    public static class GyroInformation {
+        public Rotation2d[] odometryYawPositions = new Rotation2d[] {};
+        public Queue<Double> yawPositionQueue;
+
+        public StatusSignal<Double> yawSignal;
+    }
+
+    public GyroInformation gyroInformation = new GyroInformation();
+
     public static NewSwerveDriveSubsystem getInstance() {
         if (instance == null)
             instance = NewSwerveDriveSubsystem.getDefaultSwerve();
@@ -77,6 +91,21 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
         this.pigeon2 = pigeon2;
         this.pigeon2SimState = pigeon2.getSimState();
+
+        pigeon2.getConfigurator().apply(new Pigeon2Configuration());
+        gyroInformation.yawSignal = pigeon2.getYaw();
+        gyroInformation.yawSignal.setUpdateFrequency(Constants.PoseEstimatorConstants.ODOMETRY_FREQUENCY);
+        pigeon2.optimizeBusUtilization();
+
+        gyroInformation.yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon2, gyroInformation.yawSignal);
+    }
+
+    public void updateGyroOdometryInputs() {
+        gyroInformation.odometryYawPositions =
+                gyroInformation.yawPositionQueue.stream()
+                        .map((Double value) -> Rotation2d.fromDegrees(-value))
+                        .toArray(Rotation2d[]::new);
+        gyroInformation.yawPositionQueue.clear();
     }
 
     public static NewSwerveDriveSubsystem getDefaultSwerve() {
@@ -84,7 +113,6 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         double homeFrontRightAngle = 15.73; // old 22
         double homeBackLeftAngle = 312.36; // old 314
         double homeBackRightAngle = 128.75; // old 131
-
 
 
         var leftFront = new SwerveModuleFalcon500(
@@ -172,6 +200,17 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
             newAngle += 360;
         }
         return newAngle;
+    }
+
+    public void updateOdometryInputs() {
+        updateGyroOdometryInputs();
+
+        for (int i = 0; i < 4; i++) {
+            swerveModules[i].updateOdometryInputs();
+        }
+
+        pigeon2.getFault_Hardware().getStatus().isOK();
+
     }
 
     @Override
