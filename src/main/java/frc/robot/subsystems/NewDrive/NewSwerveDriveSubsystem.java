@@ -218,7 +218,9 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         }
 
         pigeon2.getFault_Hardware().getStatus().isOK();
+    }
 
+    /*
     public void log_and_send_status() {
         for (int i = 0; i < 4; i++) {
             Logger.recordOutput("Swerve/Hardware status/" + i + "/drive_motor", swerveModules[i].driveMotor.getLastError().name());
@@ -229,6 +231,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         }
         Logger.recordOutput("Swerve/Hardware status/right_moto");
     }
+     */
 
     @Override
     public void _periodic() {
