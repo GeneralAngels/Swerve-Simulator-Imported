@@ -7,6 +7,8 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
@@ -19,16 +21,15 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
-import frc.robot.subsystems.SpindexerSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -76,25 +77,28 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         driver.circle().toggleOnTrue(
-                //new ShootCommand()
                 Commands.sequence(
-                        new InstantCommand(() -> {
-                            new ShootCommand();
-                            SpindexerSubsystem.getInstance().spin();
-                        }),
-                        Commands.waitUntil(() -> {
-                            return Shooter.getInstance().atDesiredVelocity();
-                        }),
-                        new InstantCommand(() -> {
-                            SpindexerSubsystem.getInstance().openPiston();
-                            //Count balls
-                        })
+                    new InstantCommand(() -> {
+                        new ShootCommand();
+                        Logger.recordOutput("Shooter Accelerating", true);
+                        SpindexerSubsystem.getInstance().spin();
+                    }),
+                    Commands.waitUntil(() -> {
+                        Logger.recordOutput("Shooter Acceleration", "Waiting");
+                        return Shooter.getInstance().atDesiredVelocity();
+                    }),                                     
+                    new InstantCommand(() -> {
+                        SpindexerSubsystem.getInstance().openPiston();
+                    })
+                    // Count balls
+                    
                 )
-
         ).toggleOnFalse(
                 new InstantCommand(() -> {
                     Shooter.getInstance().setDesiredVelocity(0);
+                    Logger.recordOutput("Shooter Stopped", true);
                     SpindexerSubsystem.getInstance().closePiston();
+                    SpindexerSubsystem.getInstance().restartBalls();
                 })
         );
 
@@ -104,17 +108,17 @@ public class RobotContainer {
                     IntakeSubsystem.getInstance().take();
                 })
         ).toggleOnFalse(
-                Commands.sequence(
-                        new InstantCommand(() -> {
-                            IntakeSubsystem.getInstance().stopTaking();
-                            IntakeSubsystem.getInstance().close();
-                            SpindexerSubsystem.getInstance().spin();
-                        }),
-                        Commands.waitSeconds(5.0),
-                        new InstantCommand(() -> {
-                            SpindexerSubsystem.getInstance().stopSpin();
-                        })
-                )
+            Commands.sequence(
+                new InstantCommand(() -> {
+                    IntakeSubsystem.getInstance().stopTaking();
+                    IntakeSubsystem.getInstance().close();
+                    SpindexerSubsystem.getInstance().spin();
+                }),
+                Commands.waitSeconds(3.0),
+                new InstantCommand(() -> {
+                    SpindexerSubsystem.getInstance().stopSpin();
+                })
+            )
         );
     }
 
