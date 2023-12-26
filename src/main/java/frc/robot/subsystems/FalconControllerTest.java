@@ -26,7 +26,6 @@ public class FalconControllerTest {
 
     public TalonFX m_motor;
     public TalonFXConfiguration m_configs;
-    private RelativeEncoder m_encoder;
 
     NetworkTable table = NetworkTableInstance.getDefault().getTable("FalconControllerTest");
 
@@ -48,111 +47,22 @@ public class FalconControllerTest {
 
     double kf = 0;
 
-    public NeoControllerTest() {
-        this.m_motor = new CANSparkMax((int) motor_port.get(), CANSparkMaxLowLevel.MotorType.kBrushless);
-        this.m_motor.restoreFactoryDefaults();
-        this.m_encoder = this.m_motor.getEncoder();
-        this.m_pidController = this.m_motor.getPIDController();
+    public FalconControllerTest() {
 
-        SmartDashboard.putData("Calculate Kf", new InstantCommand(this::displayKF));
-        SmartDashboard.putData("Run Motor", new InstantCommand(this::runMotor));
-        SmartDashboard.putData("Stop Motor", new InstantCommand(this::stopMotor));
-        SmartDashboard.putData("Reset Parameters", new InstantCommand(this::resetParams));
+        this.m_motor = new TalonFX((int) motor_port.get());
+        this.m_configs = new TalonFXConfiguration();
+        //SmartDashboard.putData("Calculate Kf", new InstantCommand(this::displayKF));
+        //SmartDashboard.putData("Run Motor", new InstantCommand(this::runMotor));
+        //SmartDashboard.putData("Stop Motor", new InstantCommand(this::stopMotor));
+        //SmartDashboard.putData("Reset Parameters", new InstantCommand(this::resetParams));
 
-
-        this.m_pidController.setD((float) kd_input.get());
-        this.m_pidController.setI((float) ki_input.get());
-        this.m_pidController.setP((float) kp_input.get());
-        this.m_pidController.setFF((float) kf_input.get());
-        this.m_motor.burnFlash();
-
-        REVPhysicsSim.getInstance().addSparkMax(m_motor, DCMotor.getNEO(1));
     }
 
-    public static NeoControllerTest getInstance() {
+    public static FalconControllerTest getInstance() {
         if (instance == null) {
-            instance = new NeoControllerTest();
+            instance = new FalconControllerTest();
         }
         return instance;
     }
     
-    public void displayKF() {
-        this.calculateKF();
-        kf_publisher.set(this.kf);
-    }
-
-    public void resetParams() {
-        m_encoder.setPosition(0);
-    }
-
-    public void calculateKF() {
-        System.out.println("calc kf");
-        var a = Commands.sequence(
-                new RunCommand(() -> {
-                    m_motor.set(0.5);
-                }).withTimeout(3),
-                new InstantCommand(() -> {
-                    this.kf = 0.5 / m_motor.getEncoder().getVelocity();
-                    m_motor.set(0);
-                }));
-
-        a.schedule();
-    }
-
-    public void renew() {
-        if (this.m_motor.getDeviceId() != (int) motor_port.get()) {
-            this.m_motor = new CANSparkMax((int) motor_port.get(),
-                    CANSparkMaxLowLevel.MotorType.kBrushless);
-            this.m_motor.restoreFactoryDefaults();
-            this.m_encoder = this.m_motor.getEncoder();
-            this.m_pidController = this.m_motor.getPIDController();
-
-            this.m_pidController.setD((float) kd_input.get());
-            this.m_pidController.setI((float) ki_input.get());
-            this.m_pidController.setP((float) kp_input.get());
-            this.m_pidController.setFF((float) kf_input.get());
-            this.m_motor.burnFlash();
-        }
-        if ((float) kp_input.get() != this.m_pidController.getP()) {
-            this.m_pidController.setP((float) kp_input.get());
-        }
-        if ((float) ki_input.get() != this.m_pidController.getI()) {
-            this.m_pidController.setI((float) ki_input.get());
-        }
-        if ((float) kd_input.get() != this.m_pidController.getD()) {
-            this.m_pidController.setD((float) kd_input.get());
-        }
-        if ((float) kf_input.get() != this.m_pidController.getFF()) {
-            this.m_pidController.setFF((float) kf_input.get());
-        }
-    }
-
-    @Override
-    public void _periodic() {
-        renew();
-        setMotorPositionAndRPM();
-    }
-
-    public void setMotorPositionAndRPM() {
-        this.motor_rpm.set(this.m_encoder.getVelocity());
-        this.motor_position.set(this.m_encoder.getPosition());
-    }
-
-    public void runMotor() {
-        System.out.println("run");
-        if ((double) this.velocity_input.get() != 0) {
-            this.m_pidController.setReference((double) this.velocity_input.get(), ControlType.kVelocity);
-        }
-        else if ((double) this.position_input.get() != 0) {
-            this.m_pidController.setReference((double) this.position_input.get(), ControlType.kPosition);
-        }
-        else if ((double) this.precent_input.get() != 0) {
-            this.m_motor.set((double) this.precent_input.get());
-        }
-    }
-
-    public void stopMotor() {
-        System.out.println("stop");
-        this.m_motor.set(0);
-    }
 }
