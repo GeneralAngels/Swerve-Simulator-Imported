@@ -51,6 +51,9 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        IntakeSubsystem.getInstance();
+        SpindexerSubsystem.getInstance();
+        Shooter.getInstance();
         // Configure the button bindings
         configureButtonBindings();
 
@@ -80,11 +83,11 @@ public class RobotContainer {
                 Commands.sequence(
                     new InstantCommand(() -> {
                         new ShootCommand();
-                        Logger.recordOutput("Shooter Accelerating", true);
+
                         SpindexerSubsystem.getInstance().spin();
                     }),
                     Commands.waitUntil(() -> {
-                        Logger.recordOutput("Shooter Acceleration", "Waiting");
+
                         return Shooter.getInstance().atDesiredVelocity();
                     }),                                     
                     new InstantCommand(() -> {
@@ -96,7 +99,7 @@ public class RobotContainer {
         ).toggleOnFalse(
                 new InstantCommand(() -> {
                     Shooter.getInstance().setDesiredVelocity(0);
-                    Logger.recordOutput("Shooter Stopped", true);
+
                     SpindexerSubsystem.getInstance().closePiston();
                     SpindexerSubsystem.getInstance().restartBalls();
                 })

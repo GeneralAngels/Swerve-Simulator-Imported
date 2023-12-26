@@ -1,6 +1,14 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.CANSparkMax;
@@ -30,12 +38,22 @@ public class SpindexerSubsystem extends SubsystemBase {
     // With eager singleton initialization, any static variables/fields used in the 
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
     // before the constructor is called when the "INSTANCE" variable initializes.
-    CANSparkMax motor2 = new CANSparkMax(4, CANSparkMaxLowLevel.MotorType.kBrushless);
-    DigitalInput beam_breaker = new DigitalInput(5);
-    Solenoid solenoid3 = new Solenoid(PneumaticsModuleType.CTREPCM, 25);
+    CANSparkMax motor2 = new CANSparkMax(20, CANSparkMaxLowLevel.MotorType.kBrushless);
+    DigitalInput beam_breaker = new DigitalInput(4);
+    Solenoid solenoid3 = new Solenoid(PneumaticsModuleType.CTREPCM, 3);
     int ballsShot = 0;
+    boolean flag = true;
     CurrentSpindexerState spindexerState = CurrentSpindexerState.STATIC;
     FeederState feederState = FeederState.CLOSED;
+
+    Mechanism2d spindexer = new Mechanism2d(2,2);
+    Mechanism2d feeder = new Mechanism2d(2,2);
+    MechanismRoot2d spindexer_root = spindexer.getRoot("Spindexer Place", 1, 0.08);
+
+    MechanismRoot2d feeder_root = feeder.getRoot("Feeder Place", 1.1, 0.3);
+
+    MechanismLigament2d m_spindexer = spindexer_root.append(new MechanismLigament2d("Spindexer",0.4,0,6, new Color8Bit(Color.kOrange)));
+    MechanismLigament2d m_feeder = feeder_root.append(new MechanismLigament2d("Feeder",0,270,6, new Color8Bit(Color.kRed)));
 
 
 
@@ -63,11 +81,40 @@ public class SpindexerSubsystem extends SubsystemBase {
      * the {@link #getInstance()} method to get the singleton instance.
      */
     private SpindexerSubsystem() {
+        System.out.println("putting data - Spindexer");
+        SmartDashboard.putData("Spindexer System", spindexer);
 
+
+        SmartDashboard.putData("Spinning Spindexer", new InstantCommand(
+                () -> {
+                    System.out.println("we are working");
+                    this.spin();
+                }
+        ));
+        SmartDashboard.putData("Stopping Spindexer", new InstantCommand(
+                () -> {
+                    System.out.println("we are working");
+                    this.stopSpin();
+                }
+        ));
+
+        SmartDashboard.putData("Feeder",feeder);
+        SmartDashboard.putData("Open Feeder", new InstantCommand(
+                () -> {
+                    System.out.println("we are working");
+                    this.openPiston();
+                }
+        ));
+        SmartDashboard.putData("Close feeder", new InstantCommand(
+                () -> {
+                    System.out.println("we are working");
+                    this.closePiston();
+                }
+        ));
     }
 
     @Override
-    public void periodic() {
+    public void periodic()  {
         if (NewPoseEstimatorSubsystem.getInstance().getCurrentPose().getTranslation().getDistance(new Translation2d(0,0)) < 4) {
             //this.spin();
             new ShootCommand();
@@ -76,27 +123,30 @@ public class SpindexerSubsystem extends SubsystemBase {
     }
 
     public void spin() {
+        flag = true;
         spindexerState = CurrentSpindexerState.SPINNING;
         motor2.setVoltage(3.0);
-        Logger.recordOutput("Spindexer State", spindexerState);
+        m_feeder.setAngle(180);
     }
 
     public void stopSpin() {
+        flag = false;
         spindexerState = CurrentSpindexerState.STATIC;
         motor2.setVoltage(0.0);
-        Logger.recordOutput("Spindexer State", spindexerState);
+        m_spindexer.setAngle(0);
     }
 
     public void openPiston() {
         feederState = FeederState.OPEN;
         solenoid3.set(true);
-        Logger.recordOutput("Feeder State", feederState);
+        m_feeder.setLength(0.1);
     }
     
     public void closePiston() {
         feederState = FeederState.CLOSED;
         solenoid3.set(false);
-        Logger.recordOutput("Feeder State", feederState);
+        m_feeder.setLength(0);
+
     }
 
     public boolean inTower(){
