@@ -4,14 +4,18 @@ import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -39,7 +43,7 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
     DoubleSubscriber velocity_input = NT_Helper.getDoubleSubscriber(table, "Motor Velocity Input", 0);
 
 
-    DoublePublisher kf_publisher = table.getDoubleTopic("Kf").publish();
+    DoublePublisher kf_publisher = table.getDoubleTopic("Kf Calc Output").publish();
     DoublePublisher motor_rpm = table.getDoubleTopic("Motor RPM").publish();
     DoublePublisher motor_position = table.getDoubleTopic("Motor Position").publish();
 
@@ -51,11 +55,18 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
         this.m_encoder = this.m_motor.getEncoder();
         this.m_pidController = this.m_motor.getPIDController();
 
+        SmartDashboard.putData("Calculate Kf", new InstantCommand(this::displayKF));
+        SmartDashboard.putData("Run Motor", new InstantCommand(this::runMotor));
+        SmartDashboard.putData("Stop Motor", new InstantCommand(this::stopMotor));
+
+
         this.m_pidController.setD(kd_input.get());
         this.m_pidController.setI(ki_input.get());
         this.m_pidController.setP(kp_input.get());
         this.m_pidController.setFF(kf_input.get());
         this.m_motor.burnFlash();
+
+        REVPhysicsSim.getInstance().addSparkMax(m_motor, DCMotor.getNEO(1));
     }
 
     public static NeoControllerTest getInstance() {
@@ -80,5 +91,49 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
                 }));
 
         a.schedule();
+    }
+
+    public void renew() {
+        if (this.m_motor.getDeviceId() != (int) motor_port.get()) {
+            this.m_motor = new CANSparkMax((int) motor_port.get(),
+                    CANSparkMaxLowLevel.MotorType.kBrushless);
+            this.m_motor.restoreFactoryDefaults();
+            this.m_encoder = this.m_motor.getEncoder();
+            this.m_pidController = this.m_motor.getPIDController();
+
+            this.m_pidController.setD(kd_input.get());
+            this.m_pidController.setI(ki_input.get());
+            this.m_pidController.setP(kp_input.get());
+            this.m_pidController.setFF(kf_input.get());
+            this.m_motor.burnFlash();
+        }
+    }
+
+    @Override
+    public void _periodic() {
+        renew();
+        setMotorPositionAndRPM();
+    }
+
+    public void setMotorPositionAndRPM() {
+        this.motor_rpm.set(this.m_encoder.getVelocity());
+        this.motor_position.set(this.m_encoder.getPosition());
+    }
+
+    public void runMotor() {
+        if ((double) this.velocity_input.get() != 0) {
+            this.m_pidController.setReference((double) this.velocity_input.get(), ControlType.kVelocity);
+        }
+        else if ((double) this.position_input.get() != 0) {
+            this.m_pidController.setReference((double) this.position_input.get(), ControlType.kPosition);
+        }
+        else if ((double) this.precent_input.get() != 0) {
+            this.m_motor.set((double) this.precent_input.get());
+        }
+    }
+
+    public void stopMotor() {
+        System.out.println("stop");
+        this.m_motor.set(0);
     }
 }

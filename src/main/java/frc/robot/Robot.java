@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsControlModule;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -43,6 +44,7 @@ public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 
     private RobotContainer m_robotContainer;
+    PneumaticHub ph = new PneumaticHub(1);
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
     PneumaticsControlModule pcm = new PneumaticsControlModule();
 
@@ -60,8 +62,8 @@ public class Robot extends LoggedRobot {
         if (Robot.isReal()) {
             System.out.println("INITIALIZING LOGS");
             // Running on a real robot, log to a USB stick ("/U/logs")
-            try { Logger.addDataReceiver(new WPILOGWriter("/U/logs"));}
-            catch (Exception e) {System.out.println("ERRORING!");; System.out.println(e); }
+            // try { Logger.addDataReceiver(new WPILOGWriter("/U/logs"));}
+            // catch (Exception e) {System.out.println("ERRORING!");; System.out.println(e); }
             
             Logger.addDataReceiver(new NT4Publisher());
         }
@@ -70,9 +72,6 @@ public class Robot extends LoggedRobot {
             Logger.addDataReceiver(new NT4Publisher());
         }
 
-        SmartDashboard.putData("command", new InstantCommand(
-            () -> {System.out.println("sadasd");}
-        ));
 
         // See http://bit.ly/3YIzFZ6 for more information on timestamps in AdvantageKit.
         // Logger.disableDeterministicTimestamps()
@@ -84,7 +83,8 @@ public class Robot extends LoggedRobot {
         // Shooter.getInstance();
         NT_testSubsystem.getInstance();
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-        compressor.enableDigital();
+        //compressor.enableAnalog(5, 40);
+        //ph.enableCompressorAnalog(5, 40);
 
     }
 
@@ -184,6 +184,7 @@ public class Robot extends LoggedRobot {
                         m_robotContainer.driver));
 
         m_robotContainer.shooter_rig.slewRateLimiter.reset(0);
+
     }
 
     /**
@@ -191,7 +192,9 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void teleopPeriodic() {
-        m_robotContainer.shooter_rig.teleopPeriodicPercent();
+        //m_robotContainer.shooter_rig.teleopPeriodicPercent();
+        Logger.recordOutput("Analog Pressure Sensor", compressor.getPressure());
+
     }
 
     @Override
