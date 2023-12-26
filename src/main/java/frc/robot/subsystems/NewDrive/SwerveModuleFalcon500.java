@@ -93,6 +93,8 @@ public class SwerveModuleFalcon500 {
      */
     CANCoder steerEncoder;
 
+    String name = "";
+
     /**
      * Initializes the motors, encoder, and the settings for each of the devices.
      *
@@ -142,6 +144,10 @@ public class SwerveModuleFalcon500 {
         // steerEncoderConfig.magnetOffsetDegrees = 0;
 
         steerEncoder.configAllSettings(steerEncoderConfig);
+    }
+
+    public void updateStatus(String name) {
+
     }
 
     public void setTargetSteerPosition(double targetSteerPositionRad) {

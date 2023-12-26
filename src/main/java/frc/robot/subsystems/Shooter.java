@@ -1,11 +1,13 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.ErrorCode;
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.ControlType;
 
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.*;
+import frc.robot.Alert;
 import frc.robot.Robot;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 
@@ -29,6 +31,9 @@ public class Shooter extends TimeMeasurementSubsystem {
     private static Shooter instance = null;
 
     public boolean isRegular = true;
+
+    Alert motor_of_shooter_disconnected = new Alert("shooter motor disconnected!", Alert.AlertType.ERROR);
+
 
     public Shooter() {
         // Initializng the flywheel motor
@@ -126,5 +131,13 @@ public class Shooter extends TimeMeasurementSubsystem {
     public double getDistanceToTarget() {
         Transform2d poseToTarget = new Transform2d(NewPoseEstimatorSubsystem.getInstance().getCurrentPose(), ShooterConstants.TARGET_APRIL);
         return Math.hypot(poseToTarget.getX(), poseToTarget.getY());
+    }
+
+    public void log_and_send_status() {
+            Logger.recordOutput("Swerve/Hardware status/" + "/drive_motor");
+            if (m_flywheel_motor.getLastError()  == REVLibError.kOk) {
+                motor_of_shooter_disconnected.set(true);
+                motor_of_shooter_disconnected.setText(" drive motor disconnected");
+            }
     }
 }

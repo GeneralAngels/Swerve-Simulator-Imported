@@ -2,7 +2,9 @@ package frc.robot.subsystems.NewDrive;
 
 
 import com.ctre.phoenix.ErrorCode;
+import edu.wpi.first.networktables.IntegerSubscriber;
 import frc.robot.Alert;
+import frc.robot.subsystems.utils.NT_Helper;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.sensors.BasePigeonSimCollection;
@@ -38,6 +40,8 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     SwerveModuleState[] wantedModuleStates = new SwerveModuleState[] {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
     SwerveModuleState[] currentModuleStates = new SwerveModuleState[] {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
     SwerveModulePosition[] currentPositions = new SwerveModulePosition[] {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
+
+    IntegerSubscriber status = NT_Helper.getIntSubscriber(NetworkTableInstance.getDefault().getTable("SIMING STATUS"), "motor 1 sim connected", 0);
 
     public Pigeon2 pigeon2;
     public BasePigeonSimCollection pigeonSimCollection;
@@ -176,7 +180,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     public void log_and_send_status() {
         for (int i = 0; i < 4; i++) {
             Logger.recordOutput("Swerve/Hardware status/" + i + "/drive_motor", swerveModules[i].driveMotor.getLastError().name());
-            if (swerveModules[i].driveMotor.getLastError() != ErrorCode.OK) {
+            if (swerveModules[i].driveMotor.getLastError() != ErrorCode.OK || status.get() == 1) {
                 motor_disconnected.set(true);
                 motor_disconnected.setText(i + " drive motor disconnected");
             }
