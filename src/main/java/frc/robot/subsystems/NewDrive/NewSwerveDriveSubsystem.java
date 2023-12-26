@@ -218,6 +218,9 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         for (int i = 0; i < swerveModules.length; i++) {
             currentModuleStates[i] = swerveModules[i].getState();
             currentPositions[i] = swerveModules[i].getPosition();
+
+            Logger.recordOutput("TESTING/" + i + "/steer encoder position", swerveModules[i].steerMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("TESTING/" + i + "/steer CANCODER position", swerveModules[i].steerEncoder.getAbsolutePosition());
             swerveModules[i].resetToAbsolute();
         }
 

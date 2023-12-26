@@ -181,7 +181,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         m_robotContainer.shooter_rig.teleopPeriodicPercent();
-        NewSwerveDriveSubsystem.getInstance().setAbsoluteVelocities(new ChassisSpeeds(1, 1, Units.degreesToRadians(40)));
     }
 
     @Override

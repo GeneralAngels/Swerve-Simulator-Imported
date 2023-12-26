@@ -22,6 +22,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.Queue;
 
@@ -105,7 +106,7 @@ public class SwerveModuleFalcon500 {
     CANCoder steerEncoder;
 
     VelocityVoltage velocity_request = new VelocityVoltage(0).withSlot(0).withAcceleration(0).withEnableFOC(false);
-    PositionVoltage position_request = new PositionVoltage(0).withSlot(0);
+    PositionVoltage position_request = new PositionVoltage(0).withSlot(0).withVelocity(0);
 
     public static class ModuleInputs {
         public double[] odometryDrivePositionsMeters = new double[]{};
@@ -174,7 +175,7 @@ public class SwerveModuleFalcon500 {
 
         TalonFXConfiguration steerConfig = new TalonFXConfiguration();
 
-        steerConfig.Slot0.kP = 0.11; // An error of 1 rotation per second results in 2V output
+        steerConfig.Slot0.kP = 1.5; // An error of 1 rotation per second results in 2V output
         steerConfig.Slot0.kI = 0.0; // An error of 1 rotation per second increases output by 0.5V every second
         steerConfig.Slot0.kD = 0.0; // A change of 1 rotation per second squared results in 0.01 volts output
         steerConfig.Slot0.kV = 0.0; // Falcon 500 is a 500kV motor, 500rpm per V = 8.333 rps per V, 1/8.33 = 0.12 volts / Rotation per second
@@ -212,6 +213,8 @@ public class SwerveModuleFalcon500 {
         BaseStatusSignal.setUpdateFrequencyForAll(
                 Constants.PoseEstimatorConstants.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
 
+        steerMotor.setPosition(0);
+
 //        if (Utils.isSimulation()) {
 //            driveMotor.getRotorVelocity().setUpdateFrequency(1000);
 //            driveMotor.getRotorPosition().setUpdateFrequency(1000);
@@ -247,7 +250,6 @@ public class SwerveModuleFalcon500 {
 
     public void setTargetSteerPosition(double targetSteerPositionRad) {
 //         steerMotor.set(TalonFXControlMode.Position, targetSteerPositionRad / STEER_SENSOR_POSITION_COEFFICIENT);
-
         steerMotor.setControl(position_request.withPosition(
                 targetSteerPositionRad * STEER_GEAR_RATIO / (2 * Math.PI)
         ));
@@ -305,12 +307,14 @@ public class SwerveModuleFalcon500 {
     public void resetToAbsolute() {
         if (Robot.isReal()) {
             double currentPosition = steerMotor.getPosition().getValueAsDouble(); // in rotations.
+            double currentAngle = Units.rotationsToRadians(currentPosition) / STEER_GEAR_RATIO;
+
             double absoluteEncoderAngle = steerEncoder.getAbsolutePosition();
 
-            double angle_error = getAngleError(Units.degreesToRadians(absoluteEncoderAngle), currentPosition / STEER_GEAR_RATIO * (2 * Math.PI));
+            double angle_error = getAngleError(Units.degreesToRadians(absoluteEncoderAngle), currentAngle);
 
             steerMotor.setPosition(
-                    currentPosition + angle_error / STEER_SENSOR_POSITION_COEFFICIENT);
+                    currentPosition + Units.radiansToRotations(angle_error) * STEER_GEAR_RATIO);
         }
     }
 
