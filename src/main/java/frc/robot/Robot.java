@@ -6,12 +6,13 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Utils.LimelightMeasurement;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.NT_testSubsystem;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.NewDrive.SwerveModuleFalcon500;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -24,9 +25,8 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
+import frc.robot.subsystems.NewDrive.Resetter;
 
 
 /**
@@ -41,6 +41,7 @@ public class Robot extends LoggedRobot {
     private RobotContainer m_robotContainer;
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
+    Subsystem swerve_resetter = new Resetter();
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -71,6 +72,12 @@ public class Robot extends LoggedRobot {
         NT_testSubsystem.getInstance();
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
         compressor.enableDigital();
+
+        SmartDashboard.putData("command-2-3", new InstantCommand(() -> {
+            System.out.println("\n\n");
+            System.out.println("command-----command");
+            System.out.println("\n\n");
+        }));
     }
 
     /**
@@ -147,15 +154,18 @@ public class Robot extends LoggedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
-        
-        NewSwerveDriveSubsystem.getInstance().setDefaultCommand(
-            new DefaultDriveCommand(
-                    m_robotContainer.driver
-            )
-        );
+        LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
+        if (limelightMeasurement != null) {
+            NewPoseEstimatorSubsystem.getInstance().setCurrentPose(limelightMeasurement.pose);
+        }
 
-        var command = new InstantCommand();
-        command.schedule();
+        
+
+        NewSwerveDriveSubsystem.getInstance().setDefaultCommand(
+                new DefaultDriveCommand(
+                        m_robotContainer.driver
+                )
+        );
 
         this.m_robotContainer.shooter_rig.renew();
         m_robotContainer.shooter_rig.slewRateLimiter.reset(0);
@@ -180,5 +190,6 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void testPeriodic() {
+        CommandScheduler.getInstance().run();
     }
 }

@@ -4,6 +4,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class NT_testSubsystem extends SubsystemBase {
@@ -39,7 +40,11 @@ public class NT_testSubsystem extends SubsystemBase {
      * the {@link #getInstance()} method to get the singleton instance.
      */
     private NT_testSubsystem() {
-
+        addChild("command", new InstantCommand(() -> {
+            System.out.println("\n\n");
+            System.out.println("command-----command");
+            System.out.println("\n\n");
+        }));
     }
 
     @Override

@@ -1,14 +1,18 @@
 package frc.robot.subsystems.NewDrive;
 
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.sim.Pigeon2SimState;
+import frc.robot.Constants;
 import com.ctre.phoenix.ErrorCode;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import frc.robot.Alert;
 import frc.robot.subsystems.utils.NT_Helper;
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix.sensors.BasePigeonSimCollection;
-import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.time.StopWatch;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -27,28 +31,43 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drive.SwerveConstants;
 import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 
+import java.util.Queue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     private static NewSwerveDriveSubsystem instance = null;
- 
+
     SwerveDriveKinematics kinematics;
 
-    SwerveModuleFalcon500[] swerveModules;
+    public SwerveModuleFalcon500[] swerveModules;
 
     ChassisSpeeds wantedRobotVelocity = new ChassisSpeeds();
 
 
-    SwerveModuleState[] wantedModuleStates = new SwerveModuleState[] {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
-    SwerveModuleState[] currentModuleStates = new SwerveModuleState[] {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
-    SwerveModulePosition[] currentPositions = new SwerveModulePosition[] {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
+    SwerveModuleState[] wantedModuleStates = new SwerveModuleState[]{new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
+    SwerveModuleState[] currentModuleStates = new SwerveModuleState[]{new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
+    SwerveModulePosition[] currentPositions = new SwerveModulePosition[]{new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
 
     IntegerSubscriber status = NT_Helper.getIntSubscriber(NetworkTableInstance.getDefault().getTable("SIMING STATUS"), "motor 1 sim connected", 0);
 
     public Pigeon2 pigeon2;
-    public BasePigeonSimCollection pigeonSimCollection;
+    public Pigeon2SimState pigeon2SimState;
 
     boolean limitingRotatingMaxVel = false;
 
     StopWatch simStopWatch = new StopWatch();
+
+    public static final Lock odometryLock = new ReentrantLock();
+
+    public static class GyroInformation {
+        public Rotation2d[] odometryYawPositions = new Rotation2d[]{};
+        public Queue<Double> yawPositionQueue;
+
+        public StatusSignal<Double> yawSignal;
+    }
+
+    public GyroInformation gyroInformation = new GyroInformation();
 
     Alert motor_disconnected = new Alert("swerve motor disconnected!", Alert.AlertType.ERROR);
     
@@ -57,8 +76,8 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
             instance = NewSwerveDriveSubsystem.getDefaultSwerve();
         return instance;
     }
+
     /**
-     *
      * @param swerveModules: the swerve modules list = [frontLeft, frontRight, backLeft, backRight]
      */
     public NewSwerveDriveSubsystem(SwerveModuleFalcon500[] swerveModules, Pigeon2 pigeon2) {
@@ -79,7 +98,22 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         simStopWatch.start();
 
         this.pigeon2 = pigeon2;
-        this.pigeonSimCollection = pigeon2.getSimCollection();
+        this.pigeon2SimState = pigeon2.getSimState();
+
+        pigeon2.getConfigurator().apply(new Pigeon2Configuration());
+        gyroInformation.yawSignal = pigeon2.getYaw();
+        gyroInformation.yawSignal.setUpdateFrequency(Constants.PoseEstimatorConstants.ODOMETRY_FREQUENCY);
+        pigeon2.optimizeBusUtilization();
+
+        gyroInformation.yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon2, gyroInformation.yawSignal);
+    }
+
+    public void updateGyroOdometryInputs() {
+        gyroInformation.odometryYawPositions =
+                gyroInformation.yawPositionQueue.stream()
+                        .map((Double value) -> Rotation2d.fromDegrees(value))
+                        .toArray(Rotation2d[]::new);
+        gyroInformation.yawPositionQueue.clear();
     }
 
     public static NewSwerveDriveSubsystem getDefaultSwerve() {
@@ -89,30 +123,29 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         double homeBackRightAngle = 128.75; // old 131
 
 
-
         var leftFront = new SwerveModuleFalcon500(
-                14, 24,4, 
+                14, 24, 4,
                 -Units.degreesToRadians(homeFrontLeftAngle)
         );
 
         var rightFront = new SwerveModuleFalcon500(
-                11, 21, 1, 
+                11, 21, 1,
                 -Units.degreesToRadians(homeFrontRightAngle)
         );
 
         var leftRear = new SwerveModuleFalcon500(
-                13, 23, 3, 
+                13, 23, 3,
                 -Units.degreesToRadians(homeBackLeftAngle)
         );
 
         var rightRear = new SwerveModuleFalcon500(
                 12, 22, 2,
-                 -Units.degreesToRadians(homeBackRightAngle)
+                -Units.degreesToRadians(homeBackRightAngle)
         );
 
         var pigeon2 = new Pigeon2(30);
 
-        return new NewSwerveDriveSubsystem(new SwerveModuleFalcon500[] {leftFront, rightFront, leftRear, rightRear}, pigeon2);
+        return new NewSwerveDriveSubsystem(new SwerveModuleFalcon500[]{leftFront, rightFront, leftRear, rightRear}, pigeon2);
     }
 
     public void setRelativeVelocities(ChassisSpeeds relativeVelocities) {
@@ -177,6 +210,15 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         return newAngle;
     }
 
+    public void updateOdometryInputs() {
+        updateGyroOdometryInputs();
+
+        for (int i = 0; i < 4; i++) {
+            swerveModules[i].updateOdometryInputs();
+        }
+
+        pigeon2.getFault_Hardware().getStatus().isOK();
+
     public void log_and_send_status() {
         for (int i = 0; i < 4; i++) {
             Logger.recordOutput("Swerve/Hardware status/" + i + "/drive_motor", swerveModules[i].driveMotor.getLastError().name());
@@ -190,28 +232,36 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
     @Override
     public void _periodic() {
+        var start_time = System.currentTimeMillis();
+
         for (int i = 0; i < swerveModules.length; i++) {
             currentModuleStates[i] = swerveModules[i].getState();
             currentPositions[i] = swerveModules[i].getPosition();
-            swerveModules[i].resetToAbsolute();
+
+            // swerveModules[i].resetToAbsolute();
         }
+
+        Logger.recordOutput("TIMING/first_loop", System.currentTimeMillis() - start_time);
+        start_time = System.currentTimeMillis();
 
         var after_skew_velocity = skew_calculation(wantedRobotVelocity);
         wantedModuleStates = this.kinematics.toSwerveModuleStates(after_skew_velocity);
 
-        Logger.recordOutput("current module states", currentModuleStates);
-        Logger.recordOutput("wanted module states", wantedModuleStates);
-    
+        Logger.recordOutput("TIMING/skew_calculation", System.currentTimeMillis() - start_time);
+        start_time = System.currentTimeMillis();
+
         if (limitingRotatingMaxVel) {
             SwerveDriveKinematics.desaturateWheelSpeeds(
                     currentModuleStates, getChassisSpeeds(),
                     SwerveConstants.maxSpeed,
                     4.8, 4.2
             );
-        }
-        else {
+        } else {
             SwerveDriveKinematics.desaturateWheelSpeeds(wantedModuleStates, SwerveConstants.maxSpeed);
         }
+
+        Logger.recordOutput("TIMING/desaturating", System.currentTimeMillis() - start_time);
+        start_time = System.currentTimeMillis();
 
         for (int i = 0; i < swerveModules.length; i++) {
             var current_module_state = swerveModules[i].getState();
@@ -220,16 +270,22 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
             swerveModules[i].setState(wantedModuleStates[i]);
 
+            /*
             Logger.recordOutput("ModuleStates/Current/" + i + "/angle", current_module_state.angle.getDegrees());
             Logger.recordOutput("ModuleStates/Current/" + i + "/velocity", current_module_state.speedMetersPerSecond);
 
             Logger.recordOutput("ModuleStates/Wanted/" + i + "/angle", wantedModuleStates[i].angle.getDegrees());
             Logger.recordOutput("ModuleStates/Wanted/" + i + "/velocity", wantedModuleStates[i].speedMetersPerSecond);
+
+             */
         }
+
+        Logger.recordOutput("TIMING/setting states", System.currentTimeMillis() - start_time);
+        start_time = System.currentTimeMillis();
     }
 
     public double getYawDegrees() {
-        return pigeon2.getYaw();
+        return pigeon2.getYaw().getValueAsDouble();
     }
 
     public void getAllCanCoders() {
@@ -238,7 +294,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         }
 
         for (int i = 0; i < swerveModules.length; i++) {
-            var nt_publisher = NetworkTableInstance.getDefault().getTable("CANCoders").getDoubleTopic("CANCoder "  + i).publish();
+            var nt_publisher = NetworkTableInstance.getDefault().getTable("CANCoders").getDoubleTopic("CANCoder " + i).publish();
             nt_publisher.set(swerveModules[i].steerEncoder.getAbsolutePosition());
         }
     }
@@ -271,7 +327,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
         var current_swerve_speed = getChassisSpeeds();
         // pigeonSimCollection.addHeading(Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
-        pigeonSimCollection.setRawHeading(pigeon2.getYaw() + Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
+        pigeon2SimState.addYaw(Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
 
         SmartDashboard.putNumber("x speed", current_swerve_speed.vxMetersPerSecond);
         SmartDashboard.putNumber("y speed", current_swerve_speed.vyMetersPerSecond);

@@ -23,6 +23,7 @@ public class GenericTest {
     @Test
     public void some_test() {
         System.out.println("running");
+        System.out.println(2 / 3 * 2);
         assert 1 == 1;
     }
 

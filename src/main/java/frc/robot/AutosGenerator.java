@@ -24,7 +24,6 @@ public class AutosGenerator {
         autonomousSendableChooser.addOption("2020 Auto 3", _2020_auto3());
         autonomousSendableChooser.addOption("2020 Auto 4", _2020_auto4());
 
-
         SmartDashboard.putData("Autonomous chooser", autonomousSendableChooser);
     }
 
@@ -86,7 +85,6 @@ public class AutosGenerator {
 
         return auto_command;
     }
-
 
     public Command _2020_auto2() {
         PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Auto2");
@@ -189,7 +187,6 @@ public class AutosGenerator {
 
         return auto_command;
     }
-
     public Command _2020_auto4() {
         PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Auto4.2");
         var auto_command = Commands.sequence();
@@ -225,5 +222,4 @@ public class AutosGenerator {
 
         return auto_command;
     }
-
 }
