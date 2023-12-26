@@ -1,13 +1,13 @@
 package frc.robot.subsystems;
 
-import org.littletonrobotics.junction.Logger;
-
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.REVPhysicsSim;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -20,16 +20,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.utils.NT_Helper;
-import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 
-public class NeoControllerTest extends TimeMeasurementSubsystem {
-    private static NeoControllerTest instance = null;
+public class FalconControllerTest {
+    private static FalconControllerTest instance = null;
 
-    public CANSparkMax m_motor;
-    public SparkMaxPIDController m_pidController;
+    public TalonFX m_motor;
+    public TalonFXConfiguration m_configs;
     private RelativeEncoder m_encoder;
 
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("NeoControllerTest");
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("FalconControllerTest");
 
     IntegerSubscriber motor_port = NT_Helper.getIntSubscriber(table, "Motor Port", 1);
 
