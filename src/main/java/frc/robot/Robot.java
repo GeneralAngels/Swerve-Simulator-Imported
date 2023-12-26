@@ -6,18 +6,13 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.Publisher;
-import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Utils.LimelightMeasurement;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.NT_testSubsystem;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.NewDrive.SwerveModuleFalcon500;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -31,6 +26,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
+import frc.robot.subsystems.NewDrive.Resetter;
 
 
 /**
@@ -45,6 +41,7 @@ public class Robot extends LoggedRobot {
     private RobotContainer m_robotContainer;
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
+    Subsystem swerve_resetter = new Resetter();
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -157,8 +154,6 @@ public class Robot extends LoggedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
-
-        NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
 
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
         if (limelightMeasurement != null) {

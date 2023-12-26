@@ -62,6 +62,9 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
 
     @Override
     public void _periodic() {
+        Logger.recordOutput("AngleTest/gyro angle", NewSwerveDriveSubsystem.getInstance().getYawDegrees());
+        Logger.recordOutput("AngleTest/pose angle", getCurrentPose().getRotation().getDegrees());
+
         NewSwerveDriveSubsystem.odometryLock.lock();
         NewSwerveDriveSubsystem.getInstance().updateOdometryInputs();
         NewSwerveDriveSubsystem.odometryLock.unlock();

@@ -175,7 +175,7 @@ public class SwerveModuleFalcon500 {
 
         TalonFXConfiguration steerConfig = new TalonFXConfiguration();
 
-        steerConfig.Slot0.kP = 1.5; // An error of 1 rotation per second results in 2V output
+        steerConfig.Slot0.kP = 1.3; // An error of 1 rotation per second results in 2V output
         steerConfig.Slot0.kI = 0.0; // An error of 1 rotation per second increases output by 0.5V every second
         steerConfig.Slot0.kD = 0.0; // A change of 1 rotation per second squared results in 0.01 volts output
         steerConfig.Slot0.kV = 0.0; // Falcon 500 is a 500kV motor, 500rpm per V = 8.333 rps per V, 1/8.33 = 0.12 volts / Rotation per second
@@ -306,15 +306,31 @@ public class SwerveModuleFalcon500 {
 
     public void resetToAbsolute() {
         if (Robot.isReal()) {
+            var start_time = System.currentTimeMillis();
+
             double currentPosition = steerMotor.getPosition().getValueAsDouble(); // in rotations.
             double currentAngle = Units.rotationsToRadians(currentPosition) / STEER_GEAR_RATIO;
 
+            Logger.recordOutput("TIMING/reset to absolute timing/reading_falcon_position", System.currentTimeMillis() - start_time);
+            start_time = System.currentTimeMillis();
+
             double absoluteEncoderAngle = steerEncoder.getAbsolutePosition();
+
+            Logger.recordOutput("TIMING/reset to absolute timing/reading_CANCoder_position", System.currentTimeMillis() - start_time);
+            start_time = System.currentTimeMillis();
 
             double angle_error = getAngleError(Units.degreesToRadians(absoluteEncoderAngle), currentAngle);
 
-            steerMotor.setPosition(
-                    currentPosition + Units.radiansToRotations(angle_error) * STEER_GEAR_RATIO);
+            Logger.recordOutput("TIMING/reset to absolute timing/calculating_angle_error", System.currentTimeMillis() - start_time);
+            start_time = System.currentTimeMillis();
+
+            // steerMotor.setPosition(
+            // currentPosition + Units.radiansToRotations(angle_error) * STEER_GEAR_RATIO);
+
+            steerMotor.getConfigurator().setPosition(currentPosition + Units.radiansToRotations(angle_error) * STEER_GEAR_RATIO);
+
+            Logger.recordOutput("TIMING/reset to absolute timing/setting_falcon_position", System.currentTimeMillis() - start_time);
+            start_time = System.currentTimeMillis();
         }
     }
 
