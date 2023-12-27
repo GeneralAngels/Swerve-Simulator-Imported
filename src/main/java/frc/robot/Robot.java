@@ -13,10 +13,14 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.NT_testSubsystem;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
+
+import java.util.List;
+
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.revrobotics.REVPhysicsSim;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -67,10 +71,21 @@ public class Robot extends LoggedRobot {
         // Logger.getInstance().disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
 
         Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+
+
         m_robotContainer = new RobotContainer();
         NT_testSubsystem.getInstance();
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
         compressor.enableDigital();
+        
+        PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Testing");
+
+        List<PathPlannerPath> _list = RobotContainer.paths_splitted_by_EventMarks(path_from_file);
+
+        for (int i = 0; i < _list.size(); i++) {
+            System.out.println("\n\n\n" + "innnnn" + "\n\n\n");
+            Logger.recordOutput("paths_keysar/" + i, _list.get(i));
+        }
     }
 
     /**

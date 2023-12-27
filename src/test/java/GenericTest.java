@@ -3,6 +3,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,8 +23,8 @@ public class GenericTest {
 
     @Test
     public void some_test() {
-        System.out.println("running");
-        assert 1 == 1;
+        System.out.println("hello");
+        RobotContainer.splitting_paths_into_segments(null);
     }
 
     @Test

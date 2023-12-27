@@ -4,14 +4,19 @@
 
 package frc.robot;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 import com.pathplanner.lib.path.PathPoint;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -78,6 +83,44 @@ public class RobotContainer {
         driver.cross().toggleOnTrue(
             new InstantCommand(() -> {NewSwerveDriveSubsystem.getInstance().pigeon2.setYaw(0);})
         );
+    }
+
+    public static List<PathPlannerPath> paths_splitted_by_EventMarks(PathPlannerPath path_from_file){
+        List<List<PathPoint>> segment_list = new ArrayList<>();
+        segment_list.add(new ArrayList<PathPoint>());
+        int segment_index = 0;
+        
+        List<EventMarker> eventMarkers = path_from_file.getEventMarkers();
+
+        for(PathPoint pathPoint : path_from_file.getAllPathPoints()){
+            segment_list.get(segment_index).add(pathPoint);
+            
+            if (segment_index < eventMarkers.size() && eventMarkers.get(segment_index).shouldTrigger(new Pose2d(pathPoint.position, pathPoint.holonomicRotation))) {
+                segment_index += 1;
+
+                segment_list.add(new ArrayList<PathPoint>());
+                segment_list.get(segment_index).add(pathPoint);
+            }
+        }
+
+        ArrayList<PathPlannerTrajectory> pathPlannerTrajectories = new ArrayList<PathPlannerTrajectory>();
+        ArrayList<PathPlannerPath> pathList = new ArrayList<PathPlannerPath>();
+
+        for (List<PathPoint> segment : segment_list) {
+            if (segment.size() <= 1) {
+                continue;
+            }
+            PathPlannerPath path = PathPlannerPath.fromPathPoints(segment, segment.get(segment.size() / 2).constraints, new GoalEndState(0, segment.get(segment.size() - 1).holonomicRotation));
+
+            pathList.add(path);
+
+            PathPlannerTrajectory trajectory = new PathPlannerTrajectory(path, new ChassisSpeeds());
+
+            pathPlannerTrajectories.add(trajectory);
+        }
+
+        return pathList;
+
     }
 
     public static List<PathPlannerPath> splitting_paths_into_segments(PathPlannerPath path_from_file) {
