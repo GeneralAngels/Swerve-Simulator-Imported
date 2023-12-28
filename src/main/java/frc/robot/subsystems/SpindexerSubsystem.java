@@ -1,6 +1,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.time.StopWatch;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -9,6 +10,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.CANSparkMax;
@@ -42,18 +44,17 @@ public class SpindexerSubsystem extends SubsystemBase {
     DigitalInput beam_breaker = new DigitalInput(4);
     Solenoid solenoid3 = new Solenoid(PneumaticsModuleType.CTREPCM, 3);
     int ballsShot = 0;
-    boolean flag = true;
     CurrentSpindexerState spindexerState = CurrentSpindexerState.STATIC;
     FeederState feederState = FeederState.CLOSED;
 
     Mechanism2d spindexer = new Mechanism2d(2,2);
     Mechanism2d feeder = new Mechanism2d(2,2);
-    MechanismRoot2d spindexer_root = spindexer.getRoot("Spindexer Place", 1, 0.08);
+    MechanismRoot2d spindexer_root = spindexer.getRoot("Spindexer Place", 1, 0.09);
 
-    MechanismRoot2d feeder_root = feeder.getRoot("Feeder Place", 1.1, 0.3);
+    MechanismRoot2d feeder_root = feeder.getRoot("Feeder Place", 1.1, 0.35);
 
-    MechanismLigament2d m_spindexer = spindexer_root.append(new MechanismLigament2d("Spindexer",0.4,0,6, new Color8Bit(Color.kOrange)));
-    MechanismLigament2d m_feeder = feeder_root.append(new MechanismLigament2d("Feeder",0,270,6, new Color8Bit(Color.kRed)));
+    MechanismLigament2d m_spindexer = spindexer_root.append(new MechanismLigament2d("Spindexer",0.4,0,6, new Color8Bit(Color.kYellow)));
+    MechanismLigament2d m_feeder = feeder_root.append(new MechanismLigament2d("Feeder",0,270,5, new Color8Bit(Color.kWhite)));
 
 
 
@@ -123,14 +124,14 @@ public class SpindexerSubsystem extends SubsystemBase {
     }
 
     public void spin() {
-        flag = true;
         spindexerState = CurrentSpindexerState.SPINNING;
         motor2.setVoltage(3.0);
-        m_feeder.setAngle(180);
+        m_spindexer.setAngle(180);
+
+
     }
 
     public void stopSpin() {
-        flag = false;
         spindexerState = CurrentSpindexerState.STATIC;
         motor2.setVoltage(0.0);
         m_spindexer.setAngle(0);

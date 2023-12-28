@@ -6,6 +6,13 @@ import com.revrobotics.CANSparkMax.ControlType;
 
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -23,13 +30,16 @@ public class Shooter extends SubsystemBase {
     public SparkMaxPIDController m_hood_PidController;
     private RelativeEncoder m_hood_encoder;
     private static final int hood_deviceId = 200;
-
-
     public double desiredVelocity = 0.0;
 
     private static Shooter instance = null;
 
     public boolean isRegular = true;
+
+   Mechanism2d shooter = new Mechanism2d(2,2);
+    MechanismRoot2d shooter_root = shooter.getRoot("Tower Place", 0.9, 0.07);
+    MechanismLigament2d m_shooter = shooter_root.append(new MechanismLigament2d("Tower",0.7, 90, 6, new Color8Bit(Color.kBlue)));
+    MechanismLigament2d m_hood = m_shooter.append(new MechanismLigament2d("Hood",0.45, hoodAngle() * -1, 5, new Color8Bit(Color.kBlue)));
 
     public Shooter() {
         // Initializng the flywheel motor
@@ -64,6 +74,10 @@ public class Shooter extends SubsystemBase {
 
         REVPhysicsSim.getInstance().addSparkMax(m_flywheel_motor, DCMotor.getNEO(1));
         REVPhysicsSim.getInstance().addSparkMax(m_hood_motor, DCMotor.getNEO(1));
+
+        System.out.println("putting data - Shooter");
+        System.out.println(hoodAngle());
+        SmartDashboard.putData("Shooter System", shooter);
     }
 
     public static Shooter getInstance() {
@@ -84,7 +98,6 @@ public class Shooter extends SubsystemBase {
             desiredVelocity = ShooterConstants.FLYWHEEL_RPM_MAP.get(getDistanceToTarget()) / 2;
         }
         Logger.recordOutput("Wanted RPM", desiredVelocity);
-
 
     //    m_flywheel_pidController.setReference(desiredVelocity, ControlType.kVelocity);
     }
@@ -108,7 +121,6 @@ public class Shooter extends SubsystemBase {
     public void setHoodAngle() {
 
         double distanceToTarget = getDistanceToTarget();
-        distanceToTarget = 2.0;
         double hoodAngle = ShooterConstants.HOOD_ANGLE_MAP.get(distanceToTarget);
 
         Logger.recordOutput("Hood Predicted Angle", hoodAngle);
@@ -131,5 +143,9 @@ public class Shooter extends SubsystemBase {
     public double getDistanceToTarget() {
         Transform2d poseToTarget = new Transform2d(NewPoseEstimatorSubsystem.getInstance().getCurrentPose(), ShooterConstants.TARGET_APRIL);
         return Math.hypot(poseToTarget.getX(), poseToTarget.getY());
+    }
+
+    public double hoodAngle() {
+        return ShooterConstants.HOOD_ANGLE_MAP.get(getDistanceToTarget());
     }
 }
