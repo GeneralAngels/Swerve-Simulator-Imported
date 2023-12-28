@@ -51,6 +51,8 @@ public class SwerveModuleFalcon500 {
     private static final double DRIVE_SENSOR_POSITION_COEFFICIENT = (2 * Math.PI * WHEEL_RADIUS_METERS)
             / (2048 * DRIVE_GEAR_RATIO);
 
+    Rotation2d relative_offset = Rotation2d.fromDegrees(0);
+
     /**
      * Conversion constant: From motor encoder ticks to velocity data (m/s)
      * <p>
@@ -233,7 +235,7 @@ public class SwerveModuleFalcon500 {
         // In Rotation2d.
         inputs.odometryTurnPositions =
                 turnPositionQueue.stream()
-                        .map((Double value) -> Rotation2d.fromRotations(value / STEER_GEAR_RATIO))
+                        .map((Double value) -> Rotation2d.fromRotations(value / STEER_GEAR_RATIO).plus(relative_offset))
                         .toArray(Rotation2d[]::new);
 
         drivePositionQueue.clear();
@@ -249,11 +251,13 @@ public class SwerveModuleFalcon500 {
     }
 
     public void updateStatus(String name) {
-
     }
 
     public void setTargetSteerPosition(double targetSteerPositionRad) {
 //         steerMotor.set(TalonFXControlMode.Position, targetSteerPositionRad / STEER_SENSOR_POSITION_COEFFICIENT);
+
+        targetSteerPositionRad = targetSteerPositionRad - relative_offset.getRadians();
+
         steerMotor.setControl(position_request.withPosition(
                 targetSteerPositionRad * STEER_GEAR_RATIO / (2 * Math.PI)
         ));
@@ -279,6 +283,7 @@ public class SwerveModuleFalcon500 {
 //        var steerPositionRad = steerPositionTicks * STEER_SENSOR_POSITION_COEFFICIENT;
 
         var currentAngleRadians = steerMotor.getPosition().getValueAsDouble() / STEER_GEAR_RATIO * (2 * Math.PI);
+        currentAngleRadians += relative_offset.getRadians();
 
         double angleError = getAngleError(targetState.angle.getRadians(), currentAngleRadians);
 
@@ -323,7 +328,9 @@ public class SwerveModuleFalcon500 {
             Logger.recordOutput("TIMING/reset to absolute timing/reading_CANCoder_position", System.currentTimeMillis() - start_time);
             start_time = System.currentTimeMillis();
 
-            double angle_error = getAngleError(Units.degreesToRadians(absoluteEncoderAngle), currentAngle);
+            double angle_error = getAngleError(Units.degreesToRadians(absoluteEncoderAngle), currentAngle); // in radians.
+
+            relative_offset = Rotation2d.fromRadians(angle_error);
 
             Logger.recordOutput("TIMING/reset to absolute timing/calculating_angle_error", System.currentTimeMillis() - start_time);
             start_time = System.currentTimeMillis();
@@ -331,7 +338,7 @@ public class SwerveModuleFalcon500 {
             // steerMotor.setPosition(
             // currentPosition + Units.radiansToRotations(angle_error) * STEER_GEAR_RATIO);
 
-            steerMotor.getConfigurator().setPosition(currentPosition + Units.radiansToRotations(angle_error) * STEER_GEAR_RATIO);
+            // steerMotor.getConfigurator().setPosition(currentPosition + Units.radiansToRotations(angle_error) * STEER_GEAR_RATIO);
 
             Logger.recordOutput("TIMING/reset to absolute timing/setting_falcon_position", System.currentTimeMillis() - start_time);
             start_time = System.currentTimeMillis();
@@ -341,13 +348,13 @@ public class SwerveModuleFalcon500 {
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
                 driveMotor.getPosition().getValueAsDouble() / DRIVE_GEAR_RATIO * (2 * Math.PI * WHEEL_RADIUS_METERS),
-                Rotation2d.fromRotations(steerMotor.getPosition().getValueAsDouble() / STEER_GEAR_RATIO));
+                Rotation2d.fromRotations(steerMotor.getPosition().getValueAsDouble() / STEER_GEAR_RATIO).plus(relative_offset));
     }
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(
                 driveMotor.getVelocity().getValueAsDouble() / DRIVE_GEAR_RATIO * (2 * Math.PI * WHEEL_RADIUS_METERS),
-                Rotation2d.fromRadians(steerMotor.getPosition().getValueAsDouble() / STEER_GEAR_RATIO * (2 * Math.PI)));
+                Rotation2d.fromRadians(steerMotor.getPosition().getValueAsDouble() / STEER_GEAR_RATIO * (2 * Math.PI)).plus(relative_offset));
     }
 
     public void updateSim(double looperDt) {

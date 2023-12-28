@@ -330,7 +330,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
         var current_swerve_speed = getChassisSpeeds();
         // pigeonSimCollection.addHeading(Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
-        pigeon2SimState.addYaw(Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
+        pigeon2SimState.addYaw(-Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
 
         SmartDashboard.putNumber("x speed", current_swerve_speed.vxMetersPerSecond);
         SmartDashboard.putNumber("y speed", current_swerve_speed.vyMetersPerSecond);
