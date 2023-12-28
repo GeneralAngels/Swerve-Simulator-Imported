@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.FalconControllerTest;
 import frc.robot.subsystems.NeoControllerTest;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
@@ -42,6 +43,8 @@ public class RobotContainer {
     public Shooter_Test_RigSubsystem shooter_rig = new Shooter_Test_RigSubsystem();
 
     public NeoControllerTest neo_controller_test = new NeoControllerTest();
+
+    public FalconControllerTest falcon_controller_test = new FalconControllerTest();
 
     AutosGenerator autosGenerator;
 

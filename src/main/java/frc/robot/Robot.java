@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.PneumaticsControlModule;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -47,6 +48,8 @@ public class Robot extends LoggedRobot {
     PneumaticHub ph = new PneumaticHub(1);
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
     PneumaticsControlModule pcm = new PneumaticsControlModule();
+
+    DigitalInput beam_break = new DigitalInput(7);
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -110,6 +113,8 @@ public class Robot extends LoggedRobot {
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
         Logger.recordOutput("pressure switch", pcm.getPressureSwitch());
+
+        Logger.recordOutput("beam break", beam_break.get());
     }
 
     /**

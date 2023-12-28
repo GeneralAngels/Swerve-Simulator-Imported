@@ -58,7 +58,7 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
                 CANSparkMaxLowLevel.MotorType.kBrushless);
         this.roller_motor = new CANSparkMax((int) rollers_port.get(), CANSparkMaxLowLevel.MotorType.kBrushless);
         //this.m_hood_encoder = new Encoder(7, 5);
-        this.m_hoodDutyCycleEncoder = new DutyCycleEncoder(7);
+        this.m_hoodDutyCycleEncoder = new DutyCycleEncoder(10);
 
         this.roller_PidController = roller_motor.getPIDController();
         this.roller_PidController.setP(0);
