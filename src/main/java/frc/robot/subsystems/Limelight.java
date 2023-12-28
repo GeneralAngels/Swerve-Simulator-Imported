@@ -55,6 +55,8 @@ public class Limelight extends SubsystemBase {
                 visionRet[1],
                 Rotation2d.fromDegrees(visionRet[5]));
 
+        Logger.recordOutput("LimelightRawPose", fieldPose);
+
         Logger.recordOutput("distance", Math.hypot(fieldPose.getX(), fieldPose.getY()));
 
         double estimatedRotation = fieldPose.getRotation().getDegrees();
@@ -62,14 +64,13 @@ public class Limelight extends SubsystemBase {
         // Check if the estimated rotation lines up with the current gyro value
         if (Math.abs(currAngle.get() - estimatedRotation) > Constants.PoseEstimatorConstants.maxEstimatedAngleError &&
                 numTags == 1 ||
-                tagPose[2] > 3.5)
-        {
+                tagPose[2] > 3.5) {
             Logger.recordOutput("Using Tag", false);
             return null;
         }
         Logger.recordOutput("Using Tag", true);
 
-        Logger.recordOutput("LimelightRawPose", fieldPose);
+
         double timestamp = Timer.getFPGATimestamp() - (visionRet[6] / 1000.0);
         return new LimelightMeasurement(fieldPose, timestamp);
     }

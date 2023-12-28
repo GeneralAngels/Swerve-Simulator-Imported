@@ -37,5 +37,6 @@ public final class Constants {
     public static final class PoseEstimatorConstants {
 
         public static final double maxEstimatedAngleError = 10; // Degrees
+        public static final double ODOMETRY_FREQUENCY = 250.0;
     }
 }

@@ -22,7 +22,7 @@ public class AutosGenerator {
         autonomousSendableChooser.addOption("2020 auto 1", _2020_auto1());
         autonomousSendableChooser.addOption("2020 shani's auto", _2020_auto2());
         autonomousSendableChooser.addOption("2020 Auto 3", _2020_auto3());
-
+        autonomousSendableChooser.addOption("2020 Auto 4", _2020_auto4());
 
         SmartDashboard.putData("Autonomous chooser", autonomousSendableChooser);
     }
@@ -86,7 +86,6 @@ public class AutosGenerator {
         return auto_command;
     }
 
-
     public Command _2020_auto2() {
         PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Auto2");
         var auto_command = new InstantCommand(
@@ -143,7 +142,6 @@ public class AutosGenerator {
                 }).andThen();
 
 
-
         List<PathPlannerPath> paths = RobotContainer.splitting_paths_into_segments(path_from_file);
         auto_command = auto_command.andThen(newSwerve.getDefaultPathFollowingCommand(paths.get(0), poseEstimatorSubsystem));
 
@@ -182,11 +180,46 @@ public class AutosGenerator {
                 )
         );
 
+    
+
 
 
 
         return auto_command;
     }
+    public Command _2020_auto4() {
+        PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("Auto4.2");
+        var auto_command = Commands.sequence();
+
+        auto_command = auto_command.andThen(
+                new InstantCommand(() -> {
+                    Shooter.getInstance().setDesiredVelocity(300); // in RPM
+                }).andThen(
+                        new WaitCommand(2)
+                ).andThen(
+                        new InstantCommand(() -> {
+                            System.out.println("Finished shooting");
+                            Shooter.getInstance().setDesiredVelocity(0);
+                        })
+                )
+        );
+
+        List<PathPlannerPath> paths = RobotContainer.splitting_paths_into_segments(path_from_file);
+        auto_command = auto_command.andThen(newSwerve.getDefaultPathFollowingCommand(paths.get(0), poseEstimatorSubsystem));
 
 
+        auto_command = auto_command.andThen(
+                Commands.parallel(
+                        newSwerve.getDefaultPathFollowingCommand(paths.get(1), poseEstimatorSubsystem),
+                        new InstantCommand(() -> {
+                            System.out.println("COLLECTING");
+                        })
+                )
+        );
+
+        auto_command = auto_command.andThen(newSwerve.getDefaultPathFollowingCommand(paths.get(2), poseEstimatorSubsystem));
+
+
+        return auto_command;
+    }
 }
