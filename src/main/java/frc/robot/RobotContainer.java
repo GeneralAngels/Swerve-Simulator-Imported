@@ -12,12 +12,16 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 import com.pathplanner.lib.path.PathPoint;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -61,6 +65,12 @@ public class RobotContainer {
         NewPoseEstimatorSubsystem.getInstance();
 
         this.autosGenerator = new AutosGenerator();
+
+        SmartDashboard.putData(
+            "auto allign", new DriveToTarget(
+                () -> {return new Pose2d(1.87, 3.82, Rotation2d.fromDegrees(180));}
+            )
+        );
     }
 
     /**

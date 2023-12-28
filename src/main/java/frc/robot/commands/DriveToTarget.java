@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,18 +27,22 @@ public class DriveToTarget extends Command {
   ChassisSpeeds controlSpeeds = new ChassisSpeeds();
 
   /** Creates a new DriveToTarget. */
-  public DriveToTarget(Supplier<Pose2d> cameraPose) {
-    this.cameraPoseSupplier = cameraPose;
+  public DriveToTarget(Supplier<Pose2d> goalSupplier) {
+    // this.cameraPoseSupplier = cameraPose;
     this.poseEstimator = NewPoseEstimatorSubsystem.getInstance();
     this.swerve = NewSwerveDriveSubsystem.getInstance(); 
+    this.goalSupplier = goalSupplier;
     // Use addRequirements() here to declare subsystem dependencies.
+
+    addRequirements(swerve);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    this.cameraPose = cameraPoseSupplier.get();
-    this.goalPose = goalSupplier.get();
+    // this.cameraPose = cameraPoseSupplier.get();
+    this.goalPose = new Pose2d(1.87, 3.82, Rotation2d.fromDegrees(180));
+    System.out.println("\n\n hello world"); 
     // this.poseEstimator.resetCounter(); 
   }
 
@@ -49,11 +54,6 @@ public class DriveToTarget extends Command {
     Pose2d currentPose = poseEstimator.getCurrentPose();
 
     double distanceToTarget = goalPose.getTranslation().getDistance(currentPose.getTranslation());
-
-    double directionToTarget = Math.atan2(
-          goalPose.getY() - currentPose.getY(), 
-          goalPose.getX() - currentPose.getX()
-      );
     // System.out.println("speed: " + swerveDriveTrain.getSpeed());
 
     TrapezoidProfile profile = new TrapezoidProfile(
@@ -63,17 +63,20 @@ public class DriveToTarget extends Command {
 
     var robot_chassis_speeds = swerve.getChassisSpeeds();
     var robot_velocity = Math.hypot(robot_chassis_speeds.vxMetersPerSecond, robot_chassis_speeds.vyMetersPerSecond);
+    
+    double directionToTarget = Math.atan2(
+          goalPose.getY() - currentPose.getY(), 
+          goalPose.getX() - currentPose.getX()
+      );
 
     double velocity = profile.calculate(0.02,
       new TrapezoidProfile.State(distanceToTarget, 0),
       new TrapezoidProfile.State(0, robot_velocity)
     ).velocity;
 
-    
 
     controlSpeeds.vxMetersPerSecond = Math.cos(directionToTarget) * velocity;
-    controlSpeeds.vyMetersPerSecond = -Math.sin(directionToTarget) * velocity;
-
+    controlSpeeds.vyMetersPerSecond = Math.sin(directionToTarget) * velocity;
     
     Logger.recordOutput("NewDriveToTarget/RobotVelocity", velocity);
     Logger.recordOutput("NewDriveToTarget/x-velocity", controlSpeeds.vxMetersPerSecond);
@@ -82,33 +85,10 @@ public class DriveToTarget extends Command {
     Logger.recordOutput("NewDriveToTarget/x-error", (currentPose.getX() - goalPose.getX()));
     Logger.recordOutput("NewDriveToTarget/y-error", (currentPose.getY() - goalPose.getY()));
 
-    // swerve.setWpiAbsoluteVelocoties(); // ???
+
+    swerve.setAbsoluteVelocities(controlSpeeds);
 
   }
-  private static double placeInAppropriate0To360Scope(double scopeReference, double newAngle) {
-    double lowerBound;
-    double upperBound;
-    double lowerOffset = scopeReference % 360;
-    if (lowerOffset >= 0) {
-        lowerBound = scopeReference - lowerOffset;
-        upperBound = scopeReference + (360 - lowerOffset);
-    } else {
-        upperBound = scopeReference - lowerOffset;
-        lowerBound = scopeReference - (360 + lowerOffset);
-    }
-    while (newAngle < lowerBound) {
-        newAngle += 360;
-    }
-    while (newAngle > upperBound) {
-        newAngle -= 360;
-    }
-    if (newAngle - scopeReference > 180) {
-        newAngle -= 360;
-    } else if (newAngle - scopeReference < -180) {
-        newAngle += 360;
-    }
-    return newAngle;
-}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -123,8 +103,8 @@ public class DriveToTarget extends Command {
 
     Logger.recordOutput("NewDriveToTarget/operating", false);
 
-    // System.out.println("\n\n");
-    // System.out.println("x: " + xDistance + " y: " + yDistance);
+    System.out.println("\n\n");
+    System.out.println("x: " + xDistance + " y: " + yDistance);
 
 
 
@@ -143,6 +123,7 @@ public class DriveToTarget extends Command {
     double angleSetPoint = 0;
     double currentAngle = -swerve.getYawDegrees(); // In degrees.
 
+    if (Math.abs(VxDistance) < 0.05 && Math.abs(VyDistance) < 0.05 && Math.abs(angleSetPoint - currentAngle) < 1) System.out.println("\n\n finished");
     return Math.abs(VxDistance) < 0.05 && Math.abs(VyDistance) < 0.05 && Math.abs(angleSetPoint - currentAngle) < 1;
   }
 }

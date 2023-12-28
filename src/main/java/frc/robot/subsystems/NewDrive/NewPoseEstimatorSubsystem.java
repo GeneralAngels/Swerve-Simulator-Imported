@@ -125,7 +125,7 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
      * @param newPose new pose
      */
     public void setCurrentPose(Pose2d newPose) {
-        if (Robot.isReal())
+        if (true)
             drive.pigeon2.setYaw(newPose.getRotation().getDegrees());
 
         System.out.println("signal based value: " + NewSwerveDriveSubsystem.getInstance().gyroInformation.yawSignal.getValueAsDouble());
