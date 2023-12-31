@@ -39,6 +39,14 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose2d.struct).publish();
 
+
+    public static class StdDevs {
+        public static final Matrix<N3, N1> closer_than_meter = VecBuilder.fill(0.15, 0.15, Units.degreesToRadians(5));
+        public static final Matrix<N3, N1> closer_than_two_meters = VecBuilder.fill(0.3, 0.3, Units.degreesToRadians(20));
+        public static final Matrix<N3, N1> closer_than_three_meters = VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(25));
+        public static final Matrix<N3, N1> closer_than_four_meters = VecBuilder.fill(0.7, 0.7, Units.degreesToRadians(25));
+    }
+
     public static NewPoseEstimatorSubsystem getInstance() {
         if (instance == null) {
             instance = new NewPoseEstimatorSubsystem();
@@ -57,6 +65,24 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
 
         SmartDashboard.putData("field", field2d);
         setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
+    }
+
+    public void add_using_different_std_devs(LimelightMeasurement measurement) {
+        var distance_to_target = Limelight.getDistanceToTarget();
+
+        if (distance_to_target <= 1) {
+            poseEstimator.addVisionMeasurement(measurement.pose, measurement.timestamp, StdDevs.closer_than_meter);
+        }
+        else if (distance_to_target <= 2) {
+            poseEstimator.addVisionMeasurement(measurement.pose, measurement.timestamp, StdDevs.closer_than_two_meters);
+        }
+        else if (distance_to_target <= 3) {
+            poseEstimator.addVisionMeasurement(measurement.pose, measurement.timestamp, StdDevs.closer_than_three_meters);
+        }
+        else if (distance_to_target <= 4) {
+            poseEstimator.addVisionMeasurement(measurement.pose, measurement.timestamp, StdDevs.closer_than_four_meters);
+        }
+        // else: not adding another mesaurment.
     }
 
 

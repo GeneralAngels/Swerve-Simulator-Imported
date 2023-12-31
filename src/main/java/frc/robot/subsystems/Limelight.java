@@ -34,11 +34,18 @@ public class Limelight extends SubsystemBase {
     static double[] empty = new double[7];
     static double[] empty_1 = new double[1];
 
+    static Translation2d target_pose_camerspace = new Translation2d();
+
     public static Limelight getInstace() {
         if (instace == null) {
             instace = new Limelight();
         }
         return instace;
+    }
+
+    public static double getDistanceToTarget() {
+        var cameraspace_limelight_result = limelight.getEntry("targetpose_cameraspace").getDoubleArray(empty);
+        return Math.hypot(cameraspace_limelight_result[0], cameraspace_limelight_result[1]);
     }
 
     public static LimelightMeasurement MegaTagEstimate() {
