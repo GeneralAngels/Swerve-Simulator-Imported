@@ -154,11 +154,12 @@ public class Robot extends LoggedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
-
         LimelightMeasurement limelightMeasurement = Limelight.MegaTagEstimate();
         if (limelightMeasurement != null) {
             NewPoseEstimatorSubsystem.getInstance().setCurrentPose(limelightMeasurement.pose);
         }
+
+        
 
         NewSwerveDriveSubsystem.getInstance().setDefaultCommand(
                 new DefaultDriveCommand(

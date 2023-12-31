@@ -10,6 +10,10 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.Publisher;
 import frc.robot.Constants;
+import com.ctre.phoenix.ErrorCode;
+import edu.wpi.first.networktables.IntegerSubscriber;
+import frc.robot.Alert;
+import frc.robot.subsystems.utils.NT_Helper;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.time.StopWatch;
@@ -48,6 +52,8 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     SwerveModuleState[] currentModuleStates = new SwerveModuleState[]{new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
     SwerveModulePosition[] currentPositions = new SwerveModulePosition[]{new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
 
+    IntegerSubscriber status = NT_Helper.getIntSubscriber(NetworkTableInstance.getDefault().getTable("SIMING STATUS"), "motor 1 sim connected", 0);
+
     public Pigeon2 pigeon2;
     public Pigeon2SimState pigeon2SimState;
 
@@ -72,6 +78,8 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
     public GyroInformation gyroInformation = new GyroInformation();
 
+    Alert motor_disconnected = new Alert("swerve motor disconnected!", Alert.AlertType.ERROR);
+    
     public static NewSwerveDriveSubsystem getInstance() {
         if (instance == null)
             instance = NewSwerveDriveSubsystem.getDefaultSwerve();
@@ -219,7 +227,6 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         }
 
         pigeon2.getFault_Hardware().getStatus().isOK();
-
     }
 
     public void display_cancoders() {
@@ -326,7 +333,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
         var current_swerve_speed = getChassisSpeeds();
         // pigeonSimCollection.addHeading(Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
-        pigeon2SimState.addYaw(Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
+        pigeon2SimState.addYaw(-Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
 
         SmartDashboard.putNumber("x speed", current_swerve_speed.vxMetersPerSecond);
         SmartDashboard.putNumber("y speed", current_swerve_speed.vyMetersPerSecond);

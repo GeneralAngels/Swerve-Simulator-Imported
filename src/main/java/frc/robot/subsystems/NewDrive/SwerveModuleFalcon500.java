@@ -248,6 +248,10 @@ public class SwerveModuleFalcon500 {
         return inputs.odometryTurnPositions;
     }
 
+    public void updateStatus(String name) {
+
+    }
+
     public void setTargetSteerPosition(double targetSteerPositionRad) {
 //         steerMotor.set(TalonFXControlMode.Position, targetSteerPositionRad / STEER_SENSOR_POSITION_COEFFICIENT);
         steerMotor.setControl(position_request.withPosition(
