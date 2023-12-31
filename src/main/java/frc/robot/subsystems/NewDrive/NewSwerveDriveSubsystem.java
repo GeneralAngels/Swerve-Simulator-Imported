@@ -110,7 +110,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         this.pigeon2SimState = pigeon2.getSimState();
 
         pigeon2.getConfigurator().apply(new Pigeon2Configuration());
-        gyroInformation.yawSignal = pigeon2.getYaw();
+           gyroInformation.yawSignal = pigeon2.getYaw();
         gyroInformation.yawSignal.setUpdateFrequency(Constants.PoseEstimatorConstants.ODOMETRY_FREQUENCY);
         pigeon2.optimizeBusUtilization();
 
@@ -126,10 +126,10 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     }
 
     public static NewSwerveDriveSubsystem getDefaultSwerve() {
-        double homeFrontLeftAngle = 275.54; // old 82
-        double homeFrontRightAngle = 9.14; // old 22
-        double homeBackLeftAngle = 227.55; // old 314
-        double homeBackRightAngle = 207.68; // old 131
+        double homeFrontLeftAngle = 265.34 - 180; // old 82
+        double homeFrontRightAngle = 220.605 - 180; // old 22
+        double homeBackLeftAngle = 313.85; // old 314
+        double homeBackRightAngle = 284.677 - 180; // old 131
 
 
         var leftFront = new SwerveModuleFalcon500(
