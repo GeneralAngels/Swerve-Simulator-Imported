@@ -31,7 +31,7 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
 
     NetworkTable table = NetworkTableInstance.getDefault().getTable("NeoControllerTest");
 
-    IntegerSubscriber motor_port = NT_Helper.getIntSubscriber(table, "Motor Port", 1);
+    IntegerSubscriber motor_port = NT_Helper.getIntSubscriber(table, "Motor Port", 2);
 
     DoubleSubscriber kp_input = NT_Helper.getDoubleSubscriber(table, "Kp", 0);
     DoubleSubscriber ki_input = NT_Helper.getDoubleSubscriber(table, "Ki", 0);
@@ -55,10 +55,10 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
         this.m_encoder = this.m_motor.getEncoder();
         this.m_pidController = this.m_motor.getPIDController();
 
-        SmartDashboard.putData("Calculate Kf", new InstantCommand(this::displayKF));
-        SmartDashboard.putData("Run Motor", new InstantCommand(this::runMotor));
-        SmartDashboard.putData("Stop Motor", new InstantCommand(this::stopMotor));
-        SmartDashboard.putData("Reset Parameters", new InstantCommand(this::resetParams));
+        SmartDashboard.putData("Neo - Calculate Kf", new InstantCommand(this::displayKF));
+        SmartDashboard.putData("Neo - Run Motor", new InstantCommand(this::runMotor));
+        SmartDashboard.putData("Neo - Stop Motor", new InstantCommand(this::stopMotor));
+        SmartDashboard.putData("Neo - Reset Parameters", new InstantCommand(this::resetParams));
 
 
         this.m_pidController.setD((float) kd_input.get());
@@ -113,6 +113,8 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
             this.m_pidController.setP((float) kp_input.get());
             this.m_pidController.setFF((float) kf_input.get());
             this.m_motor.burnFlash();
+
+            this.m_motor.set(0.3);
         }
         if ((float) kp_input.get() != this.m_pidController.getP()) {
             this.m_pidController.setP((float) kp_input.get());

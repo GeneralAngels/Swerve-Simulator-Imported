@@ -1,18 +1,13 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMaxLowLevel;
-import com.revrobotics.REVPhysicsSim;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
 
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
@@ -49,11 +44,15 @@ public class FalconControllerTest extends TimeMeasurementSubsystem{
     DoublePublisher motor_rpm = table.getDoubleTopic("Motor RPM").publish();
     DoublePublisher motor_position = table.getDoubleTopic("Motor Position").publish();
 
+    DoublePublisher configed = table.getDoubleTopic("configed").publish();
+
+
     double kf = 0;
 
     final int kUnitsPerRevolution = 2048;
 
     public FalconControllerTest() {
+        configed.set(0);
 
         this.m_motor = new TalonFX((int) motor_port.get());
         this.m_configs = new TalonFXConfiguration();
@@ -72,10 +71,10 @@ public class FalconControllerTest extends TimeMeasurementSubsystem{
         this.m_configs.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         this.m_motor.getConfigurator().apply(this.m_configs);
-        //SmartDashboard.putData("Calculate Kf", new InstantCommand(this::displayKF));
-        //SmartDashboard.putData("Run Motor", new InstantCommand(this::runMotor));
-        //SmartDashboard.putData("Stop Motor", new InstantCommand(this::stopMotor));
-        //SmartDashboard.putData("Reset Parameters", new InstantCommand(this::resetParams));
+        SmartDashboard.putData("Falcon - Calculate Kf", new InstantCommand(this::displayKF));
+        SmartDashboard.putData("Falcon - Run Motor", new InstantCommand(this::  runMotor));
+        SmartDashboard.putData("Falcon - Stop Motor", new InstantCommand(this::stopMotor));
+        SmartDashboard.putData("Falcon - Reset Parameters", new InstantCommand(this::resetParams));
 
     }
 
@@ -111,7 +110,7 @@ public class FalconControllerTest extends TimeMeasurementSubsystem{
 
     public void renew() {
         if (this.m_motor.getDeviceID() != (int) motor_port.get()) {
-            this.m_motor = new TalonFX((int) this.m_motor.getDeviceID());
+            this.m_motor = new TalonFX((int) this.motor_port.get());
 
             this.m_configs.Slot0.kP = (float) this.kp_input.get();
             this.m_configs.Slot0.kI = (float) this.ki_input.get();
@@ -140,8 +139,10 @@ public class FalconControllerTest extends TimeMeasurementSubsystem{
             this.m_configs.Slot0.kD = (float) kd_input.get();
             this.m_motor.getConfigurator().apply(this.m_configs);
         }
-        if ((float) kf_input.get() != this.m_configs.Slot0.kA) {
-            this.m_configs.Slot0.kA = (float) kf_input.get();
+        if ((float) kf_input.get() != this.m_configs.Slot0.kV) {
+            System.out.println("\n\nconfigining kv\n\n");
+            configed.set(10);
+            this.m_configs.Slot0.kV = (float) kf_input.get();
             this.m_motor.getConfigurator().apply(this.m_configs);
         }
     }
@@ -160,13 +161,14 @@ public class FalconControllerTest extends TimeMeasurementSubsystem{
     public void runMotor() {
         System.out.println("run");
         if ((double) this.velocity_input.get() != 0) {
-            //this.m_motor.setControl((double) this.velocity_input.get());
+            m_motor.setControl(new VelocityVoltage(velocity_input.get()).withSlot(0).withAcceleration(0).withEnableFOC(false));
         }
         else if ((double) this.position_input.get() != 0) {
-            this.m_motor.setPosition((double) this.position_input.get());
+            PositionVoltage position_request = new PositionVoltage(0).withSlot(0).withPosition(0);
+            m_motor.setControl(position_request.withPosition(this.position_input.get()));
         }
         else if ((double) this.precent_input.get() != 0) {
-            this.m_motor.set((double) this.precent_input.get());
+            m_motor.set(precent_input.get());
         }
     }
 

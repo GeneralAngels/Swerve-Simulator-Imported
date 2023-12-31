@@ -29,8 +29,8 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
 
     NetworkTable table = NetworkTableInstance.getDefault().getTable("ShooterRig");
 
-    IntegerSubscriber flywheel_1_port = NT_Helper.getIntSubscriber(table, "flywheel 1 port", 4);
-    IntegerSubscriber rollers_port = NT_Helper.getIntSubscriber(table, "flywheel 3 port", 5);
+    IntegerSubscriber flywheel_1_port = NT_Helper.getIntSubscriber(table, "flywheel 1 port", 400);
+    IntegerSubscriber rollers_port = NT_Helper.getIntSubscriber(table, "flywheel 3 port", 500);
 
     DoubleSubscriber flywheel_1_percent = NT_Helper.getDoubleSubscriber(table, "flywheel 1 percent", 0.0);
     DoubleSubscriber rollers_percent = NT_Helper.getDoubleSubscriber(table, "rollers percent", 0.0);

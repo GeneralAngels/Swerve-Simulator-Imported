@@ -190,6 +190,7 @@ public class Robot extends LoggedRobot {
 
         m_robotContainer.shooter_rig.slewRateLimiter.reset(0);
 
+
     }
 
     /**
@@ -199,6 +200,7 @@ public class Robot extends LoggedRobot {
     public void teleopPeriodic() {
         //m_robotContainer.shooter_rig.teleopPeriodicPercent();
         Logger.recordOutput("Analog Pressure Sensor", compressor.getPressure());
+
 
     }
 
