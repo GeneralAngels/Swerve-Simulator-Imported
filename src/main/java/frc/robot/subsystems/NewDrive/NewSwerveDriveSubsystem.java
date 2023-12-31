@@ -6,6 +6,9 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.Publisher;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
@@ -51,6 +54,12 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     boolean limitingRotatingMaxVel = false;
 
     StopWatch simStopWatch = new StopWatch();
+
+    NetworkTable encoders_dashboard = NetworkTableInstance.getDefault().getTable("encoders-dashboard");
+    DoublePublisher encoder1 = encoders_dashboard.getDoubleTopic("CANCoder1 (front left)").publish();
+    DoublePublisher encoder2 = encoders_dashboard.getDoubleTopic("CANCoder2 (front right)").publish();
+    DoublePublisher encoder3 = encoders_dashboard.getDoubleTopic("CANCoder3 (back left)").publish();
+    DoublePublisher encoder4 = encoders_dashboard.getDoubleTopic("CANCoder4 (back right)").publish();
 
     public static final Lock odometryLock = new ReentrantLock();
 
@@ -211,6 +220,13 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
         pigeon2.getFault_Hardware().getStatus().isOK();
 
+    }
+
+    public void display_cancoders() {
+        encoder1.set(swerveModules[0].steerEncoder.getAbsolutePosition() + swerveModules[0].steerEncoder.configGetMagnetOffset());
+        encoder2.set(swerveModules[1].steerEncoder.getAbsolutePosition() + swerveModules[1].steerEncoder.configGetMagnetOffset());
+        encoder3.set(swerveModules[2].steerEncoder.getAbsolutePosition() + swerveModules[2].steerEncoder.configGetMagnetOffset());
+        encoder4.set(swerveModules[3].steerEncoder.getAbsolutePosition() + swerveModules[3].steerEncoder.configGetMagnetOffset());
     }
 
     @Override

@@ -175,7 +175,8 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void teleopPeriodic() {
-        m_robotContainer.shooter_rig.teleopPeriodicPercent();
+        // m_robotContainer.shooter_rig.teleopPeriodicPercent();
+        NewSwerveDriveSubsystem.getInstance().display_cancoders();
     }
 
     @Override
