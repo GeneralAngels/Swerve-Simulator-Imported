@@ -6,6 +6,8 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
+import com.revrobotics.REVLibError;
+import edu.wpi.first.wpilibj.Encoder;
 import frc.robot.Constants;
 import com.ctre.phoenix.ErrorCode;
 import edu.wpi.first.networktables.IntegerSubscriber;
@@ -69,7 +71,9 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
     public GyroInformation gyroInformation = new GyroInformation();
 
+    //Alert of Detection of Disconnections
     Alert motor_disconnected = new Alert("swerve motor disconnected!", Alert.AlertType.ERROR);
+    Alert Encoder_disconnected = new Alert("Encoder motor disconnected!", Alert.AlertType.ERROR);
     
     public static NewSwerveDriveSubsystem getInstance() {
         if (instance == null)
@@ -224,14 +228,26 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     public void log_and_send_status() {
         for (int i = 0; i < 4; i++) {
             Logger.recordOutput("Swerve/Hardware status/" + i + "/drive_motor", swerveModules[i].driveMotor.getLastError().name());
-            if (swerveModules[i].driveMotor.getLastError() != ErrorCode.OK || status.get() == 1) {
+            if (swerveModules[i].steerEncoder.getLastError() != ErrorCode.OK || status.get() == 1) {
                 motor_disconnected.set(true);
                 motor_disconnected.setText(i + " drive motor disconnected");
             }
         }
         Logger.recordOutput("Swerve/Hardware status/right_moto");
     }
-     */
+    */
+
+    public void log_and_send_status_Encoder() {
+        for (int i = 0; i < 4; i++) {
+            Logger.recordOutput("Swerve/Hardware status/" + i + "/encoder", swerveModules[i].steerEncoder.getLastError().name());
+            if (swerveModules[i].steerEncoder.getLastError() != ErrorCode.OK || status.get() == 1) {
+                Encoder_disconnected.set(true);
+                Encoder_disconnected.setText(i + "encoder disconnected");
+            }
+        }
+    }
+
+
 
     @Override
     public void _periodic() {
@@ -285,6 +301,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
         Logger.recordOutput("TIMING/setting states", System.currentTimeMillis() - start_time);
         start_time = System.currentTimeMillis();
+        log_and_send_status_Encoder();
     }
 
     public double getYawDegrees() {
@@ -330,7 +347,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
         var current_swerve_speed = getChassisSpeeds();
         // pigeonSimCollection.addHeading(Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
-        pigeon2SimState.addYaw(Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
+        pigeon2SimState.addYaw(-Units.radiansToDegrees(current_swerve_speed.omegaRadiansPerSecond) * looperDt);
 
         SmartDashboard.putNumber("x speed", current_swerve_speed.vxMetersPerSecond);
         SmartDashboard.putNumber("y speed", current_swerve_speed.vyMetersPerSecond);

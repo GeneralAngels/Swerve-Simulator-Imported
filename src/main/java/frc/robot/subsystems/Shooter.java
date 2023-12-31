@@ -135,7 +135,7 @@ public class Shooter extends TimeMeasurementSubsystem {
 
     public void log_and_send_status() {
             Logger.recordOutput("Swerve/Hardware status/" + "/drive_motor");
-            if (m_flywheel_motor.getLastError()  == REVLibError.kOk) {
+            if (m_flywheel_motor.getLastError()  == REVLibError.kOk ) {
                 motor_of_shooter_disconnected.set(true);
                 motor_of_shooter_disconnected.setText(" drive motor disconnected");
             }
