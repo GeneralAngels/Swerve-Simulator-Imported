@@ -72,8 +72,10 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     public GyroInformation gyroInformation = new GyroInformation();
 
     //Alert of Detection of Disconnections
-    Alert motor_disconnected = new Alert("swerve motor disconnected!", Alert.AlertType.ERROR);
+    Alert drive_motor_disconnected = new Alert("swerve drive motor disconnected!", Alert.AlertType.ERROR);
     Alert Encoder_disconnected = new Alert("Encoder motor disconnected!", Alert.AlertType.ERROR);
+    Alert steer_motor_disconnected = new Alert("steer motor disconnected!", Alert.AlertType.ERROR);
+    Alert gyro_disconnected = new Alert("gyro disconnected!", Alert.AlertType.ERROR);
     
     public static NewSwerveDriveSubsystem getInstance() {
         if (instance == null)
@@ -236,19 +238,47 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         Logger.recordOutput("Swerve/Hardware status/right_moto");
     }
     */
+    //if (swerveModules[i].steerEncoder.getLastError() != ErrorCode.OK || status.get() == 1)
 
     public void log_and_send_status_Encoder() {
         for (int i = 0; i < 4; i++) {
             Logger.recordOutput("Swerve/Hardware status/" + i + "/encoder", swerveModules[i].steerEncoder.getLastError().name());
-            if (swerveModules[i].steerEncoder.getLastError() != ErrorCode.OK || status.get() == 1) {
+            if (swerveModules[i].steerEncoder.getLastError() != ErrorCode.OK ) {
                 Encoder_disconnected.set(true);
                 Encoder_disconnected.setText(i + "encoder disconnected");
             }
         }
     }
 
+    public void log_and_send_status_drive_Motor() {
+        for (int i = 0; i < 4; i++) {
+            Logger.recordOutput("Swerve/Hardware status/" + i + "/drive_motor", swerveModules[i].driveMotor.getFault_Hardware().getStatus().name());
+            if (!(swerveModules[i].driveMotor.getFault_Hardware().getStatus().isOK())) {
+                drive_motor_disconnected.set(true);
+                drive_motor_disconnected.setText(i + " drive motor disconnected");
+            }
+        }
+        Logger.recordOutput("Swerve/Hardware status/right_moto");
+    }
 
+    public void log_and_send_status_steer_Motor() {
+        for (int i = 0; i < 4; i++) {
+            Logger.recordOutput("Swerve/Hardware status/" + i + "/steer_motor", swerveModules[i].steerEncoder.getLastError().name());
+            if (!(swerveModules[i].steerMotor.getFault_Hardware().getStatus().isOK())) {
+                steer_motor_disconnected.set(true);
+                steer_motor_disconnected.setText(i + "encoder disconnected");
+            }
+        }
+    }
 
+    //TO CHECK IF THE condition is correct
+    /*
+    public void log_and_send_status_pigeon() {
+        if (!(pigeon2.clearStickyFault_BootupGyroscope().isOK())) {
+            gyro_disconnected.set(true);
+            gyro_disconnected.setText( "gyro disconnected");
+        }
+    }*/
     @Override
     public void _periodic() {
         var start_time = System.currentTimeMillis();
@@ -302,6 +332,8 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         Logger.recordOutput("TIMING/setting states", System.currentTimeMillis() - start_time);
         start_time = System.currentTimeMillis();
         log_and_send_status_Encoder();
+        log_and_send_status_drive_Motor();
+        log_and_send_status_steer_Motor();
     }
 
     public double getYawDegrees() {
