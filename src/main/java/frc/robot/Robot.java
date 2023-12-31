@@ -94,6 +94,7 @@ public class Robot extends LoggedRobot {
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
+        NewSwerveDriveSubsystem.getInstance().display_cancoders();
     }
 
     /**
@@ -177,7 +178,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         // m_robotContainer.shooter_rig.teleopPeriodicPercent();
-        NewSwerveDriveSubsystem.getInstance().display_cancoders();
     }
 
     @Override

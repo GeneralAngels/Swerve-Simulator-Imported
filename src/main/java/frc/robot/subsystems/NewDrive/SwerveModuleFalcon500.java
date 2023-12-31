@@ -136,13 +136,13 @@ public class SwerveModuleFalcon500 {
      */
     public SwerveModuleFalcon500(
             int driveMotorId, int steerMotorId, int steerCanCoderID, double steerAngleOffsetRad) {
-        driveMotor = new TalonFX(driveMotorId);
+        driveMotor = new TalonFX(driveMotorId, "canivore");
         simDriveMotor = driveMotor.getSimState();
 
-        steerMotor = new TalonFX(steerMotorId);
+        steerMotor = new TalonFX(steerMotorId, "canivore");
         simSteerMotor = steerMotor.getSimState();
 
-        steerEncoder = new CANCoder(steerCanCoderID);
+        steerEncoder = new CANCoder(steerCanCoderID, "canivore");
 
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
 
@@ -175,9 +175,9 @@ public class SwerveModuleFalcon500 {
 
         TalonFXConfiguration steerConfig = new TalonFXConfiguration();
 
-        steerConfig.Slot0.kP = 1.3; // An error of 1 rotation per second results in 2V output
+        steerConfig.Slot0.kP = 0.3; // An error of 1 rotation per second results in 2V output
         steerConfig.Slot0.kI = 0.0; // An error of 1 rotation per second increases output by 0.5V every second
-        steerConfig.Slot0.kD = 0.0; // A change of 1 rotation per second squared results in 0.01 volts output
+        steerConfig.Slot0.kD = 0.08; // A change of 1 rotation per second squared results in 0.01 volts output
         steerConfig.Slot0.kV = 0.0; // Falcon 500 is a 500kV motor, 500rpm per V = 8.333 rps per V, 1/8.33 = 0.12 volts / Rotation per second
 
         steerConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;

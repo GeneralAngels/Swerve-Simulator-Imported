@@ -126,10 +126,10 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     }
 
     public static NewSwerveDriveSubsystem getDefaultSwerve() {
-        double homeFrontLeftAngle = 84.81; // old 82
-        double homeFrontRightAngle = 15.73; // old 22
-        double homeBackLeftAngle = 312.36; // old 314
-        double homeBackRightAngle = 128.75; // old 131
+        double homeFrontLeftAngle = 275.54; // old 82
+        double homeFrontRightAngle = 9.14; // old 22
+        double homeBackLeftAngle = 227.55; // old 314
+        double homeBackRightAngle = 207.68; // old 131
 
 
         var leftFront = new SwerveModuleFalcon500(
@@ -138,7 +138,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         );
 
         var rightFront = new SwerveModuleFalcon500(
-                11, 21, 1,
+                12, 22, 2,
                 -Units.degreesToRadians(homeFrontRightAngle)
         );
 
@@ -148,11 +148,11 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         );
 
         var rightRear = new SwerveModuleFalcon500(
-                12, 22, 2,
+                11, 21, 1,
                 -Units.degreesToRadians(homeBackRightAngle)
         );
 
-        var pigeon2 = new Pigeon2(30);
+        var pigeon2 = new Pigeon2(30, "canivore");
 
         return new NewSwerveDriveSubsystem(new SwerveModuleFalcon500[]{leftFront, rightFront, leftRear, rightRear}, pigeon2);
     }
