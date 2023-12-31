@@ -138,13 +138,13 @@ public class SwerveModuleFalcon500 {
      */
     public SwerveModuleFalcon500(
             int driveMotorId, int steerMotorId, int steerCanCoderID, double steerAngleOffsetRad) {
-        driveMotor = new TalonFX(driveMotorId);
+        driveMotor = new TalonFX(driveMotorId, "canivore");
         simDriveMotor = driveMotor.getSimState();
 
-        steerMotor = new TalonFX(steerMotorId);
+        steerMotor = new TalonFX(steerMotorId, "canivore");
         simSteerMotor = steerMotor.getSimState();
 
-        steerEncoder = new CANCoder(steerCanCoderID);
+        steerEncoder = new CANCoder(steerCanCoderID, "canivore");
 
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
 
