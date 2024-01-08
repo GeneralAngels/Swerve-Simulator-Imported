@@ -53,32 +53,39 @@ public class DriveToTarget extends Command {
     ChassisSpeeds currentVelocity = swerve.getChassisSpeeds();
     Pose2d currentPose = poseEstimator.getCurrentPose();
 
-    double distanceToTarget = goalPose.getTranslation().getDistance(currentPose.getTranslation());
+    // double distanceToTarget = goalPose.getTranslation().getDistance(currentPose.getTranslation());
     // System.out.println("speed: " + swerveDriveTrain.getSpeed());
 
-    TrapezoidProfile profile = new TrapezoidProfile(
+    TrapezoidProfile profileX = new TrapezoidProfile(
       new TrapezoidProfile.Constraints(3, 5)
      );
-    double t = 0; // change
+    TrapezoidProfile profileY = new TrapezoidProfile(
+      new TrapezoidProfile.Constraints(3, 5)
+     );
 
     var robot_chassis_speeds = swerve.getChassisSpeeds();
-    var robot_velocity = Math.hypot(robot_chassis_speeds.vxMetersPerSecond, robot_chassis_speeds.vyMetersPerSecond);
+    // var robot_velocity = Math.hypot(robot_chassis_speeds.vxMetersPerSecond, robot_chassis_speeds.vyMetersPerSecond);
     
-    double directionToTarget = Math.atan2(
-          goalPose.getY() - currentPose.getY(), 
-          goalPose.getX() - currentPose.getX()
-      );
+    // double directionToTarget = Math.atan2(
+    //       goalPose.getY() - currentPose.getY(), 
+    //       goalPose.getX() - currentPose.getX()
+    //   );
 
-    double velocity = profile.calculate(0.02,
-      new TrapezoidProfile.State(distanceToTarget, 0),
-      new TrapezoidProfile.State(0, robot_velocity)
+    double velocityX = profileX.calculate(0.02,
+      new TrapezoidProfile.State(goalPose.getX(), 0),
+      new TrapezoidProfile.State(0, robot_chassis_speeds.vxMetersPerSecond)
+    ).velocity;
+
+    double velocityY = profileY.calculate(0.02,
+      new TrapezoidProfile.State(goalPose.getY(), 0),
+      new TrapezoidProfile.State(0, robot_chassis_speeds.vyMetersPerSecond)
     ).velocity;
 
 
-    controlSpeeds.vxMetersPerSecond = Math.cos(directionToTarget) * velocity;
-    controlSpeeds.vyMetersPerSecond = Math.sin(directionToTarget) * velocity;
+    controlSpeeds.vxMetersPerSecond = velocityX;
+    controlSpeeds.vyMetersPerSecond = velocityY;
     
-    Logger.recordOutput("NewDriveToTarget/RobotVelocity", velocity);
+    // Logger.recordOutput("NewDriveToTarget/RobotVelocity", velocity);
     Logger.recordOutput("NewDriveToTarget/x-velocity", controlSpeeds.vxMetersPerSecond);
     Logger.recordOutput("NewDriveToTarget/y-velocity", controlSpeeds.vyMetersPerSecond);
     
