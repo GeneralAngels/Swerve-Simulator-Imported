@@ -1,6 +1,7 @@
 {
   "NTProvider": {
     "types": {
+      "/AdvantageKit/RealOutputs/intake": "Mechanism2d",
       "/FMSInfo": "FMSInfo",
       "/LiveWindow/NT_testSubsystem": "Subsystem",
       "/LiveWindow/NT_testSubsystem/command": "Command",
@@ -36,7 +37,8 @@
       "/LiveWindow/Ungrouped/Talon FX (v6) [24]": "Motor Controller",
       "/SmartDashboard/Autonomous chooser": "String Chooser",
       "/SmartDashboard/command-2-3": "Command",
-      "/SmartDashboard/field": "Field2d"
+      "/SmartDashboard/field": "Field2d",
+      "/SmartDashboard/intake": "Mechanism2d"
     }
   }
 }

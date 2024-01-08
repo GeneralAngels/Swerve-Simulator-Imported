@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
@@ -110,7 +112,10 @@ public class RobotContainer {
             if (segment.size() <= 1) {
                 continue;
             }
-            PathPlannerPath path = PathPlannerPath.fromPathPoints(segment, segment.get(segment.size() / 2).constraints, new GoalEndState(0, segment.get(segment.size() - 1).holonomicRotation));
+            PathPlannerPath path = PathPlannerPath.fromPathPoints(
+                    segment,
+                    segment.get(segment.size() / 2).constraints,
+                    new GoalEndState(0, segment.get(segment.size() - 1).holonomicRotation));
 
             pathList.add(path);
 
