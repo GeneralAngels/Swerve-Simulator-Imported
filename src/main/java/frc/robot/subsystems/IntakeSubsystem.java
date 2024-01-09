@@ -12,11 +12,11 @@ import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-    Mechanism2d intake = new Mechanism2d(4, 2);
-    MechanismRoot2d intake_root = intake.getRoot("root", 0, 0.07);
+    Mechanism2d intake = new Mechanism2d(2, 2);
+    MechanismRoot2d intake_root = intake.getRoot("root", 1, 0.07);
     MechanismLigament2d intake_opening = intake_root.append(
             new MechanismLigament2d(
-                    "intake opening", 0, 360, 6, new Color8Bit(Color.kRed)
+                    "intake opening", 0, 180, 6, new Color8Bit(Color.kRed)
             )
     );
 
@@ -48,12 +48,12 @@ public class IntakeSubsystem extends SubsystemBase {
      * the {@link #getInstance()} method to get the singleton instance.
      */
     private IntakeSubsystem() {
-
+        SmartDashboard.putData("intake", intake);
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putData("intake", intake);
+
     }
 
     public void open() {
