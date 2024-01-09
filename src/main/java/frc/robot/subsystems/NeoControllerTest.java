@@ -31,7 +31,7 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
 
     NetworkTable table = NetworkTableInstance.getDefault().getTable("NeoControllerTest");
 
-    IntegerSubscriber motor_port = NT_Helper.getIntSubscriber(table, "Motor Port", 2);
+    IntegerSubscriber motor_port = NT_Helper.getIntSubscriber(table, "Motor Port", 200);
 
     DoubleSubscriber kp_input = NT_Helper.getDoubleSubscriber(table, "Kp", 0);
     DoubleSubscriber ki_input = NT_Helper.getDoubleSubscriber(table, "Ki", 0);

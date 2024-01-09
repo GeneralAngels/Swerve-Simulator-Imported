@@ -198,7 +198,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void teleopPeriodic() {
-        //m_robotContainer.shooter_rig.teleopPeriodicPercent();
+        m_robotContainer.shooter_rig.teleopPeriodicPercent();
         Logger.recordOutput("Analog Pressure Sensor", compressor.getPressure());
 
 

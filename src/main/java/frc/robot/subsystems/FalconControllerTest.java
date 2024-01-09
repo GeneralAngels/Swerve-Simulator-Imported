@@ -28,7 +28,7 @@ public class FalconControllerTest extends TimeMeasurementSubsystem{
 
     NetworkTable table = NetworkTableInstance.getDefault().getTable("FalconControllerTest");
 
-    IntegerSubscriber motor_port = NT_Helper.getIntSubscriber(table, "Motor Port", 1);
+    IntegerSubscriber motor_port = NT_Helper.getIntSubscriber(table, "Motor Port", 700);
 
     DoubleSubscriber kp_input = NT_Helper.getDoubleSubscriber(table, "Kp", 0);
     DoubleSubscriber ki_input = NT_Helper.getDoubleSubscriber(table, "Ki", 0);

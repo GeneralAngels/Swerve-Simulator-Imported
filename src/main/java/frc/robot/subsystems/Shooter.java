@@ -18,7 +18,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends TimeMeasurementSubsystem {
     public CANSparkMax m_flywheel_motor;
-    private static final int flywheel_deviceId = 200;
+    private static final int flywheel_deviceId = 400;
     public SparkMaxPIDController m_flywheel_pidController;
     private RelativeEncoder m_flywheel_encoder;
 
