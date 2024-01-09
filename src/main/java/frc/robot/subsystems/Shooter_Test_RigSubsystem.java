@@ -87,12 +87,12 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
 
     public void teleopPeriodicPercent() {
         //roller_PidController.setP(kp_entry.get());
-        this.flywheel_motor1.set(1);
+        this.flywheel_motor1.set(0.7);
 
         //var target_percent = rollers_percent.get();
         //var rated_percent = slewRateLimiter.calculate(target_percent);
         
-        this.roller_motor.set(1);
+        this.roller_motor.set(0.7);
         //this.roller_PidController.setReference(ShooterConstants.FLYWHEEL_RPM_MAP.get(distance.get()) * 2, ControlType.kVelocity);
 
         //flywheel_1_RPM.set(flywheel_motor1.getEncoder().getVelocity());
