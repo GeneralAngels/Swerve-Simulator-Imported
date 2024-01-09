@@ -11,7 +11,8 @@
         "x": 4.436005549283403,
         "y": 3.116316880746031
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -26,7 +27,8 @@
         "x": 6.476940706638944,
         "y": 3.5677170070564044
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -41,7 +43,8 @@
         "x": 6.26157954417417,
         "y": 4.509635568039851
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -56,7 +59,8 @@
         "x": 5.330284104981003,
         "y": 4.462512193913903
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -71,7 +75,8 @@
         "x": 7.0270505347213055,
         "y": 6.029430025040899
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -86,7 +91,8 @@
         "x": 5.6818837946807825,
         "y": 6.778224821487943
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -98,25 +104,30 @@
         "y": 6.167894847322114
       },
       "nextControl": null,
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 1.1,
-      "rotationDegrees": 20.0
+      "rotationDegrees": 20.0,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 1.9500000000000002,
-      "rotationDegrees": 30.0
+      "rotationDegrees": 30.0,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 3.0,
-      "rotationDegrees": 21.57130719125458
+      "rotationDegrees": 21.57130719125458,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 3.85,
-      "rotationDegrees": 27.329335824420593
+      "rotationDegrees": 27.329335824420593,
+      "rotateFast": false
     }
   ],
   "constraintZones": [],
@@ -129,9 +140,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0
+    "rotation": 0,
+    "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
-  "previewStartingState": null
+  "folder": "off season",
+  "previewStartingState": null,
+  "useDefaultConstraints": false
 }
