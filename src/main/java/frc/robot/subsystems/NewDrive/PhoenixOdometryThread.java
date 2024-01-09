@@ -63,7 +63,7 @@ public class PhoenixOdometryThread extends Thread {
         signalsLock.lock();
         NewSwerveDriveSubsystem.odometryLock.lock();
         try {
-            isCANFD = Unmanaged.isNetworkFD(device.getNetwork());
+            isCANFD = true;
             BaseStatusSignal[] newSignals = new BaseStatusSignal[signals.length + 1];
             System.arraycopy(signals, 0, newSignals, 0, signals.length);
             newSignals[signals.length] = signal;
