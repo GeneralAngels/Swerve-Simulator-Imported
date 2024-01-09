@@ -9,10 +9,13 @@ import java.util.function.Supplier;
 // import com.ctre.phoenix.Logger;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
@@ -53,15 +56,19 @@ public class DriveToTarget extends Command {
     ChassisSpeeds currentVelocity = swerve.getChassisSpeeds();
     Pose2d currentPose = poseEstimator.getCurrentPose();
 
+    ProfiledPIDController profileX = new ProfiledPIDController(0, 0, 0, new Constraints(3, 5));
+    ProfiledPIDController profileY = new ProfiledPIDController(0, 0, 0, new Constraints(3, 5));
+
+
     // double distanceToTarget = goalPose.getTranslation().getDistance(currentPose.getTranslation());
     // System.out.println("speed: " + swerveDriveTrain.getSpeed());
 
-    TrapezoidProfile profileX = new TrapezoidProfile(
-      new TrapezoidProfile.Constraints(3, 5)
-     );
-    TrapezoidProfile profileY = new TrapezoidProfile(
-      new TrapezoidProfile.Constraints(3, 5)
-     );
+    // TrapezoidProfile profileX = new TrapezoidProfile(
+    //   new TrapezoidProfile.Constraints(3, 5)
+    //  );
+    // TrapezoidProfile profileY = new TrapezoidProfile(
+    //   new TrapezoidProfile.Constraints(3, 5)
+    //  );
 
     var robot_chassis_speeds = swerve.getChassisSpeeds();
     // var robot_velocity = Math.hypot(robot_chassis_speeds.vxMetersPerSecond, robot_chassis_speeds.vyMetersPerSecond);
@@ -71,15 +78,14 @@ public class DriveToTarget extends Command {
     //       goalPose.getX() - currentPose.getX()
     //   );
 
-    double velocityX = profileX.calculate(0.02,
-      new TrapezoidProfile.State(goalPose.getX(), 0),
-      new TrapezoidProfile.State(0, robot_chassis_speeds.vxMetersPerSecond)
-    ).velocity;
+    profileX.reset(0, robot_chassis_speeds.vxMetersPerSecond);
+    double velocityX = profileX.calculate(currentPose.getX(), new State(goalPose.getX(), 0)
+    );
 
-    double velocityY = profileY.calculate(0.02,
-      new TrapezoidProfile.State(goalPose.getY(), 0),
-      new TrapezoidProfile.State(0, robot_chassis_speeds.vyMetersPerSecond)
-    ).velocity;
+    profileY.reset(0, robot_chassis_speeds.vxMetersPerSecond);
+    double velocityY = profileY.calculate(currentPose.getY(),
+      new TrapezoidProfile.State(goalPose.getY(), 0)
+    );
 
 
     controlSpeeds.vxMetersPerSecond = velocityX;
