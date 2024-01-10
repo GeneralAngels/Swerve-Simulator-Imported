@@ -54,9 +54,9 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
     double Ki = 0.000000006;
 
     public Shooter_Test_RigSubsystem() {
-        this.flywheel_motor1 = new CANSparkMax(9,
+        this.flywheel_motor1 = new CANSparkMax(7,
                 CANSparkMaxLowLevel.MotorType.kBrushless);
-        this.roller_motor = new CANSparkMax(3, CANSparkMaxLowLevel.MotorType.kBrushless);
+        this.roller_motor = new CANSparkMax(11, CANSparkMaxLowLevel.MotorType.kBrushless);
         //this.m_hood_encoder = new Encoder(7, 5);
         this.m_hoodDutyCycleEncoder = new DutyCycleEncoder(10);
 
@@ -87,12 +87,12 @@ public class Shooter_Test_RigSubsystem extends TimeMeasurementSubsystem {
 
     public void teleopPeriodicPercent() {
         //roller_PidController.setP(kp_entry.get());
-        this.flywheel_motor1.set(0.7);
+        this.flywheel_motor1.set(-0.75);
 
         //var target_percent = rollers_percent.get();
         //var rated_percent = slewRateLimiter.calculate(target_percent);
         
-        this.roller_motor.set(0.7);
+        this.roller_motor.set(-0.75);
         //this.roller_PidController.setReference(ShooterConstants.FLYWHEEL_RPM_MAP.get(distance.get()) * 2, ControlType.kVelocity);
 
         //flywheel_1_RPM.set(flywheel_motor1.getEncoder().getVelocity());
