@@ -134,7 +134,7 @@ public class AutosGenerator {
     public Command _2024_auto1_with_markers() {
         PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("first auto 2024");
 
-        return newSwerve.getDefaultPathFollowingWithEvents(path_from_file);
+        return newSwerve.getDefaultPathFollowingCommand(path_from_file, poseEstimatorSubsystem);
     }
 
     public Command _2024_close_shots_auto() {
