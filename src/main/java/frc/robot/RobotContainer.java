@@ -89,6 +89,12 @@ public class RobotContainer {
         driver.cross().toggleOnTrue(
             new InstantCommand(() -> {NewSwerveDriveSubsystem.getInstance().pigeon2.setYaw(0);})
         );
+
+        driver.square().toggleOnTrue(
+            new DriveToTarget(
+                () -> {return new Pose2d(1.87, 3.82, Rotation2d.fromDegrees(180));}
+            )
+        );
     }
 
     public static List<PathPlannerPath> splitting_paths_into_segments(PathPlannerPath path_from_file) {

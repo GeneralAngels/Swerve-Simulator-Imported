@@ -29,6 +29,10 @@ public class DriveToTarget extends Command {
   private Pose2d goalPose;
   ChassisSpeeds controlSpeeds = new ChassisSpeeds();
 
+  ProfiledPIDController profileX = new ProfiledPIDController(2, 0, 0, new Constraints(3, 5));
+  ProfiledPIDController profileY = new ProfiledPIDController(2, 0, 0, new Constraints(3, 5));
+  ProfiledPIDController profileRot = new ProfiledPIDController(2, 0, 0.2, new Constraints(3, 5));
+  
   /** Creates a new DriveToTarget. */
   public DriveToTarget(Supplier<Pose2d> goalSupplier) {
     // this.cameraPoseSupplier = cameraPose;
@@ -37,6 +41,10 @@ public class DriveToTarget extends Command {
     this.goalSupplier = goalSupplier;
     // Use addRequirements() here to declare subsystem dependencies.
 
+    profileX.setGoal(goalSupplier.get().getX());
+    profileY.setGoal(goalSupplier.get().getY());
+    profileRot.setGoal(goalSupplier.get().getRotation().getRadians());
+
     addRequirements(swerve);
   }
 
@@ -44,7 +52,7 @@ public class DriveToTarget extends Command {
   @Override
   public void initialize() {
     // this.cameraPose = cameraPoseSupplier.get();
-    this.goalPose = new Pose2d(1.87, 3.82, Rotation2d.fromDegrees(180));
+    this.goalPose = goalSupplier.get();
     System.out.println("\n\n hello world"); 
     // this.poseEstimator.resetCounter(); 
   }
@@ -53,51 +61,24 @@ public class DriveToTarget extends Command {
   @Override
   public void execute() {
     Logger.recordOutput("DriveToTarget/operating", true);
-    ChassisSpeeds currentVelocity = swerve.getChassisSpeeds();
+    ChassisSpeeds currentVelocity = swerve.getChassisSpeeds(); 
     Pose2d currentPose = poseEstimator.getCurrentPose();
-
-    ProfiledPIDController profileX = new ProfiledPIDController(0, 0, 0, new Constraints(3, 5));
-    ProfiledPIDController profileY = new ProfiledPIDController(0, 0, 0, new Constraints(3, 5));
-
-
-    // double distanceToTarget = goalPose.getTranslation().getDistance(currentPose.getTranslation());
-    // System.out.println("speed: " + swerveDriveTrain.getSpeed());
-
-    // TrapezoidProfile profileX = new TrapezoidProfile(
-    //   new TrapezoidProfile.Constraints(3, 5)
-    //  );
-    // TrapezoidProfile profileY = new TrapezoidProfile(
-    //   new TrapezoidProfile.Constraints(3, 5)
-    //  );
-
-    var robot_chassis_speeds = swerve.getChassisSpeeds();
-    // var robot_velocity = Math.hypot(robot_chassis_speeds.vxMetersPerSecond, robot_chassis_speeds.vyMetersPerSecond);
     
-    // double directionToTarget = Math.atan2(
-    //       goalPose.getY() - currentPose.getY(), 
-    //       goalPose.getX() - currentPose.getX()
-    //   );
+    controlSpeeds.vxMetersPerSecond = profileX.calculate(currentPose.getX());
+    controlSpeeds.vyMetersPerSecond = profileY.calculate(currentPose.getY());
+    controlSpeeds.omegaRadiansPerSecond = profileRot.calculate(currentPose.getRotation().getRadians());
 
-    profileX.reset(0, robot_chassis_speeds.vxMetersPerSecond);
-    double velocityX = profileX.calculate(currentPose.getX(), new State(goalPose.getX(), 0)
-    );
+    // controlSpeeds.vxMetersPerSecond = goalPose.getX() - currentPose.getX();
+    // controlSpeeds.vyMetersPerSecond = goalPose.getY() - currentPose.getY();
 
-    profileY.reset(0, robot_chassis_speeds.vxMetersPerSecond);
-    double velocityY = profileY.calculate(currentPose.getY(),
-      new TrapezoidProfile.State(goalPose.getY(), 0)
-    );
-
-
-    controlSpeeds.vxMetersPerSecond = velocityX;
-    controlSpeeds.vyMetersPerSecond = velocityY;
-    
-    // Logger.recordOutput("NewDriveToTarget/RobotVelocity", velocity);
+    // Logger.recordOutput("NewDriveToTarget/RobotVelocity", velocity);a
     Logger.recordOutput("NewDriveToTarget/x-velocity", controlSpeeds.vxMetersPerSecond);
     Logger.recordOutput("NewDriveToTarget/y-velocity", controlSpeeds.vyMetersPerSecond);
+    Logger.recordOutput("NewDriveToTarget/R-velocity", controlSpeeds.omegaRadiansPerSecond);
     
-    Logger.recordOutput("NewDriveToTarget/x-error", (currentPose.getX() - goalPose.getX()));
-    Logger.recordOutput("NewDriveToTarget/y-error", (currentPose.getY() - goalPose.getY()));
-
+    Logger.recordOutput("NewDriveToTarget/x-error", -(currentPose.getX() - goalPose.getX()));
+    Logger.recordOutput("NewDriveToTarget/y-error", -(currentPose.getY() - goalPose.getY()));
+    Logger.recordOutput("NewDriveToTarget/r-error", -(currentPose.getRotation().getRadians() - goalPose.getRotation().getRadians()));
 
     swerve.setAbsoluteVelocities(controlSpeeds);
 
@@ -108,18 +89,18 @@ public class DriveToTarget extends Command {
   public void end(boolean interrupted) {
     controlSpeeds.vxMetersPerSecond = 0;
     controlSpeeds.vyMetersPerSecond = 0;
+    controlSpeeds.omegaRadiansPerSecond = 0;
 
     //     swerveDriveTrain.setWpiAbsoluteVelocoties(controlSpeeds);
     Pose2d currentPose = this.poseEstimator.getCurrentPose();
     double xDistance = (goalPose.getX() - currentPose.getX());
     double yDistance = (goalPose.getY() - currentPose.getY());
+    double rDistance = (goalPose.getRotation().getDegrees() - currentPose.getRotation().getDegrees());
 
     Logger.recordOutput("NewDriveToTarget/operating", false);
 
     System.out.println("\n\n");
-    System.out.println("x: " + xDistance + " y: " + yDistance);
-
-
+    System.out.println("x: " + xDistance + " y: " + yDistance + " R: " + rDistance);
 
 
   }
@@ -132,6 +113,7 @@ public class DriveToTarget extends Command {
 
     double VxDistance = (goalPose.getX() - currentPose.getX());
     double VyDistance = (goalPose.getY() - currentPose.getY());
+    double VRDistance = (goalPose.getRotation().getDegrees() - currentPose.getRotation().getDegrees());
 
     double angleSetPoint = 0;
     double currentAngle = -swerve.getYawDegrees(); // In degrees.
