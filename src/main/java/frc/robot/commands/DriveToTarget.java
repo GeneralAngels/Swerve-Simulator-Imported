@@ -66,8 +66,8 @@ public class DriveToTarget extends Command {
     
     controlSpeeds.vxMetersPerSecond = profileX.calculate(currentPose.getX());
     controlSpeeds.vyMetersPerSecond = profileY.calculate(currentPose.getY());
+    swerve.
     controlSpeeds.omegaRadiansPerSecond = profileRot.calculate(currentPose.getRotation().getRadians());
-
     // controlSpeeds.vxMetersPerSecond = goalPose.getX() - currentPose.getX();
     // controlSpeeds.vyMetersPerSecond = goalPose.getY() - currentPose.getY();
 
