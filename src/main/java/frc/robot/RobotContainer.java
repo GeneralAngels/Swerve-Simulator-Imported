@@ -83,7 +83,7 @@ public class RobotContainer {
         for (PathPoint pathPoint : path_from_file.getAllPathPoints()) {
             segments_list.get(segment_index).add(pathPoint);
 
-            if (pathPoint.holonomicRotation != null) {
+            if (pathPoint.rotationTarget != null) {
 
                 segment_index += 1;
 
@@ -105,11 +105,11 @@ public class RobotContainer {
             PathPlannerPath path = PathPlannerPath.fromPathPoints(
                     segment,
                     segment.get(segment.size() / 2).constraints,
-                    new GoalEndState(0, segment.get(segment.size() - 1).holonomicRotation));
+                    new GoalEndState(0, segment.get(segment.size() - 1).rotationTarget.getTarget()));
 
             pathList.add(path);
 
-            PathPlannerTrajectory trajectory = new PathPlannerTrajectory(path, new ChassisSpeeds());
+            PathPlannerTrajectory trajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), segment.get(segment.size() - 1).rotationTarget.getTarget());
 
             pathPlannerTrajectories.add(trajectory);
 

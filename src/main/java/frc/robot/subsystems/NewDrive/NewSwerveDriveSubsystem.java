@@ -125,10 +125,10 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     }
 
     public static NewSwerveDriveSubsystem getDefaultSwerve() {
-        double homeFrontLeftAngle = 265.34 - 180; // old 82
-        double homeFrontRightAngle = 220.605 - 180; // old 22
-        double homeBackLeftAngle = 313.85; // old 314
-        double homeBackRightAngle = 284.677 - 180; // old 131
+        double homeFrontLeftAngle = 265.34 - 180 - 90; // old 82
+        double homeFrontRightAngle = 220.605 - 180 - 90; // old 22
+        double homeBackLeftAngle = 313.85 - 90; // old 314
+        double homeBackRightAngle = 284.677 - 180 - 90; // old 131
 
 
         var leftFront = new SwerveModuleFalcon500(
@@ -153,7 +153,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
         var pigeon2 = new Pigeon2(30, "canivore");
 
-        return new NewSwerveDriveSubsystem(new SwerveModuleFalcon500[]{leftFront, rightFront, leftRear, rightRear}, pigeon2);
+        return new NewSwerveDriveSubsystem(new SwerveModuleFalcon500[]{rightFront, rightRear, leftFront, leftRear}, pigeon2);
     }
 
     public void setRelativeVelocities(ChassisSpeeds relativeVelocities) {
@@ -361,6 +361,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
                         0.91, // Drive base radius in meters. Distance from robot center to furthest module.
                         new ReplanningConfig() // Default path replanning config. See the API for the options here
                 ),
+                () -> {return true;}, 
                 this // Reference to this subsystem to set requirements
         );
     }
