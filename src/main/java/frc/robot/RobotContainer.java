@@ -15,6 +15,8 @@ import com.pathplanner.lib.path.PathPoint;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -43,9 +45,11 @@ public class RobotContainer {
 
     private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-    public Shooter_Test_RigSubsystem shooter_rig = new Shooter_Test_RigSubsystem();
+    // public Shooter_Test_RigSubsystem shooter_rig = new Shooter_Test_RigSubsystem();
 
-    public NeoControllerTest neo_controller_test = new NeoControllerTest();
+    public NeoControllerTest neo_controller_test = new NeoControllerTest("");
+
+    public NeoControllerTest second_controller_test = new NeoControllerTest(" second one");
 
     public FalconControllerTest falcon_controller_test = new FalconControllerTest();
 
@@ -53,7 +57,6 @@ public class RobotContainer {
     AutosGenerator autosGenerator;
 
     CommandPS4Controller driver = new CommandPS4Controller(0);
-
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */

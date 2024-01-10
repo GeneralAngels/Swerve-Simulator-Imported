@@ -29,36 +29,57 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
     public SparkMaxPIDController m_pidController;
     private RelativeEncoder m_encoder;
 
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("NeoControllerTest");
+    NetworkTable table;
 
-    IntegerSubscriber motor_port = NT_Helper.getIntSubscriber(table, "Motor Port", 200);
+    IntegerSubscriber motor_port;
 
-    DoubleSubscriber kp_input = NT_Helper.getDoubleSubscriber(table, "Kp", 0);
-    DoubleSubscriber ki_input = NT_Helper.getDoubleSubscriber(table, "Ki", 0);
-    DoubleSubscriber kd_input = NT_Helper.getDoubleSubscriber(table, "Kd", 0);
-    DoubleSubscriber kf_input = NT_Helper.getDoubleSubscriber(table, "Kf", 0);
+    DoubleSubscriber kp_input;
+    DoubleSubscriber ki_input;
+    DoubleSubscriber kd_input;
+    DoubleSubscriber kf_input;
 
-    DoubleSubscriber precent_input = NT_Helper.getDoubleSubscriber(table, "Motor Precent Input", 0);
-    DoubleSubscriber position_input = NT_Helper.getDoubleSubscriber(table, "Motor Position Input", 0);
-    DoubleSubscriber velocity_input = NT_Helper.getDoubleSubscriber(table, "Motor Velocity Input", 0);
+    DoubleSubscriber precent_input;
+    DoubleSubscriber position_input;
+    DoubleSubscriber velocity_input;
 
-
-    DoublePublisher kf_publisher = table.getDoubleTopic("Kf Calc Output").publish();
-    DoublePublisher motor_rpm = table.getDoubleTopic("Motor RPM").publish();
-    DoublePublisher motor_position = table.getDoubleTopic("Motor Position").publish();
+    DoublePublisher kf_publisher;
+    DoublePublisher motor_rpm;
+    DoublePublisher motor_position;
 
     double kf = 0;
 
-    public NeoControllerTest() {
+    String adder;
+
+    public NeoControllerTest(String adder) {
+        this.adder = adder;
+        table = NetworkTableInstance.getDefault().getTable("NeoControllerTest" + adder);
+
+        motor_port = NT_Helper.getIntSubscriber(table, "Motor Port", 200);
+
+        kp_input = NT_Helper.getDoubleSubscriber(table, "Kp", 0);
+        ki_input = NT_Helper.getDoubleSubscriber(table, "Ki", 0);
+        kd_input = NT_Helper.getDoubleSubscriber(table, "Kd", 0);
+        kf_input = NT_Helper.getDoubleSubscriber(table, "Kf", 0);
+
+        precent_input = NT_Helper.getDoubleSubscriber(table, "Motor Precent Input", 0);
+        position_input = NT_Helper.getDoubleSubscriber(table, "Motor Position Input", 0);
+        velocity_input = NT_Helper.getDoubleSubscriber(table, "Motor Velocity Input", 0);
+
+
+        kf_publisher = table.getDoubleTopic("Kf Calc Output").publish();
+        motor_rpm = table.getDoubleTopic("Motor RPM").publish();
+        motor_position = table.getDoubleTopic("Motor Position").publish();
+
+        try {
         this.m_motor = new CANSparkMax((int) motor_port.get(), CANSparkMaxLowLevel.MotorType.kBrushless);
         this.m_motor.restoreFactoryDefaults();
         this.m_encoder = this.m_motor.getEncoder();
         this.m_pidController = this.m_motor.getPIDController();
 
-        SmartDashboard.putData("Neo - Calculate Kf", new InstantCommand(this::displayKF));
-        SmartDashboard.putData("Neo - Run Motor", new InstantCommand(this::runMotor));
-        SmartDashboard.putData("Neo - Stop Motor", new InstantCommand(this::stopMotor));
-        SmartDashboard.putData("Neo - Reset Parameters", new InstantCommand(this::resetParams));
+        SmartDashboard.putData("Neo - Calculate Kf" + adder, new InstantCommand(this::displayKF));
+        SmartDashboard.putData("Neo - Run Motor" + adder, new InstantCommand(this::runMotor));
+        SmartDashboard.putData("Neo - Stop Motor" + adder, new InstantCommand(this::stopMotor));
+        SmartDashboard.putData("Neo - Reset Parameters" + adder, new InstantCommand(this::resetParams));
 
 
         this.m_pidController.setD((float) kd_input.get());
@@ -68,15 +89,20 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
         this.m_motor.burnFlash();
 
         REVPhysicsSim.getInstance().addSparkMax(m_motor, DCMotor.getNEO(1));
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+        
     }
 
     public static NeoControllerTest getInstance() {
         if (instance == null) {
-            instance = new NeoControllerTest();
+            instance = new NeoControllerTest("");
         }
         return instance;
     }
-    
+
     public void displayKF() {
         this.calculateKF();
         kf_publisher.set(this.kf);
@@ -101,6 +127,25 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
     }
 
     public void renew() {
+        if (this.m_motor == null) {
+            this.m_motor = new CANSparkMax((int) motor_port.get(), CANSparkMaxLowLevel.MotorType.kBrushless);
+            this.m_motor.restoreFactoryDefaults();
+            this.m_encoder = this.m_motor.getEncoder();
+            this.m_pidController = this.m_motor.getPIDController();
+
+            SmartDashboard.putData("Neo - Calculate Kf" + adder, new InstantCommand(this::displayKF));
+            SmartDashboard.putData("Neo - Run Motor" + adder, new InstantCommand(this::runMotor));
+            SmartDashboard.putData("Neo - Stop Motor" + adder, new InstantCommand(this::stopMotor));
+            SmartDashboard.putData("Neo - Reset Parameters" + adder, new InstantCommand(this::resetParams));
+
+
+            this.m_pidController.setD((float) kd_input.get());
+            this.m_pidController.setI((float) ki_input.get());
+            this.m_pidController.setP((float) kp_input.get());
+            this.m_pidController.setFF((float) kf_input.get());
+            this.m_motor.burnFlash();
+        }
+
         if (this.m_motor.getDeviceId() != (int) motor_port.get()) {
             this.m_motor = new CANSparkMax((int) motor_port.get(),
                     CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -132,8 +177,14 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
 
     @Override
     public void _periodic() {
-        renew();
-        setMotorPositionAndRPM();
+        try {
+            renew();
+            setMotorPositionAndRPM();
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+        
     }
 
     public void setMotorPositionAndRPM() {
@@ -145,11 +196,9 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
         System.out.println("run");
         if ((double) this.velocity_input.get() != 0) {
             this.m_pidController.setReference((double) this.velocity_input.get(), ControlType.kVelocity);
-        }
-        else if ((double) this.position_input.get() != 0) {
+        } else if ((double) this.position_input.get() != 0) {
             this.m_pidController.setReference((double) this.position_input.get(), ControlType.kPosition);
-        }
-        else if ((double) this.precent_input.get() != 0) {
+        } else if ((double) this.precent_input.get() != 0) {
             this.m_motor.set((double) this.precent_input.get());
         }
     }

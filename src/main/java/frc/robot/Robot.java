@@ -12,6 +12,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.revrobotics.REVPhysicsSim;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -188,7 +189,7 @@ public class Robot extends LoggedRobot {
                 new DefaultDriveCommand(
                         m_robotContainer.driver));
 
-        m_robotContainer.shooter_rig.slewRateLimiter.reset(0);
+        // m_robotContainer.shooter_rig.slewRateLimiter.reset(0);
 
 
     }
@@ -198,10 +199,8 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void teleopPeriodic() {
-        m_robotContainer.shooter_rig.teleopPeriodicPercent();
+        // m_robotContainer.shooter_rig.teleopPeriodicPercent();
         Logger.recordOutput("Analog Pressure Sensor", compressor.getPressure());
-
-
     }
 
     @Override
