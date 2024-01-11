@@ -33,6 +33,7 @@ public class DriveToTarget extends Command {
   ProfiledPIDController profileY = new ProfiledPIDController(2, 0, 0, new Constraints(3, 5));
   ProfiledPIDController profileRot = new ProfiledPIDController(2, 0, 0.2, new Constraints(3, 5));
   
+  
   /** Creates a new DriveToTarget. */
   public DriveToTarget(Supplier<Pose2d> goalSupplier) {
     // this.cameraPoseSupplier = cameraPose;
@@ -40,6 +41,8 @@ public class DriveToTarget extends Command {
     this.swerve = NewSwerveDriveSubsystem.getInstance(); 
     this.goalSupplier = goalSupplier;
     // Use addRequirements() here to declare subsystem dependencies.
+
+    profileRot.enableContinuousInput(-Math.PI, Math.PI);
 
     profileX.setGoal(goalSupplier.get().getX());
     profileY.setGoal(goalSupplier.get().getY());
@@ -66,7 +69,7 @@ public class DriveToTarget extends Command {
     
     controlSpeeds.vxMetersPerSecond = profileX.calculate(currentPose.getX());
     controlSpeeds.vyMetersPerSecond = profileY.calculate(currentPose.getY());
-    swerve.
+    
     controlSpeeds.omegaRadiansPerSecond = profileRot.calculate(currentPose.getRotation().getRadians());
     // controlSpeeds.vxMetersPerSecond = goalPose.getX() - currentPose.getX();
     // controlSpeeds.vyMetersPerSecond = goalPose.getY() - currentPose.getY();
@@ -79,6 +82,9 @@ public class DriveToTarget extends Command {
     Logger.recordOutput("NewDriveToTarget/x-error", -(currentPose.getX() - goalPose.getX()));
     Logger.recordOutput("NewDriveToTarget/y-error", -(currentPose.getY() - goalPose.getY()));
     Logger.recordOutput("NewDriveToTarget/r-error", -(currentPose.getRotation().getRadians() - goalPose.getRotation().getRadians()));
+
+  
+    Logger.recordOutput("Current Radians", currentPose.getRotation().getRadians());
 
     swerve.setAbsoluteVelocities(controlSpeeds);
 
@@ -96,6 +102,7 @@ public class DriveToTarget extends Command {
     double xDistance = (goalPose.getX() - currentPose.getX());
     double yDistance = (goalPose.getY() - currentPose.getY());
     double rDistance = (goalPose.getRotation().getDegrees() - currentPose.getRotation().getDegrees());
+
 
     Logger.recordOutput("NewDriveToTarget/operating", false);
 
