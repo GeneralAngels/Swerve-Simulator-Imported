@@ -11,7 +11,8 @@
         "x": 3.0,
         "y": 6.5
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -26,7 +27,8 @@
         "x": 6.0,
         "y": 4.0
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -41,7 +43,8 @@
         "x": 7.25,
         "y": -0.5
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -53,7 +56,8 @@
         "y": 0.2314974558470171
       },
       "nextControl": null,
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -67,9 +71,11 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0
+    "rotation": 0,
+    "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
-  "previewStartingState": null
+  "folder": "off season",
+  "previewStartingState": null,
+  "useDefaultConstraints": false
 }

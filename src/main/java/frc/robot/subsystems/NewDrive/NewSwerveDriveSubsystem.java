@@ -6,10 +6,15 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
 import com.ctre.phoenix.ErrorCode;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import frc.robot.Alert;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.utils.NT_Helper;
 import org.littletonrobotics.junction.Logger;
 
@@ -31,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drive.SwerveConstants;
 import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 
+import javax.naming.Name;
 import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -70,7 +76,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     public GyroInformation gyroInformation = new GyroInformation();
 
     Alert motor_disconnected = new Alert("swerve motor disconnected!", Alert.AlertType.ERROR);
-    
+   
     public static NewSwerveDriveSubsystem getInstance() {
         if (instance == null)
             instance = NewSwerveDriveSubsystem.getDefaultSwerve();
@@ -81,6 +87,8 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
      * @param swerveModules: the swerve modules list = [frontLeft, frontRight, backLeft, backRight]
      */
     public NewSwerveDriveSubsystem(SwerveModuleFalcon500[] swerveModules, Pigeon2 pigeon2) {
+        IntakeSubsystem.getInstance();
+
         var frontLeftLocation = new Translation2d(SwerveConstants.swerveWidth / 2, SwerveConstants.swerveLength / 2);
         var frontRightLocation = new Translation2d(SwerveConstants.swerveWidth / 2, -SwerveConstants.swerveLength / 2);
         var backLeftLocation = new Translation2d(-SwerveConstants.swerveWidth / 2, SwerveConstants.swerveLength / 2);
@@ -117,10 +125,10 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     }
 
     public static NewSwerveDriveSubsystem getDefaultSwerve() {
-        double homeFrontLeftAngle = 265.34 - 180; // old 82
-        double homeFrontRightAngle = 220.605 - 180; // old 22
-        double homeBackLeftAngle = 313.85; // old 314
-        double homeBackRightAngle = 284.677 - 180; // old 131
+        double homeFrontLeftAngle = 265.34 - 180 - 90; // old 82
+        double homeFrontRightAngle = 220.605 - 180 - 90; // old 22
+        double homeBackLeftAngle = 313.85 - 90; // old 314
+        double homeBackRightAngle = 284.677 - 180 - 90; // old 131
 
 
         var leftFront = new SwerveModuleFalcon500(
@@ -145,7 +153,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
         var pigeon2 = new Pigeon2(30, "canivore");
 
-        return new NewSwerveDriveSubsystem(new SwerveModuleFalcon500[]{leftFront, rightFront, leftRear, rightRear}, pigeon2);
+        return new NewSwerveDriveSubsystem(new SwerveModuleFalcon500[]{rightFront, rightRear, leftFront, leftRear}, pigeon2);
     }
 
     public void setRelativeVelocities(ChassisSpeeds relativeVelocities) {
@@ -353,8 +361,16 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
                         0.91, // Drive base radius in meters. Distance from robot center to furthest module.
                         new ReplanningConfig() // Default path replanning config. See the API for the options here
                 ),
+                () -> {return true;},
                 this // Reference to this subsystem to set requirements
         );
     }
-}
 
+    public Command getDefaultPathFollowingWithEvents(PathPlannerPath path) {
+        return new FollowPathWithEvents(
+                getDefaultPathFollowingCommand(path, NewPoseEstimatorSubsystem.getInstance()),
+                path,
+                NewPoseEstimatorSubsystem.getInstance()::getCurrentPose
+        );
+    }
+}
