@@ -21,6 +21,11 @@ public class SimpleShooterSubsystem extends SubsystemBase {
 
     DigitalInput shooter_beambreaker = new DigitalInput(3);
     CANSparkMax m_shooter = new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless);
+
+    public enum CurrentShooterState {
+        SHOOTING,
+        STATIC
+    }
     // With eager singleton initialization, any static variables/fields used in the 
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
     // before the constructor is called when the "INSTANCE" variable initializes.
@@ -31,6 +36,8 @@ public class SimpleShooterSubsystem extends SubsystemBase {
      * than trying to construct an instance of this class.)
      */
     private final static SimpleShooterSubsystem INSTANCE = new SimpleShooterSubsystem();
+
+    CurrentShooterState shooterState = CurrentShooterState.STATIC;
 
     /**
      * Returns the Singleton instance of this SimpleShooterSubsystem. This static method
@@ -66,24 +73,25 @@ public class SimpleShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic(){
+        if (!shooter_beambreaker.get())
+            RobotState.getInstance().noteState = RobotState.NoteState.NOTHING; //Note was shot (enum state)
+        else
+            RobotState.getInstance().noteState = RobotState.NoteState.NOTE; //Note wasn't shot yet/ Robot still has a note (enum state)
     }
 
     public void shoot() {
         l_shooter.setLength(0.8);
         m_shooter.set(0.7);
+        CurrentShooterState shooterState = CurrentShooterState.SHOOTING;
     }
 
     public void stopShooting(){
         l_shooter.setLength(0.0);
         m_shooter.set(0);
+        CurrentShooterState shooterState = CurrentShooterState.STATIC;
     }
 
-    /*public noteShot(){
-        if (!shooter_beambreaker.get())
-            //Note was shot (enum state)
-        else
-            //Note wasnt shot (enum state)
-    }*/
+
 
     public Command getDefaultShootingCommand() {
         return Commands.sequence(

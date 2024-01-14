@@ -14,6 +14,19 @@ public class AmpScorer extends SubsystemBase {
     DigitalInput top_limitswitch = new DigitalInput(1);
     DigitalInput bottom_limitswitch = new DigitalInput(2);
 
+    public enum AmpOpenerState{
+        OPEN,
+        CLOSED
+    }
+
+    public enum AmpRollerState{
+        ROLLING,
+        STATIC
+    }
+
+    AmpOpenerState AmpOpener = AmpOpenerState.CLOSED;
+    AmpRollerState AmpRoller = AmpRollerState.STATIC;
+
     // With eager singleton initialization, any static variables/fields used in the
     // constructor must appear before the "INSTANCE" variable so that they are initialized
     // before the constructor is called when the "INSTANCE" variable initializes.
@@ -50,24 +63,28 @@ public class AmpScorer extends SubsystemBase {
 
     public void openAmp(){
         if (!top_limitswitch.get())
-            amp_opener.set(5);
+            amp_opener.set(3);
         else
             amp_opener.set(0);
+        AmpOpenerState AmpOpener = AmpOpenerState.OPEN;
     }
 
     public void closeAmp(){
         if (!bottom_limitswitch.get())
-            amp_opener.set(-5);
+            amp_opener.set(-3);
         else
             amp_opener.set(0);
+        AmpOpenerState AmpOpener = AmpOpenerState.CLOSED;
     }
 
     public void rollAmp(){
         amp_roller.set(0.7);
+        AmpRollerState AmpRoller = AmpRollerState.ROLLING;
     }
 
     public void stopRollAmp(){
         amp_roller.set(0);
+        AmpRollerState AmpRoller = AmpRollerState.STATIC;
     }
 }
 
