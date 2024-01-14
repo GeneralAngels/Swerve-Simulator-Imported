@@ -143,7 +143,7 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
                 -Units.degreesToRadians(homeBackRightAngle)
         );
 
-        var pigeon2 = new Pigeon2(30, "canivore");
+        var pigeon2 = new Pigeon2(30);
 
         return new NewSwerveDriveSubsystem(new SwerveModuleFalcon500[]{leftFront, rightFront, leftRear, rightRear}, pigeon2);
     }
