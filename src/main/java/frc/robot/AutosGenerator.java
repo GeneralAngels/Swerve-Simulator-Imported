@@ -5,6 +5,8 @@ import java.util.List;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -44,6 +46,14 @@ public class AutosGenerator {
         autonomousSendableChooser.addOption("2024 shani's auto1", _2024_shani_auto1());
         autonomousSendableChooser.addOption("2024 shani's auto 2", _2024_shani_auto2());
 
+        SmartDashboard.putData(
+                "reset pos", new InstantCommand(() -> {
+                    NewPoseEstimatorSubsystem.getInstance().setCurrentPose(
+                            new Pose2d(15.05, 5.50, Rotation2d.fromDegrees(0))
+                    );
+                })
+        );
+
         SmartDashboard.putData("Autonomous chooser", autonomousSendableChooser);
     }
 
@@ -69,11 +79,8 @@ public class AutosGenerator {
         PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("first auto 2024");
         List<PathPlannerPath> segments = RobotContainer.splitting_paths_into_segments(path_from_file);
 
-
         Command auto = new InstantCommand(
-                () -> {
-                    NewPoseEstimatorSubsystem.getInstance().setCurrentPose(path_from_file.getPreviewStartingHolonomicPose());
-                }).
+                () -> {}).
                 andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand());
 
         auto = auto.andThen(
@@ -266,7 +273,7 @@ public class AutosGenerator {
 
         auto = auto.andThen(
                 Commands.deadline(
-                      //  newSwerve.getDefaultPathFollowingCommand(paths.get(1), poseEstimatorSubsystem),
+                        //  newSwerve.getDefaultPathFollowingCommand(paths.get(1), poseEstimatorSubsystem),
                         Commands.repeatingSequence(
                                 new InstantCommand(
                                         () -> {
@@ -285,7 +292,7 @@ public class AutosGenerator {
 
         auto = auto.andThen(
                 Commands.deadline(
-                      //  newSwerve.getDefaultPathFollowingCommand(paths.get(2), poseEstimatorSubsystem),
+                        //  newSwerve.getDefaultPathFollowingCommand(paths.get(2), poseEstimatorSubsystem),
                         Commands.repeatingSequence(
                                 new InstantCommand(
                                         () -> {
