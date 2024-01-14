@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 import com.pathplanner.lib.path.PathPoint;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -102,10 +105,39 @@ public class RobotContainer {
             if (segment.size() <= 1) {
                 continue;
             }
+
+            ArrayList<Pose2d> pose2ds = new ArrayList<>();
+
+            ArrayList<Translation2d> translations = new ArrayList<>();
+
+            for (PathPoint pathPoint : segment) {
+                pose2ds.add(
+                        new Pose2d(pathPoint.position, null)
+                );
+
+                translations.add(pathPoint.position);
+            }
+
+            /*
+            List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(
+                    pose2ds
+            );
+            */
+
+            /*
             PathPlannerPath path = PathPlannerPath.fromPathPoints(
                     segment,
                     segment.get(segment.size() / 2).constraints,
                     new GoalEndState(0, segment.get(segment.size() - 1).rotationTarget.getTarget()));
+            */
+
+
+            PathPlannerPath path = new PathPlannerPath(
+                    translations,
+                    segment.get(segment.size() / 2).constraints,
+                    new GoalEndState(0, segment.get(segment.size() - 1).rotationTarget.getTarget())
+            );
+
 
             pathList.add(path);
 

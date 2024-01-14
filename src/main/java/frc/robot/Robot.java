@@ -4,8 +4,12 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.time.StopWatch;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Utils.LimelightMeasurement;
@@ -14,6 +18,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.NT_testSubsystem;
 import frc.robot.subsystems.NewDrive.SwerveModuleFalcon500;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
+import frc.robot.subsystems.utils.NT_Helper;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -42,6 +47,9 @@ public class Robot extends LoggedRobot {
     Compressor compressor = new Compressor(PneumaticsModuleType.CTREPCM);
 
     Subsystem swerve_resetter = new Resetter();
+
+    StopWatch autonomous_stopwatch = new StopWatch();
+    DoublePublisher stopwatch_nt = NetworkTableInstance.getDefault().getTable("autonomous").getDoubleTopic("stopwatch").publish();
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -117,6 +125,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void autonomousInit() {
+        autonomous_stopwatch.start();
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         LimelightMeasurement newPose = Limelight.MegaTagEstimate();
@@ -129,6 +138,8 @@ public class Robot extends LoggedRobot {
             m_autonomousCommand.schedule();
         }
     }
+
+
 
     @Override
     public void simulationInit() {
@@ -145,6 +156,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void autonomousPeriodic() {
+        stopwatch_nt.set(autonomous_stopwatch.getDuration());
     }
 
     @Override

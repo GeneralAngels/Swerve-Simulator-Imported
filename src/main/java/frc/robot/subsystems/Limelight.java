@@ -57,6 +57,7 @@ public class Limelight extends SubsystemBase {
         visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(empty);
         tagPose = limelight.getEntry("targetpose_cameraspace").getDoubleArray(empty);
 
+        if (getDistanceToTarget() >= 4) { return null; }
 
         fieldPose = new Pose2d(visionRet[0],
                 visionRet[1],

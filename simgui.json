@@ -7,6 +7,7 @@
       "/SmartDashboard/command-2-3": "Command",
       "/SmartDashboard/field": "Field2d",
       "/SmartDashboard/intake": "Mechanism2d",
+      "/SmartDashboard/reset pos": "Command",
       "/SmartDashboard/shoot": "Command",
       "/SmartDashboard/shooter": "Mechanism2d"
     }
