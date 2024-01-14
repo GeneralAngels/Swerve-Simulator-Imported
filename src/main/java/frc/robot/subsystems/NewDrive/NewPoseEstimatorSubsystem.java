@@ -30,7 +30,7 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
     // on the final pose estimate.
     private static final Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
     private static final Matrix<N1, N1> localMeasurementStdDevs = VecBuilder.fill(Units.degreesToRadians(0.01));
-    private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.7, 0.7, Units.degreesToRadians(25));
+    private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.7, 0.7, Units.degreesToRadians(40));
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Field2d field2d = new Field2d();
 

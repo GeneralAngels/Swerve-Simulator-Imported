@@ -11,7 +11,8 @@
         "x": 2.269640965918107,
         "y": 5.7999075539495895
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -26,7 +27,8 @@
         "x": 5.999768683125577,
         "y": 7.115207345821244
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -41,7 +43,8 @@
         "x": 7.399793328540686,
         "y": 7.085625413180818
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -56,7 +59,8 @@
         "x": 5.659133335241743,
         "y": 5.573208346453651
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -71,7 +75,8 @@
         "x": 4.893056902497247,
         "y": 6.410006072001511
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -83,25 +88,30 @@
         "y": 6.107996189712841
       },
       "nextControl": null,
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 0.9,
-      "rotationDegrees": 180.0
+      "rotationDegrees": 180.0,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 2.0,
-      "rotationDegrees": 180.0
+      "rotationDegrees": 180.0,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 3.7,
-      "rotationDegrees": -140.0
+      "rotationDegrees": -140.0,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 2.75,
-      "rotationDegrees": -140.0
+      "rotationDegrees": -140.0,
+      "rotateFast": false
     }
   ],
   "constraintZones": [
@@ -126,12 +136,14 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 180.0,
+    "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "off season",
   "previewStartingState": {
     "rotation": 180.0,
     "velocity": 0
-  }
+  },
+  "useDefaultConstraints": false
 }

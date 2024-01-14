@@ -1,4 +1,7 @@
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
 import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
@@ -22,8 +25,7 @@ public class GenericTest {
 
     @Test
     public void some_test() {
-        System.out.println("running");
-        System.out.println(2 / 3 * 2);
+        PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("first auto 2024");
         assert 1 == 1;
     }
 

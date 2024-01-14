@@ -54,7 +54,7 @@ public class Limelight extends SubsystemBase {
         int numTags = limelight.getEntry("tcornxy").getDoubleArray(empty_1).length / 4;
         if (numTags == 0) return null;
 
-        visionRet = limelight.getEntry("botpose_wpired").getDoubleArray(empty);
+        visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(empty);
         tagPose = limelight.getEntry("targetpose_cameraspace").getDoubleArray(empty);
 
 

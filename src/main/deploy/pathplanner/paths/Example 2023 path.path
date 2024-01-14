@@ -11,7 +11,8 @@
         "x": 3.3521794493346153,
         "y": 4.6985924125625855
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -26,7 +27,8 @@
         "x": 6.594516481879643,
         "y": 4.63685406427035
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -41,7 +43,8 @@
         "x": 2.0996698808408776,
         "y": 4.522327182384555
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -56,7 +59,8 @@
         "x": 1.7918017557749675,
         "y": 3.5352348832313494
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -71,7 +75,8 @@
         "x": 2.1614963857194733,
         "y": 4.67772251523507
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -86,7 +91,8 @@
         "x": 5.9837796486593255,
         "y": 4.624027745108364
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -101,7 +107,8 @@
         "x": 6.799564005757786,
         "y": 2.6317882400575994
       },
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -113,37 +120,45 @@
         "y": 2.810385730336347
       },
       "nextControl": null,
-      "isLocked": false
+      "isLocked": false,
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 1.0,
-      "rotationDegrees": 0.1
+      "rotationDegrees": 0.1,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 3.0,
-      "rotationDegrees": 180.0
+      "rotationDegrees": 180.0,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 1.9,
-      "rotationDegrees": 180.0
+      "rotationDegrees": 180.0,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 0.5,
-      "rotationDegrees": 0
+      "rotationDegrees": 0,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 7.0,
-      "rotationDegrees": 180.0
+      "rotationDegrees": 180.0,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 5.8500000000000005,
-      "rotationDegrees": -45.0
+      "rotationDegrees": -45.0,
+      "rotateFast": false
     },
     {
       "waypointRelativePos": 4.699999999999999,
-      "rotationDegrees": 180.0
+      "rotationDegrees": 180.0,
+      "rotateFast": false
     }
   ],
   "constraintZones": [
@@ -168,12 +183,14 @@
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": 0.0
+    "rotation": 0.0,
+    "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
+  "folder": "off season",
   "previewStartingState": {
     "rotation": 180.0,
     "velocity": 2.0
-  }
+  },
+  "useDefaultConstraints": false
 }
