@@ -7,7 +7,6 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
@@ -20,10 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
 import frc.robot.subsystems.Shooter_Test_RigSubsystem;
@@ -72,12 +68,6 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        driver.circle().toggleOnTrue(
-                new ShootCommand()
-        ).toggleOnFalse(
-                new InstantCommand(() -> {Shooter.getInstance().setDesiredVelocity(0);})
-        );
-
         driver.cross().toggleOnTrue(
             new InstantCommand(() -> {NewSwerveDriveSubsystem.getInstance().pigeon2.setYaw(0);})
         );
@@ -93,7 +83,7 @@ public class RobotContainer {
         for (PathPoint pathPoint : path_from_file.getAllPathPoints()) {
             segments_list.get(segment_index).add(pathPoint);
 
-            if (pathPoint.holonomicRotation != null) {
+            if (pathPoint.rotationTarget != null) {
 
                 segment_index += 1;
 
@@ -115,11 +105,11 @@ public class RobotContainer {
             PathPlannerPath path = PathPlannerPath.fromPathPoints(
                     segment,
                     segment.get(segment.size() / 2).constraints,
-                    new GoalEndState(0, segment.get(segment.size() - 1).holonomicRotation));
+                    new GoalEndState(0, segment.get(segment.size() - 1).rotationTarget.getTarget()));
 
             pathList.add(path);
 
-            PathPlannerTrajectory trajectory = new PathPlannerTrajectory(path, new ChassisSpeeds());
+            PathPlannerTrajectory trajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), segment.get(segment.size() - 1).rotationTarget.getTarget());
 
             pathPlannerTrajectories.add(trajectory);
 

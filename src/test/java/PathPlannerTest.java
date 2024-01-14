@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PathPlannerTest {
+    /*
     public List<PathPlannerPath> splitting_paths_into_segments_2(PathPlannerPath path_from_file) {
         System.out.println(path_from_file);
 
@@ -128,4 +129,5 @@ public class PathPlannerTest {
         System.out.println("original: " + og_trajectory.getTotalTimeSeconds());
         System.out.println("total time: " + totalTime);
     }
+    */
 }

@@ -61,12 +61,12 @@ public class IntakeSubsystem extends SubsystemBase {
      * the {@link #getInstance()} method to get the singleton instance.
      */
     private IntakeSubsystem() {
-
+        SmartDashboard.putData("intake", intake);
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putData("intake", intake);
+
     }
 
     public Command get_open_command() {
