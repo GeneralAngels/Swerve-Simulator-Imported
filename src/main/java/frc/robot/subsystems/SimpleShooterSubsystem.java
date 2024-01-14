@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -15,6 +18,9 @@ public class SimpleShooterSubsystem extends SubsystemBase {
     Mechanism2d shooter = new Mechanism2d(2,2);
     MechanismRoot2d r_shooter = shooter.getRoot("Root",1,0.07);
     MechanismLigament2d l_shooter = r_shooter.append(new MechanismLigament2d("Shooter",0,90,6, new Color8Bit(Color.kOrange)));
+
+    DigitalInput shooter_beambreaker = new DigitalInput(3);
+    CANSparkMax m_shooter = new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless);
     // With eager singleton initialization, any static variables/fields used in the 
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
     // before the constructor is called when the "INSTANCE" variable initializes.
@@ -64,11 +70,20 @@ public class SimpleShooterSubsystem extends SubsystemBase {
 
     public void shoot() {
         l_shooter.setLength(0.8);
+        m_shooter.set(0.7);
     }
 
     public void stopShooting(){
         l_shooter.setLength(0.0);
+        m_shooter.set(0);
     }
+
+    /*public noteShot(){
+        if (!shooter_beambreaker.get())
+            //Note was shot (enum state)
+        else
+            //Note wasnt shot (enum state)
+    }*/
 
     public Command getDefaultShootingCommand() {
         return Commands.sequence(

@@ -11,7 +11,8 @@ public class AmpScorer extends SubsystemBase {
     CANSparkMax amp_opener = new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless);
     CANSparkMax amp_roller = new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-    DigitalInput amp_limitswitch = new DigitalInput(1);
+    DigitalInput top_limitswitch = new DigitalInput(1);
+    DigitalInput bottom_limitswitch = new DigitalInput(2);
 
     // With eager singleton initialization, any static variables/fields used in the
     // constructor must appear before the "INSTANCE" variable so that they are initialized
@@ -48,7 +49,25 @@ public class AmpScorer extends SubsystemBase {
     }
 
     public void openAmp(){
+        if (!top_limitswitch.get())
+            amp_opener.set(5);
+        else
+            amp_opener.set(0);
+    }
 
+    public void closeAmp(){
+        if (!bottom_limitswitch.get())
+            amp_opener.set(-5);
+        else
+            amp_opener.set(0);
+    }
+
+    public void rollAmp(){
+        amp_roller.set(0.7);
+    }
+
+    public void stopRollAmp(){
+        amp_roller.set(0);
     }
 }
 

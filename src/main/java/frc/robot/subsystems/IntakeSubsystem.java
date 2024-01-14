@@ -34,6 +34,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
 
+
+
     // With eager singleton initialization, any static variables/fields used in the 
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
     // before the constructor is called when the "INSTANCE" variable initializes.
@@ -88,7 +90,6 @@ public class IntakeSubsystem extends SubsystemBase {
     public void open() {
         var command = get_open_command();
         command.schedule();
-        System.out.println("opening");
         intake_opening.setLength(0.8);
     }
 
