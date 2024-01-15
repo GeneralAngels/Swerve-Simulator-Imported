@@ -74,9 +74,7 @@ public class SimpleShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic(){
         if (!shooter_beambreaker.get())
-            RobotState.getInstance().noteState = RobotState.NoteState.NOTHING; //Note was shot (enum state)
-        else
-            RobotState.getInstance().noteState = RobotState.NoteState.NOTE; //Note wasn't shot yet/ Robot still has a note (enum state)
+            RobotState.getInstance().noteState = RobotState.NoteState.NOTHING; //Note was shot (Robot doesnt have a note)
     }
 
     public void shoot() {

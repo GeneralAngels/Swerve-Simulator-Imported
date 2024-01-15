@@ -75,12 +75,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (intake_beambreaker.get()) {
-            RobotState.getInstance().noteState = RobotState.NoteState.NOTHING;
-        }
-        else {
+        if (!intake_beambreaker.get()) {
             RobotState.getInstance().noteState = RobotState.NoteState.NOTE;
         }
+
+        /*if (RobotState.getInstance().noteState == RobotState.NoteState.NOTE && !intake_beambreaker.get())
+            RobotState.getInstance().noteState = RobotState.NoteState.NOTHING; // The robot ejected/feed the note*/
     }
 
     public Command get_open_command() {
@@ -128,12 +128,6 @@ public class IntakeSubsystem extends SubsystemBase {
         IntakeRollerState IntakeRoller = IntakeRollerState.EJECTING;
     }
 
-    public void hasNote(){
-        /*if (intake_beambreaker.get())
-            // the robot doesnt have a note (beam wasn't broken)
-        else
-            // the robot has a note (beam was broken)*/
-    }
 
 
 }

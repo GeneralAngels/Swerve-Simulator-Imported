@@ -1,26 +1,10 @@
 package frc.robot.subsystems;
 
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Feeder extends SubsystemBase {
+public class ClimbingSubsystem extends SubsystemBase {
 
-    CANSparkMax feeder = new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless);
-
-    public enum FeederState {
-        FEEDING,
-        STATIC
-    }
-
-    FeederState feederState = FeederState.STATIC;
 
     // With eager singleton initialization, any static variables/fields used in the
     // constructor must appear before the "INSTANCE" variable so that they are initialized
@@ -31,7 +15,7 @@ public class Feeder extends SubsystemBase {
      * the {@link #getInstance()} method to get the single instance (rather
      * than trying to construct an instance of this class.)
      */
-    private final static Feeder INSTANCE = new Feeder();
+    private final static ClimbingSubsystem INSTANCE = new ClimbingSubsystem();
 
     /**
      * Returns the Singleton instance of this IntakeSubsystem. This static method
@@ -39,7 +23,7 @@ public class Feeder extends SubsystemBase {
      * of this class. For example: {@code IntakeSubsystem.getInstance();}
      */
     @SuppressWarnings("WeakerAccess")
-    public static Feeder getInstance() {
+    public static ClimbingSubsystem getInstance() {
         return INSTANCE;
     }
 
@@ -48,7 +32,7 @@ public class Feeder extends SubsystemBase {
      * is private since this class is a Singleton. Code should use
      * the {@link #getInstance()} method to get the singleton instance.
      */
-    private Feeder() {
+    private ClimbingSubsystem() {
 
     }
 
@@ -56,19 +40,5 @@ public class Feeder extends SubsystemBase {
     public void periodic() {
     }
 
-    public void feed(){
-        feeder.set(0.7);
-        FeederState feederState = FeederState.FEEDING;
-    }
-
-    public void stopFeeding(){
-        feeder.set(0.0);
-        FeederState feederState = FeederState.STATIC;
-    }
-
-    /*public void f_eject(){
-        feeder.set(-0.7);
-    }
-*/
 }
 
