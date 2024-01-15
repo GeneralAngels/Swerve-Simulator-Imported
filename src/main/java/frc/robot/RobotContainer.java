@@ -16,13 +16,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.*;
 import frc.robot.subsystems.NewDrive.NewPoseEstimatorSubsystem;
 import frc.robot.subsystems.NewDrive.NewSwerveDriveSubsystem;
-import frc.robot.subsystems.Shooter_Test_RigSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -68,9 +68,63 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
+
+        // CLIMB
         driver.cross().toggleOnTrue(
-            new InstantCommand(() -> {NewSwerveDriveSubsystem.getInstance().pigeon2.setYaw(0);})
+            new InstantCommand(() -> {ClimbingSubsystem.getInstance().open();})
+        ).toggleOnFalse(
+                new InstantCommand(() -> {ClimbingSubsystem.getInstance().close();})
         );
+
+        // INTAKE
+        driver.square().toggleOnTrue(
+                Commands.sequence(
+                        new InstantCommand(() -> {
+                            IntakeSubsystem.getInstance().open();
+                            IntakeSubsystem.getInstance().roll();
+                            Feeder.getInstance().feed();
+                        }),
+                        Commands.waitUntil(() -> SimpleShooterSubsystem.getInstance().inShooter()),
+                        new InstantCommand(() -> {Feeder.getInstance().stopFeeding();})
+                )
+
+        ).toggleOnFalse(
+                new InstantCommand(() -> {
+                    IntakeSubsystem.getInstance().close();
+                    IntakeSubsystem.getInstance().stopRolling();
+                })
+        );
+
+        // SHOOTER
+        driver.circle().toggleOnTrue(
+                new InstantCommand(() -> {
+                    SimpleShooterSubsystem.getInstance().shoot();
+                })
+        ).toggleOnFalse(
+                new InstantCommand(() -> {
+                    SimpleShooterSubsystem.getInstance().stopShooting();
+                })
+        );
+
+        // AMP SCORER
+        driver.triangle().onTrue(
+                Commands.sequence(
+                        new InstantCommand(() -> {
+                            AmpScorer.getInstance().openAmp();
+                        }),
+                        Commands.waitSeconds(0.5),
+                        new InstantCommand(() -> {
+                            AmpScorer.getInstance().rollAmp();
+                        })
+                )
+
+        ).onFalse(
+                new InstantCommand(() -> {
+                    AmpScorer.getInstance().stopRollAmp();
+                    AmpScorer.getInstance().closeAmp();
+                })
+        );
+
     }
 
     public static List<PathPlannerPath> splitting_paths_into_segments(PathPlannerPath path_from_file) {

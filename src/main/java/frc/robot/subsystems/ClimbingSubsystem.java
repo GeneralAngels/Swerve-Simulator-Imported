@@ -1,9 +1,25 @@
 package frc.robot.subsystems;
 
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimbingSubsystem extends SubsystemBase {
+
+    CANSparkMax opener = new CANSparkMax(10, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax closer = new CANSparkMax(11, CANSparkMaxLowLevel.MotorType.kBrushless);
+
+    DigitalInput opener_limitswitch = new DigitalInput(4);
+    DigitalInput closer_limitswitch = new DigitalInput(5);
+    public enum ClimbingState {
+        CLIMBING,
+        STATIC
+    }
+    ClimbingState climbingState = ClimbingState.STATIC;
 
 
     // With eager singleton initialization, any static variables/fields used in the
@@ -38,6 +54,24 @@ public class ClimbingSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+    }
+
+    public void open() {
+        Commands.sequence(
+                new InstantCommand(() -> {opener.set(0.3);}),
+                Commands.waitUntil(() -> {return opener_limitswitch.get();}),
+                new InstantCommand(() -> {opener.set(0);})
+        );
+        climbingState = ClimbingState.CLIMBING;
+    }
+
+    public void close() {
+        Commands.sequence(
+                new InstantCommand(() -> {closer.set(-0.3);}),
+                Commands.waitUntil(() -> {return closer_limitswitch.get();}),
+                new InstantCommand(() -> {closer.set(0);})
+        );
+        climbingState = ClimbingState.STATIC;
     }
 
 }

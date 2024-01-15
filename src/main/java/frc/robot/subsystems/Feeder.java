@@ -9,11 +9,14 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Feeder extends SubsystemBase {
 
-    CANSparkMax feeder = new CANSparkMax(5, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax feeder = new CANSparkMax(12, CANSparkMaxLowLevel.MotorType.kBrushless);
 
     public enum FeederState {
         FEEDING,
@@ -55,7 +58,6 @@ public class Feeder extends SubsystemBase {
     @Override
     public void periodic() {
     }
-
     public void feed(){
         feeder.set(0.7);
         FeederState feederState = FeederState.FEEDING;
@@ -66,9 +68,6 @@ public class Feeder extends SubsystemBase {
         FeederState feederState = FeederState.STATIC;
     }
 
-    /*public void f_eject(){
-        feeder.set(-0.7);
-    }
-*/
+
 }
 

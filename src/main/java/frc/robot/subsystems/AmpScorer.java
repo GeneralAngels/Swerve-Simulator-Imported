@@ -4,12 +4,14 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AmpScorer extends SubsystemBase {
 
-    CANSparkMax amp_opener = new CANSparkMax(6, CANSparkMaxLowLevel.MotorType.kBrushless);
-    CANSparkMax amp_roller = new CANSparkMax(7, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax amp_opener = new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax amp_roller = new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless);
 
     DigitalInput top_limitswitch = new DigitalInput(1);
     DigitalInput bottom_limitswitch = new DigitalInput(2);
@@ -24,8 +26,8 @@ public class AmpScorer extends SubsystemBase {
         STATIC
     }
 
-    AmpOpenerState AmpOpener = AmpOpenerState.CLOSED;
-    AmpRollerState AmpRoller = AmpRollerState.STATIC;
+    AmpOpenerState ampOpenerState = AmpOpenerState.CLOSED;
+    AmpRollerState ampRollerState = AmpRollerState.STATIC;
 
     // With eager singleton initialization, any static variables/fields used in the
     // constructor must appear before the "INSTANCE" variable so that they are initialized
@@ -62,29 +64,31 @@ public class AmpScorer extends SubsystemBase {
     }
 
     public void openAmp(){
-        if (!top_limitswitch.get())
-            amp_opener.set(3);
-        else
-            amp_opener.set(0);
-        AmpOpenerState AmpOpener = AmpOpenerState.OPEN;
+        Commands.sequence(
+                new InstantCommand(() -> {amp_opener.set(0.3);}),
+                Commands.waitUntil(() -> {return top_limitswitch.get();}),
+                new InstantCommand(() -> {amp_opener.set(0);})
+        );
+        ampOpenerState = AmpOpenerState.OPEN;
     }
 
-    public void closeAmp(){
-        if (!bottom_limitswitch.get())
-            amp_opener.set(-3);
-        else
-            amp_opener.set(0);
-        AmpOpenerState AmpOpener = AmpOpenerState.CLOSED;
+    public void closeAmp() {
+        Commands.sequence(
+                new InstantCommand(() -> {amp_opener.set(-0.3);}),
+                Commands.waitUntil(() -> {return bottom_limitswitch.get();}),
+                new InstantCommand(() -> {amp_opener.set(0);})
+        );
+        ampOpenerState = AmpOpenerState.CLOSED;
     }
 
     public void rollAmp(){
         amp_roller.set(0.7);
-        AmpRollerState AmpRoller = AmpRollerState.ROLLING;
+        ampRollerState = AmpRollerState.ROLLING;
     }
 
     public void stopRollAmp(){
         amp_roller.set(0);
-        AmpRollerState AmpRoller = AmpRollerState.STATIC;
+        ampRollerState = AmpRollerState.STATIC;
     }
 }
 

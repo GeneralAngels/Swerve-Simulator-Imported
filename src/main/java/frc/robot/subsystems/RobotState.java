@@ -21,7 +21,8 @@ public class RobotState extends SubsystemBase {
     private final static RobotState INSTANCE = new RobotState();
 
     public enum NoteState{
-        NOTE,
+        INTAKE,
+        SHOOTER,
         NOTHING
     }
 

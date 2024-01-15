@@ -19,8 +19,8 @@ public class SimpleShooterSubsystem extends SubsystemBase {
     MechanismRoot2d r_shooter = shooter.getRoot("Root",1,0.07);
     MechanismLigament2d l_shooter = r_shooter.append(new MechanismLigament2d("Shooter",0,90,6, new Color8Bit(Color.kOrange)));
 
-    DigitalInput shooter_beambreaker = new DigitalInput(3);
-    CANSparkMax m_shooter = new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless);
+    public DigitalInput shooter_beambreaker = new DigitalInput(3);
+    CANSparkMax m_shooter = new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless);
 
     public enum CurrentShooterState {
         SHOOTING,
@@ -74,19 +74,20 @@ public class SimpleShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic(){
         if (!shooter_beambreaker.get())
-            RobotState.getInstance().noteState = RobotState.NoteState.NOTHING; //Note was shot (Robot doesnt have a note)
+            RobotState.getInstance().noteState = RobotState.NoteState.SHOOTER; //Note was shot (Robot doesnt have a note)
     }
 
     public void shoot() {
         l_shooter.setLength(0.8);
         m_shooter.set(0.7);
-        CurrentShooterState shooterState = CurrentShooterState.SHOOTING;
+        shooterState = CurrentShooterState.SHOOTING;
+        RobotState.getInstance().noteState = RobotState.NoteState.NOTHING;
     }
 
     public void stopShooting(){
         l_shooter.setLength(0.0);
         m_shooter.set(0);
-        CurrentShooterState shooterState = CurrentShooterState.STATIC;
+        shooterState = CurrentShooterState.STATIC;
     }
 
 
@@ -97,6 +98,10 @@ public class SimpleShooterSubsystem extends SubsystemBase {
                 new WaitCommand(0.4),
                 new InstantCommand(this::stopShooting, SimpleShooterSubsystem.getInstance())
         );
+    }
+
+    public boolean inShooter(){
+        return (!shooter_beambreaker.get());
     }
 }
 
