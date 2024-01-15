@@ -1,15 +1,18 @@
 package frc.robot.subsystems.NewDrive;
 
-import com.ctre.phoenix.sensors.AbsoluteSensorRange;
-import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.CANCoderConfiguration;
-import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+// import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+// import com.ctre.phoenix.sensors.CANCoder;
+// import com.ctre.phoenix.sensors.CANCoderConfiguration;
+// import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -105,7 +108,7 @@ public class SwerveModuleFalcon500 {
     /**
      * Swerve module steer encoder (absolute angular position)
      */
-    CANCoder steerEncoder;
+    CANcoder steerEncoder;
 
     VelocityVoltage velocity_request = new VelocityVoltage(0).withSlot(0).withAcceleration(0).withEnableFOC(false);
     PositionVoltage position_request = new PositionVoltage(0).withSlot(0).withVelocity(0);
@@ -144,7 +147,7 @@ public class SwerveModuleFalcon500 {
         steerMotor = new TalonFX(steerMotorId, "canivore");
         simSteerMotor = steerMotor.getSimState();
 
-        steerEncoder = new CANCoder(steerCanCoderID, "canivore");
+        steerEncoder = new CANcoder(steerCanCoderID, "canivore");
 
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
 
@@ -192,13 +195,15 @@ public class SwerveModuleFalcon500 {
 
         steerMotor.getConfigurator().apply(steerConfig);
 
-        CANCoderConfiguration steerEncoderConfig = new CANCoderConfiguration();
-        steerEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
-        steerEncoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-        steerEncoderConfig.magnetOffsetDegrees = Units.radiansToDegrees(steerAngleOffsetRad);
+        CANcoderConfiguration steerEncoderConfig = new CANcoderConfiguration();
+        
+        steerEncoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
+        // steerEncoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+        steerEncoderConfig.MagnetSensor.MagnetOffset = Units.radiansToDegrees(steerAngleOffsetRad);
+        // steerEncoderConfig.magnetOffsetDegrees = Units.radiansToDegrees(steerAngleOffsetRad);
         // steerEncoderConfig.magnetOffsetDegrees = 0;
 
-        steerEncoder.configAllSettings(steerEncoderConfig);
+        steerEncoder.getConfigurator().apply(steerEncoderConfig);
 
         driveMotor.optimizeBusUtilization();
         steerMotor.optimizeBusUtilization();
@@ -323,7 +328,7 @@ public class SwerveModuleFalcon500 {
             Logger.recordOutput("TIMING/reset to absolute timing/reading_falcon_position", System.currentTimeMillis() - start_time);
             start_time = System.currentTimeMillis();
 
-            double absoluteEncoderAngle = steerEncoder.getAbsolutePosition();
+            double absoluteEncoderAngle = steerEncoder.getAbsolutePosition().getValue() * 360;
 
             Logger.recordOutput("TIMING/reset to absolute timing/reading_CANCoder_position", System.currentTimeMillis() - start_time);
             start_time = System.currentTimeMillis();

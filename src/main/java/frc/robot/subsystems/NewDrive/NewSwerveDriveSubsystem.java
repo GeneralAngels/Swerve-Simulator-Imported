@@ -3,8 +3,11 @@ package frc.robot.subsystems.NewDrive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -303,13 +306,16 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
     }
 
     public void getAllCanCoders() {
+        CANcoderConfiguration steerEncoderConfig = new CANcoderConfiguration();
+        steerEncoderConfig.MagnetSensor.MagnetOffset = 0;
+        steerEncoderConfig.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
         for (SwerveModuleFalcon500 module : this.swerveModules) {
-            module.steerEncoder.configMagnetOffset(0);
+            module.steerEncoder.getConfigurator().apply(steerEncoderConfig);
         }
 
         for (int i = 0; i < swerveModules.length; i++) {
             var nt_publisher = NetworkTableInstance.getDefault().getTable("CANCoders").getDoubleTopic("CANCoder " + i).publish();
-            nt_publisher.set(swerveModules[i].steerEncoder.getAbsolutePosition());
+            nt_publisher.set(swerveModules[i].steerEncoder.getAbsolutePosition().getValue());
         }
     }
 
