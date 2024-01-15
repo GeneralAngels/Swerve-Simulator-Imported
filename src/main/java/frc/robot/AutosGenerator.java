@@ -45,6 +45,9 @@ public class AutosGenerator {
         autonomousSendableChooser.addOption("2024 auto close shots", _2024_close_shots_auto());
         autonomousSendableChooser.addOption("2024 shani's auto1", _2024_shani_auto1());
         autonomousSendableChooser.addOption("2024 shani's auto 2", _2024_shani_auto2());
+        autonomousSendableChooser.addOption("shani auto 2 with markers",_2024_auto1_with_markers_shani());
+        autonomousSendableChooser.addOption("shani suto 5 game piece",_2024_auto_5_game_piece());
+
 
         SmartDashboard.putData(
                 "reset pos", new InstantCommand(() -> {
@@ -200,11 +203,8 @@ public class AutosGenerator {
         );
 
 
-        auto = auto.andThen(new InstantCommand(
-                () -> {
-                    System.out.println("shooting");
-                }
-        ));
+        auto = auto.andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand()
+        );
 
         List<PathPlannerPath> paths = RobotContainer.splitting_paths_into_segments(path_from_file);
         auto = auto.andThen(newSwerve.getDefaultPathFollowingCommand(paths.get(0), poseEstimatorSubsystem));
@@ -257,61 +257,63 @@ public class AutosGenerator {
         PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("2024 Shani's Auto 2");
         Command auto = new InstantCommand(
                 () -> {
-                    NewPoseEstimatorSubsystem.getInstance().setCurrentPose(path_from_file.getPreviewStartingHolonomicPose());
+                    // NewPoseEstimatorSubsystem.getInstance().setCurrentPose(path_from_file.getPreviewStartingHolonomicPose());
                 }
         );
 
 
-        auto = auto.andThen(new InstantCommand(
-                () -> {
-                    System.out.println("shooting");
-                }
+        auto = auto.andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand(
         ));
 
         List<PathPlannerPath> paths = RobotContainer.splitting_paths_into_segments(path_from_file);
-        auto = auto.andThen(newSwerve.getDefaultPathFollowingCommand(paths.get(0), poseEstimatorSubsystem));
+        auto = auto.andThen(
+                Commands.parallel(
+                        newSwerve.getDefaultPathFollowingCommand(paths.get(0), poseEstimatorSubsystem)),
+                new InstantCommand(IntakeSubsystem.getInstance()::open, IntakeSubsystem.getInstance())
+
+        );
+
 
         auto = auto.andThen(
-                Commands.deadline(
-                        //  newSwerve.getDefaultPathFollowingCommand(paths.get(1), poseEstimatorSubsystem),
-                        Commands.repeatingSequence(
-                                new InstantCommand(
-                                        () -> {
-                                            System.out.println("collecting");
-                                        }
-                                ),
+                Commands.parallel(
+                        newSwerve.getDefaultPathFollowingCommand(paths.get(1), poseEstimatorSubsystem),
+                        new WaitCommand(0.5).andThen(new InstantCommand(IntakeSubsystem.getInstance()::close))
+                ));
 
-                                new WaitCommand(0.4),
+        auto = auto.andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand());
 
-                                new InstantCommand(
-                                        () -> System.out.println("FEED")
-                                )
-                        )
+        auto = auto.andThen(
+                Commands.parallel(
+                        newSwerve.getDefaultPathFollowingCommand(paths.get(2), poseEstimatorSubsystem),
+                        new InstantCommand(IntakeSubsystem.getInstance()::open, IntakeSubsystem.getInstance())
                 )
         );
 
         auto = auto.andThen(
-                Commands.deadline(
-                        //  newSwerve.getDefaultPathFollowingCommand(paths.get(2), poseEstimatorSubsystem),
-                        Commands.repeatingSequence(
-                                new InstantCommand(
-                                        () -> {
-                                            System.out.println("collecting");
-                                        }
-                                ),
-
-                                new WaitCommand(0.4),
-
-                                new InstantCommand(
-                                        () -> System.out.println("shooting")
-                                )
-                        )
+                Commands.parallel(
+                        newSwerve.getDefaultPathFollowingCommand(paths.get(3), poseEstimatorSubsystem),
+                        new InstantCommand(IntakeSubsystem.getInstance()::close, IntakeSubsystem.getInstance())
                 )
+
         );
+        auto = auto.andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand());
+
 
 
 
 
         return auto;
     }
+    public Command _2024_auto1_with_markers_shani() {
+        PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("2024 Shani's Auto 2");
+
+        return newSwerve.getDefaultPathFollowingCommand(path_from_file, poseEstimatorSubsystem);
+    }
+
+    public Command _2024_auto_5_game_piece() {
+        PathPlannerPath path_from_file = PathPlannerPath.fromPathFile("2024 5 Game piece");
+
+        return newSwerve.getDefaultPathFollowingCommand(path_from_file, poseEstimatorSubsystem);
+    }
+
 }
