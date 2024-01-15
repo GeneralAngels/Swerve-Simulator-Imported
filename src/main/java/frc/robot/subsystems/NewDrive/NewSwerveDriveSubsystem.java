@@ -9,7 +9,9 @@ import com.ctre.phoenix6.sim.Pigeon2SimState;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.Constants;
 import com.ctre.phoenix.ErrorCode;
 import edu.wpi.first.networktables.IntegerSubscriber;
@@ -37,6 +39,7 @@ import frc.robot.subsystems.Drive.SwerveConstants;
 import frc.robot.subsystems.utils.TimeMeasurementSubsystem;
 
 import javax.naming.Name;
+import java.lang.reflect.Array;
 import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -59,6 +62,8 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
 
     public Pigeon2 pigeon2;
     public Pigeon2SimState pigeon2SimState;
+
+    double start = 0.0;
 
     boolean limitingRotatingMaxVel = false;
 
@@ -114,6 +119,10 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
         pigeon2.optimizeBusUtilization();
 
         gyroInformation.yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon2, gyroInformation.yawSignal);
+
+        SmartDashboard.putData(
+                "special calc rotina", Rotina()
+        );
     }
 
     public void updateGyroOdometryInputs() {
@@ -252,6 +261,9 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
             currentModuleStates[i] = swerveModules[i].getState();
             currentPositions[i] = swerveModules[i].getPosition();
 
+            Logger.recordOutput("ModulesStates/current/" + i + "/speed", currentModuleStates[i].speedMetersPerSecond);
+            Logger.recordOutput("ModulesStates/current/" + i + "/angle", currentModuleStates[i].angle.getDegrees());
+
             // swerveModules[i].resetToAbsolute();
         }
 
@@ -283,6 +295,9 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
             wantedModuleStates[i].angle = Rotation2d.fromDegrees(placeInAppropriate0To360Scope(current_module_state.angle.getDegrees(), wantedModuleStates[i].angle.getDegrees()));
 
             swerveModules[i].setState(wantedModuleStates[i]);
+
+            Logger.recordOutput("ModulesStates/wanted/" + i + "/speed", wantedModuleStates[i].speedMetersPerSecond);
+            Logger.recordOutput("ModulesStates/wanted/" + i + "/angle", wantedModuleStates[i].angle.getDegrees());
 
             /*
             Logger.recordOutput("ModuleStates/Current/" + i + "/angle", current_module_state.angle.getDegrees());
@@ -371,6 +386,31 @@ public class NewSwerveDriveSubsystem extends TimeMeasurementSubsystem {
                 getDefaultPathFollowingCommand(path, NewPoseEstimatorSubsystem.getInstance()),
                 path,
                 NewPoseEstimatorSubsystem.getInstance()::getCurrentPose
+        );
+    }
+
+    public double getAverageRotation() {
+        double sum_rotations = 0.0;
+
+        for (int i = 0; i < 4; i++) {
+            sum_rotations += swerveModules[i].driveMotor.getPosition().getValueAsDouble() / SwerveModuleFalcon500.DRIVE_GEAR_RATIO;
+        }
+
+        return sum_rotations / 4;
+    }
+
+    public Command Rotina() {
+        return Commands.sequence(
+                new InstantCommand(() -> {start = getAverageRotation();}),
+                new RunCommand(() -> {setAbsoluteVelocities(
+                        new ChassisSpeeds(3, 0, 0)
+                );}).withTimeout(5 / 3),
+                new InstantCommand(() -> {setAbsoluteVelocities(
+                        new ChassisSpeeds()
+                );}),
+                new InstantCommand(() -> {Logger.recordOutput(
+                        "RotinaTest/final", getAverageRotation() - start
+                );})
         );
     }
 }

@@ -40,7 +40,7 @@ public class SwerveModuleFalcon500 {
      * From motor rotations to the wheel revolutions
      */
     private static final double DRIVE_GEAR_RATIO_JACK_IN_THE_BOT = (50.0 / 16.0) * (16.0 / 28.0) * (45.0 / 15.0);
-    private static final double DRIVE_GEAR_RATIO = 6.75;
+    public static final double DRIVE_GEAR_RATIO = 6.75;
 
     /**
      * Conversion constant: From motor encoder ticks to position data (m)
@@ -315,33 +315,19 @@ public class SwerveModuleFalcon500 {
 
     public void resetToAbsolute() {
         if (Robot.isReal()) {
-            var start_time = System.currentTimeMillis();
 
             double currentPosition = steerMotor.getPosition().getValueAsDouble(); // in rotations.
             double currentAngle = Units.rotationsToRadians(currentPosition) / STEER_GEAR_RATIO;
 
-            Logger.recordOutput("TIMING/reset to absolute timing/reading_falcon_position", System.currentTimeMillis() - start_time);
-            start_time = System.currentTimeMillis();
-
             double absoluteEncoderAngle = steerEncoder.getAbsolutePosition();
-
-            Logger.recordOutput("TIMING/reset to absolute timing/reading_CANCoder_position", System.currentTimeMillis() - start_time);
-            start_time = System.currentTimeMillis();
 
             double angle_error = getAngleError(Units.degreesToRadians(absoluteEncoderAngle), currentAngle); // in radians.
 
             relative_offset = Rotation2d.fromRadians(angle_error);
 
-            Logger.recordOutput("TIMING/reset to absolute timing/calculating_angle_error", System.currentTimeMillis() - start_time);
-            start_time = System.currentTimeMillis();
 
             // steerMotor.setPosition(
             // currentPosition + Units.radiansToRotations(angle_error) * STEER_GEAR_RATIO);
-
-            // steerMotor.getConfigurator().setPosition(currentPosition + Units.radiansToRotations(angle_error) * STEER_GEAR_RATIO);
-
-            Logger.recordOutput("TIMING/reset to absolute timing/setting_falcon_position", System.currentTimeMillis() - start_time);
-            start_time = System.currentTimeMillis();
         }
     }
 

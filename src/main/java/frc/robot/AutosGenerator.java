@@ -93,6 +93,10 @@ public class AutosGenerator {
                 ));
 
         auto = auto.andThen(
+                Commands.waitSeconds(3)
+        );
+
+        auto = auto.andThen(
                 Commands.parallel(
                         new InstantCommand(IntakeSubsystem.getInstance()::close, IntakeSubsystem.getInstance()),
                         SimpleShooterSubsystem.getInstance().getDefaultShootingCommand()
@@ -153,7 +157,7 @@ public class AutosGenerator {
 
         Command auto = new InstantCommand(
                 () -> {
-                    NewPoseEstimatorSubsystem.getInstance().setCurrentPose(path_from_file.getPreviewStartingHolonomicPose());
+
                 }
         );
 
@@ -185,6 +189,11 @@ public class AutosGenerator {
                         )
                 )
         );
+
+        auto = auto.andThen(
+                newSwerve.getDefaultPathFollowingCommand(segments.get(2), poseEstimatorSubsystem)
+        );
+
 
 
 

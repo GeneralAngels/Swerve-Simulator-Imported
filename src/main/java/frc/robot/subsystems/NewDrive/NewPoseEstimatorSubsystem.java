@@ -41,10 +41,10 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
 
 
     public static class StdDevs {
-        public static final Matrix<N3, N1> closer_than_meter = VecBuilder.fill(0.15, 0.15, Units.degreesToRadians(5));
-        public static final Matrix<N3, N1> closer_than_two_meters = VecBuilder.fill(0.3, 0.3, Units.degreesToRadians(20));
-        public static final Matrix<N3, N1> closer_than_three_meters = VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(25));
-        public static final Matrix<N3, N1> closer_than_four_meters = VecBuilder.fill(0.7, 0.7, Units.degreesToRadians(25));
+        public static final Matrix<N3, N1> closer_than_meter = VecBuilder.fill(0.3, 0.3, Units.degreesToRadians(5));
+        public static final Matrix<N3, N1> closer_than_two_meters = VecBuilder.fill(0.4, 0.4, Units.degreesToRadians(20));
+        public static final Matrix<N3, N1> closer_than_three_meters = VecBuilder.fill(0.65, 0.65, Units.degreesToRadians(25));
+        public static final Matrix<N3, N1> closer_than_four_meters = VecBuilder.fill(0.75, 0.75, Units.degreesToRadians(25));
     }
 
     public static NewPoseEstimatorSubsystem getInstance() {
@@ -98,6 +98,8 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
         int delta_count = NewSwerveDriveSubsystem.getInstance().swerveModules[0].getDrivePositionArray().length;
         delta_count = Math.min(delta_count, NewSwerveDriveSubsystem.getInstance().gyroInformation.odometryYawPositions.length);
 
+        Logger.recordOutput("PoseEstimator/new deltas received", delta_count);
+
         for (int delta_index = 0; delta_index < delta_count; delta_index++) {
             for (int module_index = 0; module_index < 4; module_index++) {
 
@@ -107,6 +109,8 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
                 currentModulesPositions[module_index].angle = NewSwerveDriveSubsystem.getInstance().
                         swerveModules[module_index].getTurnPositions()[delta_index];
             }
+
+            Logger.recordOutput("PoseEstimator/gyro", NewSwerveDriveSubsystem.getInstance().gyroInformation.odometryYawPositions[delta_index].getDegrees());
 
             poseEstimator.update(
                     NewSwerveDriveSubsystem.getInstance().gyroInformation.odometryYawPositions[delta_index],
@@ -129,7 +133,9 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
         }
 
         Logger.recordOutput("Tag in sight", true);
-        poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp);
+        // poseEstimator.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestamp);
+
+        add_using_different_std_devs(limelightMeasurement);
     }
 
     private String getFormattedPose() {
