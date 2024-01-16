@@ -11,6 +11,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -28,8 +29,7 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
     // "trust" the estimate from that particular component more than the others.
     // This in turn means the particualr component will have a stronger influence
     // on the final pose estimate.
-    private static final Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
-    private static final Matrix<N1, N1> localMeasurementStdDevs = VecBuilder.fill(Units.degreesToRadians(0.01));
+    private static final Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(0.5));
     private static final Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.3, 0.3, Units.degreesToRadians(15));
     private final SwerveDrivePoseEstimator poseEstimator;
     private final Field2d field2d = new Field2d();
@@ -41,10 +41,12 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
 
 
     public static class StdDevs {
-        public static final Matrix<N3, N1> closer_than_meter = VecBuilder.fill(0.3, 0.3, Units.degreesToRadians(5));
-        public static final Matrix<N3, N1> closer_than_two_meters = VecBuilder.fill(0.4, 0.4, Units.degreesToRadians(20));
-        public static final Matrix<N3, N1> closer_than_three_meters = VecBuilder.fill(0.65, 0.65, Units.degreesToRadians(25));
-        public static final Matrix<N3, N1> closer_than_four_meters = VecBuilder.fill(0.75, 0.75, Units.degreesToRadians(25));
+        public static final Matrix<N3, N1> closer_than_meter = VecBuilder.fill(0.3, 0.3, Units.degreesToRadians(40));
+        public static final Matrix<N3, N1> closer_than_two_meters = VecBuilder.fill(0.4, 0.4, Units.degreesToRadians(50));
+        public static final Matrix<N3, N1> closer_than_three_meters = VecBuilder.fill(0.65, 0.65, Units.degreesToRadians(70));
+        public static final Matrix<N3, N1> closer_than_four_meters = VecBuilder.fill(0.75, 0.75, Units.degreesToRadians(90));
+
+        public static final Matrix<N3, N1> autonomous_std_devs = VecBuilder.fill(0.55, 0.55, Units.degreesToRadians(90));
     }
 
     public static NewPoseEstimatorSubsystem getInstance() {
@@ -69,6 +71,11 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
 
     public void add_using_different_std_devs(LimelightMeasurement measurement) {
         var distance_to_target = Limelight.getDistanceToTarget();
+
+        if (DriverStation.isAutonomous()) {
+            poseEstimator.addVisionMeasurement(measurement.pose, measurement.timestamp, StdDevs.autonomous_std_devs);
+            return;
+        }
 
         if (distance_to_target <= 1) {
             poseEstimator.addVisionMeasurement(measurement.pose, measurement.timestamp, StdDevs.closer_than_meter);
