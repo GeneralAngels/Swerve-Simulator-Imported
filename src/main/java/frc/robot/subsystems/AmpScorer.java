@@ -4,17 +4,26 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AmpScorer extends SubsystemBase {
 
+    Mechanism2d amp = new Mechanism2d(2,2);
+    MechanismRoot2d r_amp = amp.getRoot("Root",0.5,0.5);
+    MechanismLigament2d l_amp = r_amp.append(new MechanismLigament2d("Amp",0,70,6, new Color8Bit(Color.kBlue)));
     CANSparkMax amp_opener = new CANSparkMax(8, CANSparkMaxLowLevel.MotorType.kBrushless);
-    CANSparkMax amp_roller = new CANSparkMax(9, CANSparkMaxLowLevel.MotorType.kBrushless);
+    CANSparkMax amp_roller = new CANSparkMax(13, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-    DigitalInput top_limitswitch = new DigitalInput(1);
-    DigitalInput bottom_limitswitch = new DigitalInput(2);
+    DigitalInput top_limitswitch = new DigitalInput(10);
+    DigitalInput bottom_limitswitch = new DigitalInput(18);
 
     public enum AmpOpenerState{
         OPEN,
@@ -57,10 +66,14 @@ public class AmpScorer extends SubsystemBase {
      */
     private AmpScorer() {
 
+        SmartDashboard.putData("ampScorer", amp);
+        SmartDashboard.putData("open amp", new InstantCommand(() -> {l_amp.setLength(0.5);}));
+        SmartDashboard.putData("close amp", new InstantCommand(() -> {l_amp.setLength(0);}));
     }
 
     @Override
     public void periodic() {
+
     }
 
     public void openAmp(){
@@ -70,6 +83,7 @@ public class AmpScorer extends SubsystemBase {
                 new InstantCommand(() -> {amp_opener.set(0);})
         );
         ampOpenerState = AmpOpenerState.OPEN;
+        l_amp.setLength(0.4);
     }
 
     public void closeAmp() {
@@ -79,6 +93,7 @@ public class AmpScorer extends SubsystemBase {
                 new InstantCommand(() -> {amp_opener.set(0);})
         );
         ampOpenerState = AmpOpenerState.CLOSED;
+        l_amp.setLength(0);
     }
 
     public void rollAmp(){

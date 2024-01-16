@@ -4,12 +4,21 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimbingSubsystem extends SubsystemBase {
 
+    Mechanism2d climber = new Mechanism2d(2,2);
+    MechanismRoot2d r_climber = climber.getRoot("Root",1,0.07);
+    MechanismLigament2d l_climber = r_climber.append(new MechanismLigament2d("climber",0,180,6, new Color8Bit(Color.kPurple)));
     CANSparkMax opener = new CANSparkMax(10, CANSparkMaxLowLevel.MotorType.kBrushless);
     CANSparkMax closer = new CANSparkMax(11, CANSparkMaxLowLevel.MotorType.kBrushless);
 
@@ -49,11 +58,14 @@ public class ClimbingSubsystem extends SubsystemBase {
      * the {@link #getInstance()} method to get the singleton instance.
      */
     private ClimbingSubsystem() {
-
+        SmartDashboard.putData("climber", climber);
+        SmartDashboard.putData("open", new InstantCommand(() -> {l_climber.setLength(0.8);}));
+        SmartDashboard.putData("close", new InstantCommand(() -> {l_climber.setLength(0);}));
     }
 
     @Override
     public void periodic() {
+
     }
 
     public void open() {
@@ -63,6 +75,7 @@ public class ClimbingSubsystem extends SubsystemBase {
                 new InstantCommand(() -> {opener.set(0);})
         );
         climbingState = ClimbingState.CLIMBING;
+        l_climber.setLength(0.8);
     }
 
     public void close() {
@@ -72,6 +85,7 @@ public class ClimbingSubsystem extends SubsystemBase {
                 new InstantCommand(() -> {closer.set(0);})
         );
         climbingState = ClimbingState.STATIC;
+        l_climber.setLength(0);
     }
 
 }
