@@ -1,0 +1,52 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.87,
+        "y": 4.93
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.802278747414638,
+        "y": 5.922420987699119
+      },
+      "isLocked": false,
+      "linkedName": "speaker"
+    },
+    {
+      "anchor": {
+        "x": 7.815813345912407,
+        "y": 7.417685692514242
+      },
+      "prevControl": {
+        "x": 6.936245872491746,
+        "y": 7.168474908378387
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "far note"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.9,
+    "maxAcceleration": 3.4,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Splitted auto",
+  "previewStartingState": {
+    "rotation": 180.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}

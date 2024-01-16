@@ -1,0 +1,52 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.815813345912407,
+        "y": 5.863783156137741
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.731013462026924,
+        "y": 6.303566892848072
+      },
+      "isLocked": false,
+      "linkedName": "leftie2-note-center"
+    },
+    {
+      "anchor": {
+        "x": 2.787619289524294,
+        "y": 6.508799303312892
+      },
+      "prevControl": {
+        "x": 5.426321709786276,
+        "y": 7.666896476650097
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.9,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "Splitted auto",
+  "previewStartingState": {
+    "rotation": 180.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}

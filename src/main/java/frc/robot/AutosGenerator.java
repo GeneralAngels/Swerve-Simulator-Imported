@@ -43,11 +43,12 @@ public class AutosGenerator {
         autonomousSendableChooser.addOption("2024 auto 2", _2024_auto1_with_markers());
 
         autonomousSendableChooser.addOption("2024 auto close shots", _2024_close_shots_auto());
-        autonomousSendableChooser.addOption("2024 shani's auto1", _2024_shani_auto1());
-        autonomousSendableChooser.addOption("2024 shani's auto 2", _2024_shani_auto2());
-        autonomousSendableChooser.addOption("shani auto 2 with markers",_2024_auto1_with_markers_shani());
-        autonomousSendableChooser.addOption("shani suto 5 game piece",_2024_auto_5_game_piece());
-
+//        autonomousSendableChooser.addOption("2024 shani's auto1", _2024_shani_auto1());
+//        autonomousSendableChooser.addOption("2024 shani's auto 2", _2024_shani_auto2());
+//        autonomousSendableChooser.addOption("shani auto 2 with markers",_2024_auto1_with_markers_shani());
+//        autonomousSendableChooser.addOption("shani suto 5 game piece",_2024_auto_5_game_piece());
+        autonomousSendableChooser.addOption("kyle1", kyle1());
+        autonomousSendableChooser.addOption("Kyle 5 game piece", _5_piece_auto());
 
         SmartDashboard.putData(
                 "reset pos", new InstantCommand(() -> {
@@ -324,5 +325,170 @@ public class AutosGenerator {
 
         return newSwerve.getDefaultPathFollowingCommand(path_from_file, poseEstimatorSubsystem);
     }
+
+    public Command kyle1() {
+        PathPlannerPath first_part = PathPlannerPath.fromPathFile("kyle-0.1");
+        Command auto = new InstantCommand(() -> {NewPoseEstimatorSubsystem.getInstance().setCurrentPose(
+                new Pose2d(15, 6, Rotation2d.fromDegrees(0))
+        );});
+
+        auto = auto.andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand());
+
+        auto = auto.andThen(
+                Commands.parallel(
+                        NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(first_part),
+                        Commands.sequence(
+                                new WaitCommand(0.8),
+                                new InstantCommand(IntakeSubsystem.getInstance()::open, IntakeSubsystem.getInstance())
+                        )
+                )
+        );
+
+        auto = auto.andThen(Commands.sequence(
+                        new InstantCommand(IntakeSubsystem.getInstance()::close, IntakeSubsystem.getInstance()),
+                        SimpleShooterSubsystem.getInstance().getDefaultShootingCommand()
+                )
+
+        );
+
+        PathPlannerPath second_part = PathPlannerPath.fromPathFile("kyle-0.2");
+
+        auto = auto.andThen(
+                Commands.parallel(
+                        NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(second_part),
+                        Commands.sequence(
+                                new WaitCommand(1.7),
+                                new InstantCommand(IntakeSubsystem.getInstance()::open, IntakeSubsystem.getInstance())
+                        )
+
+                )
+        );
+        PathPlannerPath third_part = PathPlannerPath.fromPathFile("kyle-0.3");
+
+        auto = auto.andThen(
+                Commands.parallel(
+                        NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(third_part),
+                        Commands.sequence(
+                                new WaitCommand(0.9),
+                                new InstantCommand(IntakeSubsystem.getInstance()::close)
+                        )
+
+                )
+        );
+
+        auto = auto.andThen(
+                SimpleShooterSubsystem.getInstance().getDefaultShootingCommand()
+        );
+
+        PathPlannerPath fourth_part = PathPlannerPath.fromPathFile("kyle-0.4");
+        auto = auto.andThen(
+                Commands.parallel(
+                        NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(fourth_part),
+                        Commands.sequence(
+                                new WaitCommand(1.6),
+                                new InstantCommand(IntakeSubsystem.getInstance()::open,IntakeSubsystem.getInstance())
+                        )
+
+                )
+        );
+
+        PathPlannerPath fifth_part = PathPlannerPath.fromPathFile("kyle-0.5");
+        auto = auto.andThen(
+                Commands.parallel(
+                        NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(fifth_part),
+                        Commands.sequence(
+                                new WaitCommand(0.9),
+                                new InstantCommand(IntakeSubsystem.getInstance()::close,IntakeSubsystem.getInstance())
+                        )
+
+                )
+        );
+
+        auto = auto.andThen(
+                SimpleShooterSubsystem.getInstance().getDefaultShootingCommand()
+        );
+
+        return auto;
+    }
+
+    public Command _5_piece_auto() {
+        PathPlannerPath first_part = PathPlannerPath.fromPathFile("5 piece auto-0.1");
+        Command auto = new InstantCommand(() -> {NewPoseEstimatorSubsystem.getInstance().setCurrentPose(
+                new Pose2d(15, 6, Rotation2d.fromDegrees(0))
+        );});
+
+        auto = auto.andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand());
+
+        auto = auto.andThen(
+                Commands.parallel(
+                        NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(first_part),
+                        Commands.sequence(
+                                new WaitCommand(0.7),
+                                new InstantCommand(IntakeSubsystem.getInstance()::open, IntakeSubsystem.getInstance())
+                        )
+                )
+        );
+
+        auto = auto.andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand());
+
+        PathPlannerPath second_part = PathPlannerPath.fromPathFile("5 piece auto-0.2");
+        auto = auto.andThen(
+                NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(second_part)
+        );
+
+        auto = auto.andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand());
+
+        PathPlannerPath third_part = PathPlannerPath.fromPathFile("5 piece auto-0.3");
+
+        auto = auto.andThen(
+                NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(third_part)
+        );
+
+        PathPlannerPath fourth_part = PathPlannerPath.fromPathFile("5 piece auto-0.4");
+
+        auto = auto.andThen(
+                Commands.parallel(
+                        NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(fourth_part),
+                        Commands.sequence(
+                                new WaitCommand(0.5),
+                                new InstantCommand(IntakeSubsystem.getInstance()::close,IntakeSubsystem.getInstance())
+                        )
+                )
+
+        );
+        auto = auto.andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand());
+
+        PathPlannerPath fifth_part = PathPlannerPath.fromPathFile("5 piece auto-0.5");
+
+        auto = auto.andThen(
+                Commands.parallel(
+                        NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(fifth_part),
+                        Commands.sequence(
+                                new WaitCommand(2.35),
+                                new InstantCommand(IntakeSubsystem.getInstance()::open,IntakeSubsystem.getInstance())
+                        )
+                )
+
+        );
+
+        PathPlannerPath sixth_part = PathPlannerPath.fromPathFile("5 piece auto-0.6");
+
+        auto = auto.andThen(
+                Commands.parallel(
+                        NewSwerveDriveSubsystem.getInstance().getDefaultPathFollowingCommand(sixth_part),
+                        Commands.sequence(
+                                new WaitCommand(0.8),
+                                new InstantCommand(IntakeSubsystem.getInstance()::close,IntakeSubsystem.getInstance())
+                        )
+                )
+
+        );
+
+        auto = auto.andThen(SimpleShooterSubsystem.getInstance().getDefaultShootingCommand());
+
+        return auto;
+    }
+
+
 
 }
