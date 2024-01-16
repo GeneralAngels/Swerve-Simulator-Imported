@@ -5,6 +5,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -35,6 +36,10 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
     private final Field2d field2d = new Field2d();
 
     SwerveModulePosition[] currentModulesPositions = {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
+
+    NewSwerveDriveSubsystem swerve = NewSwerveDriveSubsystem.getInstance();
+    Rotation2d lastGyroRotation = new Rotation2d();
+    Pose2d pose = new Pose2d();
 
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("MyPose", Pose2d.struct).publish();
@@ -123,6 +128,30 @@ public class NewPoseEstimatorSubsystem extends TimeMeasurementSubsystem {
                     NewSwerveDriveSubsystem.getInstance().gyroInformation.odometryYawPositions[delta_index],
                     currentModulesPositions);
         }
+
+        for (int deltaIndex = 0; deltaIndex < delta_count; deltaIndex++) {
+            // Read wheel deltas from each module
+            SwerveModulePosition[] wheelDeltas = new SwerveModulePosition[4];
+            for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
+                wheelDeltas[moduleIndex] = swerve.swerveModules[moduleIndex].getPositionDeltas()[deltaIndex];
+            }
+
+            // The twist represents the motion of the robot since the last
+            // sample in x, y, and theta based only on the modules, without
+            // the gyro. The gyro is always disconnected in simulation.
+            var twist = swerve.kinematics.toTwist2d(wheelDeltas);
+
+            // If the gyro is connected, replace the theta component of the twist
+            // with the change in angle since the last sample.
+            Rotation2d gyroRotation = swerve.gyroInformation.odometryYawPositions[deltaIndex];
+            twist = new Twist2d(twist.dx, twist.dy, gyroRotation.minus(lastGyroRotation).getRadians());
+            lastGyroRotation = gyroRotation;
+
+            // Apply the twist (change since last sample) to the current pose
+            pose = pose.exp(twist);
+        }
+
+        Logger.recordOutput("NewOdometryTest/psoe", pose);
 
 
 //         poseEstimator.update(Rotation2d.fromDegrees(drive.getYawDegrees()), drive.getModulesPosition());

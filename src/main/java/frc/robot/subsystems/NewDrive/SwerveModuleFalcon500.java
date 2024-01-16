@@ -110,6 +110,8 @@ public class SwerveModuleFalcon500 {
     VelocityVoltage velocity_request = new VelocityVoltage(0).withSlot(0).withAcceleration(0).withEnableFOC(false);
     PositionVoltage position_request = new PositionVoltage(0).withSlot(0).withVelocity(0);
 
+    public SwerveModulePosition[] positionDeltas = new SwerveModulePosition[] {};
+
     public static class ModuleInputs {
         public double[] odometryDrivePositionsMeters = new double[]{};
         public Rotation2d[] odometryTurnPositions = new Rotation2d[]{};
@@ -123,7 +125,6 @@ public class SwerveModuleFalcon500 {
     private final StatusSignal<Double> turnPosition;
     private final Queue<Double> turnPositionQueue;
 
-    private SwerveModulePosition[] positionDeltas = new SwerveModulePosition[]{};
     private double lastPositionMeters = 0.0; // Used for delta calculation
 
     /**
@@ -240,6 +241,21 @@ public class SwerveModuleFalcon500 {
 
         drivePositionQueue.clear();
         turnPositionQueue.clear();
+
+        // Calculate position deltas for odometry
+        int deltaCount =
+                Math.min(inputs.odometryDrivePositionsMeters.length, inputs.odometryTurnPositions.length);
+        positionDeltas = new SwerveModulePosition[deltaCount];
+        for (int i = 0; i < deltaCount; i++) {
+            double positionMeters = inputs.odometryDrivePositionsMeters[i];
+            Rotation2d angle = inputs.odometryTurnPositions[i];
+            positionDeltas[i] = new SwerveModulePosition(positionMeters - lastPositionMeters, angle);
+            lastPositionMeters = positionMeters;
+        }
+    }
+
+    public SwerveModulePosition[] getPositionDeltas() {
+        return positionDeltas;
     }
 
     public double[] getDrivePositionArray() {
