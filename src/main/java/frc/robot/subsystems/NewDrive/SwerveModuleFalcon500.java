@@ -34,7 +34,7 @@ public class SwerveModuleFalcon500 {
     /**
      * Radius of the wheel. Can be used to figure out distance data
      */
-    public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(1.95);
+    public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2);
 
     /**
      * From motor rotations to the wheel revolutions

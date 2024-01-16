@@ -57,8 +57,15 @@ public class Limelight extends SubsystemBase {
         visionRet = limelight.getEntry("botpose_wpiblue").getDoubleArray(empty);
         tagPose = limelight.getEntry("targetpose_cameraspace").getDoubleArray(empty);
 
-        if (getDistanceToTarget() >= 4) {
-            return null;}
+        double distance_to_target = getDistanceToTarget();
+
+        if (DriverStation.isAutonomous() && distance_to_target >= 2) {
+            System.out.println("removing");
+            return null;
+        }
+
+        else if (distance_to_target >= 3)  // not in autonomous
+            return null;
 
 
         fieldPose = new Pose2d(visionRet[0],
