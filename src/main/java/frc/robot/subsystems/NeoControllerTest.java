@@ -54,21 +54,21 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
         this.adder = adder;
         table = NetworkTableInstance.getDefault().getTable("NeoControllerTest" + adder);
 
-        motor_port = NT_Helper.getIntSubscriber(table, "Motor Port", 200);
+        motor_port = NT_Helper.getIntSubscriber(table, "Motor Port" + adder, 200);
 
         kp_input = NT_Helper.getDoubleSubscriber(table, "Kp", 0);
         ki_input = NT_Helper.getDoubleSubscriber(table, "Ki", 0);
         kd_input = NT_Helper.getDoubleSubscriber(table, "Kd", 0);
         kf_input = NT_Helper.getDoubleSubscriber(table, "Kf", 0);
 
-        precent_input = NT_Helper.getDoubleSubscriber(table, "Motor Precent Input", 0);
-        position_input = NT_Helper.getDoubleSubscriber(table, "Motor Position Input", 0);
-        velocity_input = NT_Helper.getDoubleSubscriber(table, "Motor Velocity Input", 0);
+        precent_input = NT_Helper.getDoubleSubscriber(table, "Motor Precent Input" + adder, 0);
+        position_input = NT_Helper.getDoubleSubscriber(table, "Motor Position Input" + adder, 0);
+        velocity_input = NT_Helper.getDoubleSubscriber(table, "Motor Velocity Input" + adder, 0);
 
 
-        kf_publisher = table.getDoubleTopic("Kf Calc Output").publish();
-        motor_rpm = table.getDoubleTopic("Motor RPM").publish();
-        motor_position = table.getDoubleTopic("Motor Position").publish();
+        kf_publisher = table.getDoubleTopic("Kf Calc Output" + adder).publish();
+        motor_rpm = table.getDoubleTopic("Motor RPM" + adder).publish();
+        motor_position = table.getDoubleTopic("Motor Position" + adder).publish();
 
         try {
         this.m_motor = new CANSparkMax((int) motor_port.get(), CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -180,6 +180,8 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
         try {
             renew();
             setMotorPositionAndRPM();
+            Logger.recordOutput("OutputTest/" + this.adder + "/Voltage", this.m_motor.getAppliedOutput());
+            Logger.recordOutput("OutputTest/" + this.adder + "/Current", this.m_motor.getOutputCurrent());
         }
         catch (Exception e) {
             System.out.println(e);
