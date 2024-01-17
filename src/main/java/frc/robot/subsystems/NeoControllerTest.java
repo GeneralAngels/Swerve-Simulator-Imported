@@ -56,10 +56,10 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
 
         motor_port = NT_Helper.getIntSubscriber(table, "Motor Port" + adder, 200);
 
-        kp_input = NT_Helper.getDoubleSubscriber(table, "Kp", 0);
-        ki_input = NT_Helper.getDoubleSubscriber(table, "Ki", 0);
-        kd_input = NT_Helper.getDoubleSubscriber(table, "Kd", 0);
-        kf_input = NT_Helper.getDoubleSubscriber(table, "Kf", 0);
+        kp_input = NT_Helper.getDoubleSubscriber(table, "Kp" + adder, 0);
+        ki_input = NT_Helper.getDoubleSubscriber(table, "Ki" + adder, 0);
+        kd_input = NT_Helper.getDoubleSubscriber(table, "Kd" + adder, 0);
+        kf_input = NT_Helper.getDoubleSubscriber(table, "Kf" + adder, 0);
 
         precent_input = NT_Helper.getDoubleSubscriber(table, "Motor Precent Input" + adder, 0);
         position_input = NT_Helper.getDoubleSubscriber(table, "Motor Position Input" + adder, 0);
@@ -133,10 +133,12 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
             this.m_encoder = this.m_motor.getEncoder();
             this.m_pidController = this.m_motor.getPIDController();
 
-            SmartDashboard.putData("Neo - Calculate Kf" + adder, new InstantCommand(this::displayKF));
-            SmartDashboard.putData("Neo - Run Motor" + adder, new InstantCommand(this::runMotor));
-            SmartDashboard.putData("Neo - Stop Motor" + adder, new InstantCommand(this::stopMotor));
-            SmartDashboard.putData("Neo - Reset Parameters" + adder, new InstantCommand(this::resetParams));
+            SmartDashboard.putData("Neo - Calculate Kf" + this.adder, new InstantCommand(this::displayKF));
+            SmartDashboard.putData("Neo - Run Motor" + this.adder, new InstantCommand(this::runMotor));
+            SmartDashboard.putData("Neo - Stop Motor" + this.adder, new InstantCommand(this::stopMotor));
+            SmartDashboard.putData("Neo - Reset Parameters" + this.adder, new InstantCommand(this::resetParams));
+
+
 
 
             this.m_pidController.setD((float) kd_input.get());

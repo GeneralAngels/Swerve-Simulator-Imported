@@ -47,9 +47,16 @@ public class RobotContainer {
 
     // public Shooter_Test_RigSubsystem shooter_rig = new Shooter_Test_RigSubsystem();
 
-    public NeoControllerTest neo_controller_test = new NeoControllerTest("");
+    public NeoControllerTest first_neo_controller_test = new NeoControllerTest(" First");
 
-    public NeoControllerTest second_controller_test = new NeoControllerTest(" second one");
+    public NeoControllerTest second_neo_controller_test = new NeoControllerTest(" Second");
+
+    public NeoControllerTest third_neo_controller_test = new NeoControllerTest(" Third");
+
+    public NeoControllerTest fourth_neo_controller_test = new NeoControllerTest(" Fourth");
+
+    public NeoControllerTest fifth_neo_controller_test = new NeoControllerTest(" Fifth");
+
 
     public FalconControllerTest falcon_controller_test = new FalconControllerTest();
 
