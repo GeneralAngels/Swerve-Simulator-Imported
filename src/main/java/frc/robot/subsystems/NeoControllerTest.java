@@ -146,6 +146,8 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
             this.m_pidController.setP((float) kp_input.get());
             this.m_pidController.setFF((float) kf_input.get());
             this.m_motor.burnFlash();
+
+            this.m_motor.setSmartCurrentLimit(35);
         }
 
         if (this.m_motor.getDeviceId() != (int) motor_port.get()) {
@@ -161,7 +163,7 @@ public class NeoControllerTest extends TimeMeasurementSubsystem {
             this.m_pidController.setFF((float) kf_input.get());
             this.m_motor.burnFlash();
 
-            this.m_motor.set(0.3);
+            this.m_motor.setSmartCurrentLimit(35);
         }
         if ((float) kp_input.get() != this.m_pidController.getP()) {
             this.m_pidController.setP((float) kp_input.get());

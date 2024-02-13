@@ -87,7 +87,7 @@ public class Robot extends LoggedRobot {
         // Shooter.getInstance();
         NT_testSubsystem.getInstance();
         NewPoseEstimatorSubsystem.getInstance().setCurrentPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
-        //compressor.enableAnalog(5, 40);
+        compressor.enableAnalog(5, 40);
         //ph.enableCompressorAnalog(5, 40);
 
     }
@@ -113,9 +113,12 @@ public class Robot extends LoggedRobot {
         // robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
+        
         Logger.recordOutput("pressure switch", pcm.getPressureSwitch());
 
         Logger.recordOutput("beam break", beam_break.get());
+
+        
     }
 
     /**
